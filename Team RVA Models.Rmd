@@ -1,0 +1,1009 @@
+---
+title: "Team RVA Models"
+output: word_document
+---
+```{r, echo=TRUE, warning=FALSE}
+library(readxl)
+library(tidyverse)
+library(car)
+library(leaps)
+library(pedometrics)
+library(HH)
+
+
+Defense_Weekly <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense Weekly.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+
+NEXT_GEN_STATS_PASSING <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NEXT GEN STATS PASSING.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+Next_gen_stats_receving <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Next gen stats receving.xlsx", 
+    col_types = c("text", "text", "text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+
+REC_WEEKLY <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/REC WEEKLY.xlsx",col_types = c("text", "text", "text","text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+
+
+Weekly_Rushing_Stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly Rushing Stats.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+Weekly_Passing <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly_Passing.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+ADV_DEF_MOD_STATS <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Adv_DEF_MOD_STATS.xlsx")
+
+Defense_Air_Comp <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense_Air_Comp.xlsx")
+
+advanced_def_rush <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/advanced_def_rush.xlsx")
+
+Advanced_Rec_stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rec_stats.xlsx")
+
+Advanced_Rushing_data <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rushing_data.xlsx")
+
+NGSR <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NGSR.xlsx")
+
+
+MODADV <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/MODADV.xlsx")
+
+
+WEEKLY_ADV_RUSH_STATS <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/WEEKLY_ADV_RUSH_STATS.xlsx")
+
+WEEKLY_REC_WEEK <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly_REC_WEEK.xlsx")
+
+#Subset:
+
+
+WEEKLY_ADV_RUSH_STATS <- subset(WEEKLY_ADV_RUSH_STATS, TEAM=="ARI")
+
+WEEKLY_REC_WEEK <- subset(WEEKLY_REC_WEEK, TEAM=="ARI")
+
+Defense_Weekly <- subset(Defense_Weekly, Team =="ARI")
+
+
+NEXT_GEN_STATS_PASSING <- subset(NEXT_GEN_STATS_PASSING, TEAM=="ARI")
+
+Next_gen_stats_receving <- subset(Next_gen_stats_receving, TEAM=="ARI")
+
+
+REC_WEEKLY <- subset(REC_WEEKLY, Team =="ARI")
+
+
+Weekly_Rushing_Stats <- subset(Weekly_Rushing_Stats, Team =="ARI")
+
+Weekly_Passing <- subset(Weekly_Passing, TEAM=="ARI")
+ADV_DEF_MOD_STATS <- subset(ADV_DEF_MOD_STATS, Tm=="ARI")
+
+
+NGSR <- subset(NGSR, TEAM=="ARI")
+
+
+MODADV <- subset(MODADV,Tm=="ARI")
+
+
+#WeeklyPassing
+WP<-scale(Weekly_Passing[3:15])
+#NextGenStatsPassing
+NGSP<-scale(NEXT_GEN_STATS_PASSING[3:15])
+#WeeklyRushing
+RUSHW<-scale(Weekly_Rushing_Stats[5:9])
+#AdvancedRushingstatsseason
+ADVRUSHS<-scale(NGSR[3:9])
+WRW<-scale(REC_WEEKLY[5:9])
+#AdvancedRushingstatsseason
+ADVWRS<-scale(Next_gen_stats_receving[4:14])
+#Advanceddefensivstatsseason
+ADVDEF<-scale(MODADV[3:17])
+#DEFWeekly
+DEF_W<-scale(Defense_Weekly[5:11])
+
+
+
+Weekly_Passing <- Weekly_Passing[c(-1:-2, -15:-16)]
+NEXT_GEN_STATS_PASSING <- NEXT_GEN_STATS_PASSING[c(-1:-2)]
+REC_WEEKLY <- REC_WEEKLY[c(-1:-2,-4)]
+Next_gen_stats_receving <- Next_gen_stats_receving[c(-1:-3)]
+Weekly_Rushing_Stats <- Weekly_Rushing_Stats[c(-1:-2,-4)]
+NGSR <- NGSR[c(-1:-2)]
+Defense_Weekly <- Defense_Weekly[c(-1:-2,-4)]
+ADV_DEF_MOD_STATS <- ADV_DEF_MOD_STATS[c(-1:-2)]
+MODADV<- MODADV[-1:-2]
+
+#cleannames
+colnames(WP)[5]<-"AGG"
+colnames(WP)[12]<-"COMP"
+colnames(WP)[13]<-"xCOMP"
+colnames(NGSP)[5]<-"AGG"
+colnames(NGSP)[12]<-"COMP"
+colnames(ADVRUSHS)[2]<-"ED"
+colnames(ADVWRS)[4]<-"TAYP"
+colnames(ADVWRS)[7]<-"CTCH"
+colnames(DEF_W)[2]<-"sky"
+colnames(DEF_W)[1]<-"sk"
+colnames(DEF_W)[3]<-"QBH"
+colnames(DEF_W)[6]<-"ff"
+colnames(DEF_W)[7]<-"fr"
+
+# unnorm datasets
+
+colnames(Weekly_Passing)[5]<-"AGG"
+colnames(Weekly_Passing)[12]<-"COMP"
+colnames(NEXT_GEN_STATS_PASSING)[5]<-"AGG"
+colnames(NEXT_GEN_STATS_PASSING)[12]<-"COMP"
+colnames(NGSR)[2]<-"ED"
+colnames(Next_gen_stats_receving)[4]<-"TAYP"
+colnames(Next_gen_stats_receving)[7]<-"CTCH"
+colnames(Defense_Weekly)[3]<-"sky"
+colnames(Defense_Weekly)[2]<-"sk"
+colnames(Defense_Weekly)[4]<-"QBH"
+colnames(Defense_Weekly)[7]<-"ff"
+colnames(Defense_Weekly)[8]<-"fr"
+
+
+colnames(ADVWRS)[10] <- "YACR"
+colnames(ADVWRS)[11] <- "xYACR"
+
+
+colnames(Next_gen_stats_receving)[10] <- "YACR"
+colnames(Next_gen_stats_receving)[11] <- "xYACR"
+colnames(Next_gen_stats_receving)[12] <- "PLMUS"
+
+
+
+
+scaleList_WP<-list(scale=attr(WP,"scaled:scale"),
+center=attr(WP,"scaled:center"))
+scaleList_NGSP<-list(scale=attr(NGSP,"scaled:scale"),
+center=attr(NGSP,"scaled:center"))
+scaleList_RUSHW<-list(scale=attr(RUSHW,"scaled:scale"),
+center=attr(RUSHW,"scaled:center"))
+scaleList_ADVRUSHS<-list(scale=attr(ADVRUSHS,"scaled:scale"),
+center=attr(ADVRUSHS,"scaled:center"))
+scaleList_WRW<-list(scale=attr(WRW,"scaled:scale"),
+center=attr(WRW,"scaled:center"))
+scaleList_ADVWRS<-list(scale=attr(ADVWRS,"scaled:scale"),
+center=attr(ADVWRS,"scaled:center"))
+scaleList_ADVDEF<-list(scale=attr(ADVDEF,"scaled:scale"),
+center=attr(ADVDEF,"scaled:center"))
+scaleList_DEF_W<-list(scale=attr(DEF_W,"scaled:scale"),
+center=attr(DEF_W,"scaled:center"))
+
+
+
+
+names(scaleList_WP$center)[5]<-"AGG"
+names(scaleList_WP$center)[12]<-"COMP"
+names(scaleList_NGSP$center)[5]<-"AGG"
+names(scaleList_NGSP$center)[12]<-"COMP"
+names(scaleList_ADVRUSHS$center)[2]<-"ED"
+names(scaleList_ADVWRS$center)[4]<-"TAYP"
+names(scaleList_ADVWRS$center)[7]<-"CTCH"
+names(scaleList_DEF_W$center)[2]<-"sky"
+names(scaleList_DEF_W$center)[1]<-"sk"
+names(scaleList_DEF_W$center)[3]<-"QBH"
+names(scaleList_DEF_W$center)[6]<-"ff"
+names(scaleList_DEF_W$center)[7]<-"fr"
+
+names(scaleList_WP$scale)[5]<-"AGG"
+names(scaleList_WP$scale)[12]<-"COMP"
+names(scaleList_NGSP$scale)[5]<-"AGG"
+names(scaleList_NGSP$scale)[12]<-"COMP"
+names(scaleList_ADVRUSHS$scale)[2]<-"ED"
+names(scaleList_ADVWRS$scale)[4]<-"TAYP"
+names(scaleList_ADVWRS$scale)[7]<-"CTCH"
+names(scaleList_DEF_W$scale)[2]<-"sky"
+names(scaleList_DEF_W$scale)[1]<-"sk"
+names(scaleList_DEF_W$scale)[3]<-"QBH"
+names(scaleList_DEF_W$scale)[6]<-"ff"
+names(scaleList_DEF_W$scale)[7]<-"fr"
+
+
+names(scaleList_ADVWRS$center)[10] <- "YACR"
+names(scaleList_ADVWRS$center)[11] <- "xYACR"
+
+
+names(scaleList_ADVWRS$scale)[10] <- "YACR"
+names(scaleList_ADVWRS$scale)[11] <- "xYACR"
+
+
+DEF_W <- as.data.frame(DEF_W)
+WP <- as.data.frame(WP)
+NGSP <- as.data.frame(NGSP)
+RUSHW <- as.data.frame(RUSHW)
+ADVRUSHS <- as.data.frame(ADVRUSHS)
+WRW <- as.data.frame(WRW)
+ADVWRS <- as.data.frame(ADVWRS)
+ADVDEF <- as.data.frame(ADVDEF)
+
+
+
+
+
+WEEKLY_REC_WEEK[4:16] <- lapply(WEEKLY_REC_WEEK[4:16],as.numeric)
+WEEKLY_ADV_RUSH_STATS[3:10] <- lapply(WEEKLY_ADV_RUSH_STATS[3:10], as.numeric)
+
+
+WEEKLY_ADV_RUSH_STATS[is.na(WEEKLY_ADV_RUSH_STATS)] <- 0 
+
+WEEKLY_REC_WEEK[is.na(WEEKLY_REC_WEEK)] <- 0 
+# Weekly ADV REC
+WWRW <- scale(WEEKLY_REC_WEEK[4:16])
+
+
+# Weekly ADV RUSH
+ADVRWR <- scale(WEEKLY_ADV_RUSH_STATS[3:10])
+
+
+
+
+colnames(ADVRWR)[2]<-"ED"
+colnames(WWRW)[4]<-"TAYP"
+colnames(WWRW)[7]<-"CTCH"
+#colnames(WWRW)[10] <- "YACR"
+colnames(WWRW)[11] <- "xYACR"
+colnames(WWRW)[12] <- "PLMUS"
+
+colnames(WEEKLY_ADV_RUSH_STATS)[4]<-"ED"
+colnames(WEEKLY_REC_WEEK)[7]<-"TAYP"
+colnames(WEEKLY_REC_WEEK)[10]<-"CTCH"
+
+
+colnames(WEEKLY_REC_WEEK)[13] <- "YACR"
+colnames(WEEKLY_REC_WEEK)[14] <- "xYACR"
+colnames(WEEKLY_REC_WEEK)[15] <- "PLMUS"
+
+
+scaleList_WWRW <- list(scale = attr(WWRW, "scaled:scale"),
+    center = attr(WWRW, "scaled:center"))
+
+
+
+scaleList_ADVRWR <- list(scale = attr(ADVRWR, "scaled:scale"),
+    center = attr(ADVRWR, "scaled:center"))
+
+
+names(scaleList_ADVRWR$center)[2]<-"ED"
+names(scaleList_WWRW$center)[4]<-"TAYP"
+names(scaleList_WWRW$center)[7]<-"CTCH"
+
+names(scaleList_WWRW$scale)[10] <- "YACR"
+names(scaleList_WWRW$scale)[11] <- "xYACR"
+names(scaleList_WWRW$scale)[12] <- "PLMUS"
+
+names(scaleList_ADVRWR$scale)[2]<-"ED"
+names(scaleList_WWRW$scale)[4]<-"TAYP"
+names(scaleList_WWRW$scale)[7]<-"CTCH"
+
+names(scaleList_WWRW$center)[10] <- "YACR"
+names(scaleList_WWRW$center)[11] <- "xYACR"
+names(scaleList_WWRW$center)[12] <- "PLMUS"
+
+WEEKLY_REC_WEEK <- WEEKLY_REC_WEEK[c(-1:-2)]
+WEEKLY_ADV_RUSH_STATS <- WEEKLY_ADV_RUSH_STATS[c(-1:-2)]
+
+WWRW <- as.data.frame(WWRW )
+
+ADVRWR<- as.data.frame(ADVRWR )
+
+MODADV[is.na(MODADV)] = 0
+
+```
+
+
+```{r}
+# random forests
+library(randomForest)
+ARF1	<-	randomForest(formula = 	TD	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF2	<-	randomForest(	TT	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF3	<-	randomForest(	CAY	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF4	<-	randomForest(	IAY	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF5	<-	randomForest(	AGG	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF6	<-	randomForest(	LCAD	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF7	<-	randomForest(	AYTS	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF8	<-	randomForest(	ATT	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF9	<-	randomForest(	INT	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+ARF10	<-	randomForest(	COMP	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+
+ARF21	<-	randomForest(	Yds	~	.	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF22	<-	randomForest(	Avg	~	.	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF23	<-	randomForest(	TD	~	.	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF24	<-	randomForest(	FUM	~	.	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF25	<-	randomForest(	Rec	~	.	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF26	<-	randomForest(	YDS	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF27	<-	randomForest(	CUSH	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF28	<-	randomForest(	TAY	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF29	<-	randomForest(	SEP	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF30	<-	randomForest(	TAYP	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF31	<-	randomForest(	REC	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF32	<-	randomForest(	TAR	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF33	<-	randomForest(	CTCH	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF34	<-	randomForest(	TD	~	.	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF35	<-	randomForest(	TD	~	.	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF36	<-	randomForest(	Att	~	.	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF37	<-	randomForest(	Yds	~	.	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF38	<-	randomForest(	Avg	~	.	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF39	<-	randomForest(	FUM	~	.	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF40	<-	randomForest(	TD	~	.	, data =	NGSR	, importance = TRUE	)
+ARF41	<-	randomForest(	EFF	~	.	, data =	NGSR	, importance = TRUE	)
+ARF42	<-	randomForest(	TLOS	~	.	, data =	NGSR	, importance = TRUE	)
+ARF43	<-	randomForest(	ED	~	.	, data =	NGSR	, importance = TRUE	)
+ARF44	<-	randomForest(	ATT	~	.	, data =	NGSR	, importance = TRUE	)
+ARF45	<-	randomForest(	YDS	~	.	, data =	NGSR	, importance = TRUE	)
+ARF46	<-	randomForest(	AVG	~	.	, data =	NGSR	, importance = TRUE	)
+ARF47	<-	randomForest(	sk	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF48	<-	randomForest(	sky	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF49	<-	randomForest(	QBH	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF50	<-	randomForest(	Tackles	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF51	<-	randomForest(	Assists	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF52	<-	randomForest(	ff	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF53	<-	randomForest(	fr	~	.	, data =	Defense_Weekly	, importance = TRUE	)
+ARF54	<-	randomForest(	Int	~	.	, data =	MODADV	, importance = TRUE	)
+ARF55	<-	randomForest(	Tgt	~	.	, data =	MODADV	, importance = TRUE	)
+ARF56	<-	randomForest(	Cmp	~	.	, data =	MODADV	, importance = TRUE	)
+ARF57	<-	randomForest(	Yds	~	.	, data =	MODADV	, importance = TRUE	)
+ARF58	<-	randomForest(	TD	~	.	, data =	MODADV	, importance = TRUE	)
+ARF59	<-	randomForest(	DADOT	~	.	, data =	MODADV	, importance = TRUE	)
+ARF60	<-	randomForest(	Air	~	.	, data =	MODADV	, importance = TRUE	)
+ARF61	<-	randomForest(	YAC	~	.	, data =	MODADV	, importance = TRUE	)
+ARF62	<-	randomForest(	Bltz	~	.	, data =	MODADV	, importance = TRUE	)
+ARF63	<-	randomForest(	Hrry	~	.	, data =	MODADV	, importance = TRUE	)
+ARF64	<-	randomForest(	QBKD	~	.	, data =	MODADV	, importance = TRUE	)
+ARF65	<-	randomForest(	Sk	~	.	, data =	MODADV	, importance = TRUE	)
+ARF66	<-	randomForest(	Prss	~	.	, data =	MODADV	, importance = TRUE	)
+ARF67	<-	randomForest(	TC	~	.	, data =	MODADV	, importance = TRUE	)
+ARF68	<-	randomForest(	TM2	~	.	, data =	MODADV	, importance = TRUE	)
+ARF69	<-	randomForest(	YDS	~	.	, data =	Weekly_Passing	, importance = TRUE	)
+
+ARF71	<-	randomForest(	TT	~	CAY+ AGG+ AYTS+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF72	<-	randomForest(	CAY	~	 AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF73	<-	randomForest(	IAY	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF74	<-	randomForest(	AYD	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF75	<-	randomForest(	AGG	~	CAY+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF76	<-	randomForest(	LCAD	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF77	<-	randomForest(	AYTS	~	CAY+ AGG+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF78	<-	randomForest(	ATT	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF79	<-	randomForest(	YDS	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF80	<-	randomForest(	TD	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF81	<-	randomForest(	INT	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF82	<-	randomForest(	COMP	~	CAY+ AGG+ AYTS+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF83	<-	randomForest(	TT	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF84	<-	randomForest(	CAY	~	AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF85	<-	randomForest(	IAY	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF86	<-	randomForest(	AYD	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF87	<-	randomForest(	AGG	~	CAY+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF88	<-	randomForest(	LCAD	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF89	<-	randomForest(	AYTS	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF90	<-	randomForest(	ATT	~	CAY+AGG+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF91	<-	randomForest(	YDS	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF92	<-	randomForest(	TD	~	CAY+AGG+ATT+INT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF93	<-	randomForest(	INT	~	CAY+AGG+ATT+COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF94	<-	randomForest(	COMP	~	CAY+AGG+ATT+INT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF95	<-	randomForest(	TT	~	CAY+AGG+COMP+ATT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF96	<-	randomForest(	CAY	~	AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF97	<-	randomForest(	IAY	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF98	<-	randomForest(	AYD	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF99	<-	randomForest(	AGG	~	CAY+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF100	<-	randomForest(	LCAD	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF101	<-	randomForest(	AYTS	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF102	<-	randomForest(	ATT	~	CAY+AGG+COMP+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF103	<-	randomForest(	YDS	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF104	<-	randomForest(	TD	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF105	<-	randomForest(	INT	~	CAY+AGG+COMP+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF106	<-	randomForest(	COMP	~	CAY+AGG+ATT+TT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF107	<-	randomForest(	TT	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF108	<-	randomForest(	CAY	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF109	<-	randomForest(	IAY	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF110	<-	randomForest(	AYD	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF111	<-	randomForest(	AGG	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF112	<-	randomForest(	LCAD	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF113	<-	randomForest(	AYTS	~	ATT+YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF114	<-	randomForest(	ATT	~	YDS+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF115	<-	randomForest(	YDS	~	ATT+TD+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF116	<-	randomForest(	TD	~	ATT+YDS+INT+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF117	<-	randomForest(	INT	~	ATT+YDS+TD+ COMP	, data =	Weekly_Passing	, importance = TRUE	)
+ARF118	<-	randomForest(	COMP	~	ATT+YDS+TD+INT	, data =	Weekly_Passing	, importance = TRUE	)
+ARF119	<-	randomForest(	Int	~	Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF120	<-	randomForest(	Tgt	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF121	<-	randomForest(	Cmp	~	Int+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF122	<-	randomForest(	Yds	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF123	<-	randomForest(	TD	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF124	<-	randomForest(	DADOT	~	Int+Cmp+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF125	<-	randomForest(	Air	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF126	<-	randomForest(	YAC	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF127	<-	randomForest(	Bltz	~	Int+Cmp+ DADOT+  Hrry+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF128	<-	randomForest(	Hrry	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF129	<-	randomForest(	QBKD	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF130	<-	randomForest(	Sk	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF131	<-	randomForest(	Prss	~	Int+Cmp+ DADOT+ Bltz	, data =	MODADV	, importance = TRUE	)
+ARF132	<-	randomForest(	TC	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF133	<-	randomForest(	TM2	~	Int+Cmp+ DADOT+ Bltz+ Prss	, data =	MODADV	, importance = TRUE	)
+ARF134	<-	randomForest(	Int	~	Tgt+Cmp+Yds+TD	, data =	MODADV	, importance = TRUE	)
+ARF135	<-	randomForest(	Tgt	~	Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF136	<-	randomForest(	Cmp	~	Tgt+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF137	<-	randomForest(	Yds	~	Tgt+Cmp+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF138	<-	randomForest(	TD	~	Tgt+Cmp+Yds+Int	, data =	MODADV	, importance = TRUE	)
+ARF139	<-	randomForest(	DADOT	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF140	<-	randomForest(	Air	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF141	<-	randomForest(	YAC	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF142	<-	randomForest(	Bltz	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF143	<-	randomForest(	Hrry	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF144	<-	randomForest(	QBKD	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF145	<-	randomForest(	Sk	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF146	<-	randomForest(	Prss	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF147	<-	randomForest(	TC	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF148	<-	randomForest(	TM2	~	Tgt+Cmp+Yds+TD+Int	, data =	MODADV	, importance = TRUE	)
+ARF149	<-	randomForest(	Int	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF150	<-	randomForest(	Tgt	~	Hrry+Prss+Bltz+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF151	<-	randomForest(	Cmp	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF152	<-	randomForest(	Yds	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF153	<-	randomForest(	TD	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF154	<-	randomForest(	DADOT	~	Hrry+Prss+Bltz+Tgt	, data =	MODADV	, importance = TRUE	)
+ARF155	<-	randomForest(	Air	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF156	<-	randomForest(	YAC	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF157	<-	randomForest(	Bltz	~	Hrry+Prss+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF158	<-	randomForest(	Hrry	~	Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF159	<-	randomForest(	QBKD	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF160	<-	randomForest(	Sk	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF161	<-	randomForest(	Prss	~	Hrry+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF162	<-	randomForest(	TC	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+ARF163	<-	randomForest(	TM2	~	Hrry+Prss+Bltz+Tgt+DADOT	, data =	MODADV	, importance = TRUE	)
+
+```
+
+
+```{r}
+ARF164	<-	randomForest(	CUSH	~	SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF165	<-	randomForest(	SEP	~	CUSH+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF166	<-	randomForest(	TAY	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF167	<-	randomForest(	TAYP	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF168	<-	randomForest(	REC	~	CUSH+SEP+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF169	<-	randomForest(	TAR	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF170	<-	randomForest(	CTCH	~	CUSH+SEP+REC+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF171	<-	randomForest(	YDS	~	CUSH+SEP+REC+CTCH+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF172	<-	randomForest(	TD	~	CUSH+SEP+REC+CTCH+YDS	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF173	<-	randomForest(	YACR	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF174	<-	randomForest(	xYACR	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF175	<-	randomForest(	PLMUS	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF176	<-	randomForest(	CUSH	~	SEP+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF177	<-	randomForest(	SEP	~	CUSH+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF178	<-	randomForest(	TAY	~	CUSH+SEP+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF179	<-	randomForest(	TAYP	~	CUSH+SEP+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF180	<-	randomForest(	REC	~	CUSH+SEP+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF181	<-	randomForest(	TAR	~	CUSH+SEP+CTCH+YACR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF182	<-	randomForest(	CTCH	~	CUSH+SEP+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF183	<-	randomForest(	YDS	~	CUSH+SEP+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF184	<-	randomForest(	TD	~	CUSH+SEP+CTCH+YACR+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF185	<-	randomForest(	YACR	~	CUSH+SEP+CTCH+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF186	<-	randomForest(	xYACR	~	CUSH+SEP+CTCH+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF187	<-	randomForest(	PLMUS	~	CUSH+SEP+CTCH+TAR	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF188	<-	randomForest(	CUSH	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF189	<-	randomForest(	SEP	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF190	<-	randomForest(	TAY	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF191	<-	randomForest(	TAYP	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF192	<-	randomForest(	REC	~	TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF193	<-	randomForest(	TAR	~	REC+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF194	<-	randomForest(	CTCH	~	REC+TAR+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF195	<-	randomForest(	YDS	~	REC+TAR+CTCH+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF196	<-	randomForest(	TD	~	REC+TAR+CTCH+YDS	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF197	<-	randomForest(	YACR	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF198	<-	randomForest(	xYACR	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF199	<-	randomForest(	PLMUS	~	REC+TAR+CTCH+YDS+TD	, data =	Next_gen_stats_receving	, importance = TRUE	)
+ARF200	<-	randomForest(	EFF	~	TLOS+ATT+TD+YDS+ED	, data =	NGSR	, importance = TRUE	)
+ARF201	<-	randomForest(	ED	~	EFF+TLOS+ATT+TD+YDS	, data =	NGSR	, importance = TRUE	)
+ARF202	<-	randomForest(	TLOS	~	EFF+ATT+TD+YDS+ED	, data =	NGSR	, importance = TRUE	)
+ARF203	<-	randomForest(	ATT	~	EFF+TLOS+TD+YDS+ED	, data =	NGSR	, importance = TRUE	)
+ARF204	<-	randomForest(	YDS	~	EFF+TLOS+ATT+TD+ED	, data =	NGSR	, importance = TRUE	)
+ARF205	<-	randomForest(	AVG	~	EFF+TLOS+ATT+TD+YDS+ED	, data =	NGSR	, importance = TRUE	)
+ARF206	<-	randomForest(	TD	~	EFF+TLOS+ATT+YDS+ED	, data =	NGSR	, importance = TRUE	)
+ARF207	<-	randomForest(	EFF	~	TLOS+ED+ATT	, data =	NGSR	, importance = TRUE	)
+ARF208	<-	randomForest(	ED	~	EFF+TLOS+ATT	, data =	NGSR	, importance = TRUE	)
+ARF209	<-	randomForest(	TLOS	~	EFF+ED+ATT	, data =	NGSR	, importance = TRUE	)
+ARF210	<-	randomForest(	ATT	~	EFF+TLOS+ED	, data =	NGSR	, importance = TRUE	)
+ARF211	<-	randomForest(	YDS	~	EFF+TLOS+ED+ATT	, data =	NGSR	, importance = TRUE	)
+ARF212	<-	randomForest(	AVG	~	EFF+TLOS+ED+ATT	, data =	NGSR	, importance = TRUE	)
+ARF213	<-	randomForest(	TD	~	EFF+TLOS+ED+ATT	, data =	NGSR	, importance = TRUE	)
+ARF214	<-	randomForest(	EFF	~	ATT+YDS+TD	, data =	NGSR	, importance = TRUE	)
+ARF215	<-	randomForest(	ED	~	ATT+YDS+TD	, data =	NGSR	, importance = TRUE	)
+ARF216	<-	randomForest(	TLOS	~	ATT+YDS+TD	, data =	NGSR	, importance = TRUE	)
+ARF217	<-	randomForest(	ATT	~	YDS+TD	, data =	NGSR	, importance = TRUE	)
+ARF218	<-	randomForest(	YDS	~	ATT+TD	, data =	NGSR	, importance = TRUE	)
+ARF219	<-	randomForest(	AVG	~	ATT+YDS+TD	, data =	NGSR	, importance = TRUE	)
+ARF220	<-	randomForest(	TD	~	ATT+YDS	, data =	NGSR	, importance = TRUE	)
+
+```
+
+
+```{r}
+ARF221	<-	randomForest(	sk	~	QBH+Assists+Tackles+ff	, data =	Defense_Weekly	, importance = TRUE	)
+ARF222	<-	randomForest(	sky	~	sk+QBH+Assists+Tackles+ff	, data =	Defense_Weekly	, importance = TRUE	)
+ARF223	<-	randomForest(	QBH	~	sk+Assists+Tackles+ff	, data =	Defense_Weekly	, importance = TRUE	)
+ARF224	<-	randomForest(	Tackles	~	sk+QBH+Assists+ff	, data =	Defense_Weekly	, importance = TRUE	)
+ARF225	<-	randomForest(	Assists	~	sk+QBH+Tackles+ff	, data =	Defense_Weekly	, importance = TRUE	)
+ARF226	<-	randomForest(	ff	~	sk+QBH+Assists+Tackles	, data =	Defense_Weekly	, importance = TRUE	)
+ARF227	<-	randomForest(	fr	~	sk+QBH+Assists+Tackles+ff	, data =	Defense_Weekly	, importance = TRUE	)
+ARF228	<-	randomForest(	Rec	~	Yds+Avg+TD+FUM	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF229	<-	randomForest(	Yds	~	Rec+Avg+TD+FUM	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF230	<-	randomForest(	Avg	~	Rec+Yds+TD+FUM	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF231	<-	randomForest(	TD	~	Rec+Yds+Avg+FUM	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF232	<-	randomForest(	FUM	~	Rec+Yds+Avg+TD	, data =	REC_WEEKLY	, importance = TRUE	)
+ARF233	<-	randomForest(	Att	~	Yds+Avg+TD+FUM	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF234	<-	randomForest(	Yds	~	Att+Avg+TD+FUM	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF235	<-	randomForest(	Avg	~	Att+Yds+TD+FUM	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF236	<-	randomForest(	TD	~	Att+Yds+Avg+FUM	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF237	<-	randomForest(	FUM	~	Att+Yds+Avg+TD	, data =	Weekly_Rushing_Stats	, importance = TRUE	)
+ARF238	<-	randomForest(	TT	~	CAY+ AGG+ AYTS+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF239	<-	randomForest(	CAY	~	 AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF240	<-	randomForest(	IAY	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF241	<-	randomForest(	AYD	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF242	<-	randomForest(	AGG	~	CAY+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF243	<-	randomForest(	LCAD	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF244	<-	randomForest(	AYTS	~	CAY+ AGG+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF245	<-	randomForest(	ATT	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF246	<-	randomForest(	YDS	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF247	<-	randomForest(	TD	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF248	<-	randomForest(	INT	~	CAY+ AGG+ AYTS+ COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF249	<-	randomForest(	COMP	~	CAY+ AGG+ AYTS+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF250	<-	randomForest(	TT	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF251	<-	randomForest(	CAY	~	AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF252	<-	randomForest(	IAY	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF253	<-	randomForest(	AYD	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF254	<-	randomForest(	AGG	~	CAY+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF255	<-	randomForest(	LCAD	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF256	<-	randomForest(	AYTS	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF257	<-	randomForest(	ATT	~	CAY+AGG+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF258	<-	randomForest(	YDS	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF259	<-	randomForest(	TD	~	CAY+AGG+ATT+INT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF260	<-	randomForest(	INT	~	CAY+AGG+ATT+COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF261	<-	randomForest(	COMP	~	CAY+AGG+ATT+INT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF262	<-	randomForest(	TT	~	CAY+AGG+COMP+ATT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF263	<-	randomForest(	CAY	~	AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF264	<-	randomForest(	IAY	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF265	<-	randomForest(	AYD	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF266	<-	randomForest(	AGG	~	CAY+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF267	<-	randomForest(	LCAD	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF268	<-	randomForest(	AYTS	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF269	<-	randomForest(	ATT	~	CAY+AGG+COMP+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF270	<-	randomForest(	YDS	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF271	<-	randomForest(	TD	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF272	<-	randomForest(	INT	~	CAY+AGG+COMP+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF273	<-	randomForest(	COMP	~	CAY+AGG+ATT+TT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF274	<-	randomForest(	TT	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF275	<-	randomForest(	CAY	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF276	<-	randomForest(	IAY	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF277	<-	randomForest(	AYD	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF278	<-	randomForest(	AGG	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF279	<-	randomForest(	LCAD	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF280	<-	randomForest(	AYTS	~	ATT+YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF281	<-	randomForest(	ATT	~	YDS+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF282	<-	randomForest(	YDS	~	ATT+TD+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF283	<-	randomForest(	TD	~	ATT+YDS+INT+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF284	<-	randomForest(	INT	~	ATT+YDS+TD+ COMP	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF285	<-	randomForest(	COMP	~	ATT+YDS+TD+INT	, data =	NEXT_GEN_STATS_PASSING	, importance = TRUE	)
+ARF286	<-	randomForest(	CUSH	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF287	<-	randomForest(	SEP	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF288	<-	randomForest(	TAY	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF289	<-	randomForest(	TAYP	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF290	<-	randomForest(	REC	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF291	<-	randomForest(	TAR	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF292	<-	randomForest(	CTCH	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF293	<-	randomForest(	YDS	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF294	<-	randomForest(	TD	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF295	<-	randomForest(	YACR	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+
+```
+
+
+```{r}
+ARF296	<-	randomForest(	xYACR	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF297	<-	randomForest(	PLMUS	~	.	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF298	<-	randomForest(	EFF	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF299	<-	randomForest(	ED	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF300	<-	randomForest(	TLOS	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF301	<-	randomForest(	ATT	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF302	<-	randomForest(	YDS	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF303	<-	randomForest(	AVG	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF304	<-	randomForest(	TD	~	.	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF305	<-	randomForest(	CUSH	~	SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF306	<-	randomForest(	SEP	~	CUSH+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF307	<-	randomForest(	TAY	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF308	<-	randomForest(	TAYP	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF309	<-	randomForest(	REC	~	CUSH+SEP+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF310	<-	randomForest(	TAR	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF311	<-	randomForest(	CTCH	~	CUSH+SEP+REC+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF312	<-	randomForest(	YDS	~	CUSH+SEP+REC+CTCH+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF313	<-	randomForest(	TD	~	CUSH+SEP+REC+CTCH+YDS	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF314	<-	randomForest(	YACR	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF315	<-	randomForest(	xYACR	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF316	<-	randomForest(	PLMUS	~	CUSH+SEP+REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF317	<-	randomForest(	CUSH	~	SEP+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF318	<-	randomForest(	SEP	~	CUSH+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF319	<-	randomForest(	TAY	~	CUSH+SEP+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF320	<-	randomForest(	TAYP	~	CUSH+SEP+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF321	<-	randomForest(	REC	~	CUSH+SEP+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF322	<-	randomForest(	TAR	~	CUSH+SEP+CTCH+YACR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF323	<-	randomForest(	CTCH	~	CUSH+SEP+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF324	<-	randomForest(	YDS	~	CUSH+SEP+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF325	<-	randomForest(	TD	~	CUSH+SEP+CTCH+YACR+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF326	<-	randomForest(	YACR	~	CUSH+SEP+CTCH+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF327	<-	randomForest(	xYACR	~	CUSH+SEP+CTCH+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF328	<-	randomForest(	PLMUS	~	CUSH+SEP+CTCH+TAR	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF329	<-	randomForest(	CUSH	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF330	<-	randomForest(	SEP	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF331	<-	randomForest(	TAY	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF332	<-	randomForest(	TAYP	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF333	<-	randomForest(	REC	~	TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF334	<-	randomForest(	TAR	~	REC+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF335	<-	randomForest(	CTCH	~	REC+TAR+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF336	<-	randomForest(	YDS	~	REC+TAR+CTCH+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF337	<-	randomForest(	TD	~	REC+TAR+CTCH+YDS	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF338	<-	randomForest(	YACR	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF339	<-	randomForest(	xYACR	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF340	<-	randomForest(	PLMUS	~	REC+TAR+CTCH+YDS+TD	, data =	WEEKLY_REC_WEEK	, importance = TRUE	)
+ARF341	<-	randomForest(	EFF	~	TLOS+ATT+TD+YDS+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF342	<-	randomForest(	ED	~	EFF+TLOS+ATT+TD+YDS	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF343	<-	randomForest(	TLOS	~	EFF+ATT+TD+YDS+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF344	<-	randomForest(	ATT	~	EFF+TLOS+TD+YDS+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF345	<-	randomForest(	YDS	~	EFF+TLOS+ATT+TD+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF346	<-	randomForest(	AVG	~	EFF+TLOS+ATT+TD+YDS+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF347	<-	randomForest(	TD	~	EFF+TLOS+ATT+YDS+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF348	<-	randomForest(	EFF	~	TLOS+ED+ATT	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF349	<-	randomForest(	ED	~	EFF+TLOS+ATT	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF350	<-	randomForest(	TLOS	~	EFF+ED+ATT	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF351	<-	randomForest(	ATT	~	EFF+TLOS+ED	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF352	<-	randomForest(	YDS	~	EFF+TLOS+ED+ATT	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF353	<-	randomForest(	AVG	~	EFF+TLOS+ED+ATT	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF354	<-	randomForest(	TD	~	EFF+TLOS+ED+ATT	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF355	<-	randomForest(	EFF	~	ATT+YDS+TD	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF356	<-	randomForest(	ED	~	ATT+YDS+TD	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF357	<-	randomForest(	TLOS	~	ATT+YDS+TD	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF358	<-	randomForest(	ATT	~	YDS+TD	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF359	<-	randomForest(	YDS	~	ATT+TD	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF360	<-	randomForest(	AVG	~	ATT+YDS+TD	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+ARF361	<-	randomForest(	TD	~	ATT+YDS	, data =	WEEKLY_ADV_RUSH_STATS	, importance = TRUE	)
+
+```
+
+```{r}
+ARI_QB_W <- data.frame(TT = 2.39, CAY = 5.6, AGG = 17.9,ATT = 39, AYTS = -0.7, YDS = 194, TD = 1, INT = 3, COMP = 53.8, IAY = 8.1, AYD = -2.5, LCAD = 27.6, Week = 7)
+
+ARI_QB_S <- data.frame(TT = 2.77, CAY = 5.9, AGG = 21.6,ATT = 393, AYTS = -1.0, YDS = 2278, TD = 11, INT = 14, COMP = 55.2 )
+
+ARI_RB_W <- data.frame(Opp = "DEN", EFF = 4.54, ED = 36.36 , TLOS = 2.73 , ATT = 22 ,YDS= 71 ,AVG = 3.2 , TD = 1, FUM = 0, Att = 22, Avg = 3.2 , Yds= 71, Week = 7)
+
+ARI_RB_S <- data.frame(EFF = 4.0, ED = 24.03 , TLOS = 2.70 , ATT = 209 ,YDS= 931 ,AVG = 4.5 , TD = 6)
+
+ARI_WR_W <- data.frame(Opp = "ATL", CUSH = 7, SEP = 2.6, TAY = 8.6, REC = 7,TAR=8,CTCH = 87.5, YDS = 90, TD = 0, YACR = 4.8 , Rec = 7, Yds= 90, Avg = 12.85, FUM = 0, TAYP = 22.3, POS = "WR", xYACR = 5.0, PLMUS = -0.2, Week = 4)
+
+ARI_WR_S <- data.frame(CUSH = 6.3, SEP = 2.3, TAY = 9.6, REC = 69,TAR=112,CTCH = 61.61, YDS = 734, TD = 6, YACR = 3.2,  TAYP = 22.3, xYACR = 3.2, PLMUS = 0)
+
+
+ARI_DEF_W <- data.frame( Opp = "DEN", Tackles = 2, Assists = 1 , ff = 0 , QBH = 1, sk =1, sky = 2, fr=0 )
+
+ARI_DEF_S <- data.frame(Int = 0 , Tgt = 56, Cmp = 37, Yds = 347, TD = 2, DADOT = 8.2, Air = 206, YAC = 141, Bltz = 30, Hrry = 4, QBKD = 3, Sk = 3.0, Prss = 10, TC = 121, TM2 = 19  )
+```
+
+
+```{r}
+Pred1<-predict(ARF1, newdata = ARI_QB_W)
+Pred2<-predict(ARF2, newdata = ARI_QB_W)
+Pred3<-predict(ARF3, newdata = ARI_QB_W)
+Pred4<-predict(ARF4, newdata = ARI_QB_W)
+Pred5<-predict(ARF5, newdata = ARI_QB_W)
+Pred6<-predict(ARF6, newdata = ARI_QB_W)
+Pred7<-predict(ARF7, newdata = ARI_QB_W)
+Pred8<-predict(ARF8, newdata = ARI_QB_W)
+Pred9<-predict(ARF9, newdata = ARI_QB_W)
+Pred10<-predict(ARF10, newdata = ARI_QB_W)
+Pred21<-predict(ARF21, newdata = ARI_WR_W)
+Pred22<-predict(ARF22, newdata = ARI_WR_W)
+Pred23<-predict(ARF23, newdata = ARI_WR_W)
+Pred24<-predict(ARF24, newdata = ARI_WR_W)
+Pred25<-predict(ARF25, newdata = ARI_WR_W)
+Pred26<-predict(ARF26, newdata = ARI_WR_S)
+Pred27<-predict(ARF27, newdata = ARI_WR_S)
+Pred28<-predict(ARF28, newdata = ARI_WR_S)
+Pred29<-predict(ARF29, newdata = ARI_WR_S)
+Pred30<-predict(ARF30, newdata = ARI_WR_S)
+Pred31<-predict(ARF31, newdata = ARI_WR_S)
+Pred32<-predict(ARF32, newdata = ARI_WR_S)
+Pred33<-predict(ARF33, newdata = ARI_WR_S)
+Pred34<-predict(ARF34, newdata = ARI_WR_S)
+Pred35<-predict(ARF35, newdata = ARI_RB_W)
+Pred36<-predict(ARF36, newdata = ARI_RB_W)
+Pred37<-predict(ARF37, newdata = ARI_RB_W)
+Pred38<-predict(ARF38, newdata = ARI_RB_W)
+Pred39<-predict(ARF39, newdata = ARI_RB_W)
+Pred40<-predict(ARF40, newdata = ARI_RB_S)
+Pred41<-predict(ARF41, newdata = ARI_RB_S)
+Pred42<-predict(ARF42, newdata = ARI_RB_S)
+Pred43<-predict(ARF43, newdata = ARI_RB_S)
+Pred44<-predict(ARF44, newdata = ARI_RB_S)
+Pred45<-predict(ARF45, newdata = ARI_RB_S)
+Pred46<-predict(ARF46, newdata = ARI_RB_S)
+Pred47<-predict(ARF47, newdata = ARI_DEF_W)
+Pred48<-predict(ARF48, newdata = ARI_DEF_W)
+Pred49<-predict(ARF49, newdata = ARI_DEF_W)
+Pred50<-predict(ARF50, newdata = ARI_DEF_W)
+Pred51<-predict(ARF51, newdata = ARI_DEF_W)
+Pred52<-predict(ARF52, newdata = ARI_DEF_W)
+Pred53<-predict(ARF53, newdata = ARI_DEF_W)
+Pred54<-predict(ARF54, newdata = ARI_DEF_S)
+Pred55<-predict(ARF55, newdata = ARI_DEF_S)
+Pred56<-predict(ARF56, newdata = ARI_DEF_S)
+Pred57<-predict(ARF57, newdata = ARI_DEF_S)
+Pred58<-predict(ARF58, newdata = ARI_DEF_S)
+Pred59<-predict(ARF59, newdata = ARI_DEF_S)
+Pred60<-predict(ARF60, newdata = ARI_DEF_S)
+Pred61<-predict(ARF61, newdata = ARI_DEF_S)
+Pred62<-predict(ARF62, newdata = ARI_DEF_S)
+Pred63<-predict(ARF63, newdata = ARI_DEF_S)
+Pred64<-predict(ARF64, newdata = ARI_DEF_S)
+Pred65<-predict(ARF65, newdata = ARI_DEF_S)
+Pred66<-predict(ARF66, newdata = ARI_DEF_S)
+Pred67<-predict(ARF67, newdata = ARI_DEF_S)
+Pred68<-predict(ARF68, newdata = ARI_DEF_S)
+Pred69<-predict(ARF69, newdata = ARI_QB_W)
+Pred71<-predict(ARF71, newdata = ARI_QB_W)
+Pred72<-predict(ARF72, newdata = ARI_QB_W)
+Pred73<-predict(ARF73, newdata = ARI_QB_W)
+Pred74<-predict(ARF74, newdata = ARI_QB_W)
+Pred75<-predict(ARF75, newdata = ARI_QB_W)
+Pred76<-predict(ARF76, newdata = ARI_QB_W)
+Pred77<-predict(ARF77, newdata = ARI_QB_W)
+Pred78<-predict(ARF78, newdata = ARI_QB_W)
+Pred79<-predict(ARF79, newdata = ARI_QB_W)
+Pred80<-predict(ARF80, newdata = ARI_QB_W)
+Pred81<-predict(ARF81, newdata = ARI_QB_W)
+Pred82<-predict(ARF82, newdata = ARI_QB_W)
+Pred83<-predict(ARF83, newdata = ARI_QB_W)
+Pred84<-predict(ARF84, newdata = ARI_QB_W)
+Pred85<-predict(ARF85, newdata = ARI_QB_W)
+Pred86<-predict(ARF86, newdata = ARI_QB_W)
+Pred87<-predict(ARF87, newdata = ARI_QB_W)
+Pred88<-predict(ARF88, newdata = ARI_QB_W)
+Pred89<-predict(ARF89, newdata = ARI_QB_W)
+Pred90<-predict(ARF90, newdata = ARI_QB_W)
+Pred91<-predict(ARF91, newdata = ARI_QB_W)
+Pred92<-predict(ARF92, newdata = ARI_QB_W)
+Pred93<-predict(ARF93, newdata = ARI_QB_W)
+Pred94<-predict(ARF94, newdata = ARI_QB_W)
+Pred95<-predict(ARF95, newdata = ARI_QB_W)
+Pred96<-predict(ARF96, newdata = ARI_QB_W)
+Pred97<-predict(ARF97, newdata = ARI_QB_W)
+Pred98<-predict(ARF98, newdata = ARI_QB_W)
+Pred99<-predict(ARF99, newdata = ARI_QB_W)
+Pred100<-predict(ARF100, newdata = ARI_QB_W)
+Pred101<-predict(ARF101, newdata = ARI_QB_W)
+Pred102<-predict(ARF102, newdata = ARI_QB_W)
+Pred103<-predict(ARF103, newdata = ARI_QB_W)
+Pred104<-predict(ARF104, newdata = ARI_QB_W)
+Pred105<-predict(ARF105, newdata = ARI_QB_W)
+Pred106<-predict(ARF106, newdata = ARI_QB_W)
+Pred107<-predict(ARF107, newdata = ARI_QB_W)
+Pred108<-predict(ARF108, newdata = ARI_QB_W)
+Pred109<-predict(ARF109, newdata = ARI_QB_W)
+Pred110<-predict(ARF110, newdata = ARI_QB_W)
+Pred111<-predict(ARF111, newdata = ARI_QB_W)
+Pred112<-predict(ARF112, newdata = ARI_QB_W)
+Pred113<-predict(ARF113, newdata = ARI_QB_W)
+Pred114<-predict(ARF114, newdata = ARI_QB_W)
+Pred115<-predict(ARF115, newdata = ARI_QB_W)
+Pred116<-predict(ARF116, newdata = ARI_QB_W)
+Pred117<-predict(ARF117, newdata = ARI_QB_W)
+Pred118<-predict(ARF118, newdata = ARI_QB_W)
+Pred119<-predict(ARF119, newdata = ARI_DEF_S)
+Pred120<-predict(ARF120, newdata = ARI_DEF_S)
+Pred121<-predict(ARF121, newdata = ARI_DEF_S)
+Pred122<-predict(ARF122, newdata = ARI_DEF_S)
+Pred123<-predict(ARF123, newdata = ARI_DEF_S)
+Pred124<-predict(ARF124, newdata = ARI_DEF_S)
+Pred125<-predict(ARF125, newdata = ARI_DEF_S)
+Pred126<-predict(ARF126, newdata = ARI_DEF_S)
+Pred127<-predict(ARF127, newdata = ARI_DEF_S)
+Pred128<-predict(ARF128, newdata = ARI_DEF_S)
+Pred129<-predict(ARF129, newdata = ARI_DEF_S)
+Pred130<-predict(ARF130, newdata = ARI_DEF_S)
+Pred131<-predict(ARF131, newdata = ARI_DEF_S)
+Pred132<-predict(ARF132, newdata = ARI_DEF_S)
+Pred133<-predict(ARF133, newdata = ARI_DEF_S)
+Pred134<-predict(ARF134, newdata = ARI_DEF_S)
+Pred135<-predict(ARF135, newdata = ARI_DEF_S)
+Pred136<-predict(ARF136, newdata = ARI_DEF_S)
+Pred137<-predict(ARF137, newdata = ARI_DEF_S)
+Pred138<-predict(ARF138, newdata = ARI_DEF_S)
+Pred139<-predict(ARF139, newdata = ARI_DEF_S)
+Pred140<-predict(ARF140, newdata = ARI_DEF_S)
+Pred141<-predict(ARF141, newdata = ARI_DEF_S)
+Pred142<-predict(ARF142, newdata = ARI_DEF_S)
+Pred143<-predict(ARF143, newdata = ARI_DEF_S)
+Pred144<-predict(ARF144, newdata = ARI_DEF_S)
+Pred145<-predict(ARF145, newdata = ARI_DEF_S)
+Pred146<-predict(ARF146, newdata = ARI_DEF_S)
+Pred147<-predict(ARF147, newdata = ARI_DEF_S)
+Pred148<-predict(ARF148, newdata = ARI_DEF_S)
+Pred149<-predict(ARF149, newdata = ARI_DEF_S)
+Pred150<-predict(ARF150, newdata = ARI_DEF_S)
+Pred151<-predict(ARF151, newdata = ARI_DEF_S)
+Pred152<-predict(ARF152, newdata = ARI_DEF_S)
+Pred153<-predict(ARF153, newdata = ARI_DEF_S)
+Pred154<-predict(ARF154, newdata = ARI_DEF_S)
+Pred155<-predict(ARF155, newdata = ARI_DEF_S)
+Pred156<-predict(ARF156, newdata = ARI_DEF_S)
+Pred157<-predict(ARF157, newdata = ARI_DEF_S)
+Pred158<-predict(ARF158, newdata = ARI_DEF_S)
+Pred159<-predict(ARF159, newdata = ARI_DEF_S)
+Pred160<-predict(ARF160, newdata = ARI_DEF_S)
+Pred161<-predict(ARF161, newdata = ARI_DEF_S)
+Pred162<-predict(ARF162, newdata = ARI_DEF_S)
+Pred163<-predict(ARF163, newdata = ARI_DEF_S)
+Pred164<-predict(ARF164, newdata = ARI_WR_S)
+Pred165<-predict(ARF165, newdata = ARI_WR_S)
+Pred166<-predict(ARF166, newdata = ARI_WR_S)
+Pred167<-predict(ARF167, newdata = ARI_WR_S)
+Pred168<-predict(ARF168, newdata = ARI_WR_S)
+Pred169<-predict(ARF169, newdata = ARI_WR_S)
+Pred170<-predict(ARF170, newdata = ARI_WR_S)
+Pred171<-predict(ARF171, newdata = ARI_WR_S)
+Pred172<-predict(ARF172, newdata = ARI_WR_S)
+Pred173<-predict(ARF173, newdata = ARI_WR_S)
+Pred174<-predict(ARF174, newdata = ARI_WR_S)
+Pred175<-predict(ARF175, newdata = ARI_WR_S)
+Pred176<-predict(ARF176, newdata = ARI_WR_S)
+Pred177<-predict(ARF177, newdata = ARI_WR_S)
+Pred178<-predict(ARF178, newdata = ARI_WR_S)
+Pred179<-predict(ARF179, newdata = ARI_WR_S)
+Pred180<-predict(ARF180, newdata = ARI_WR_S)
+Pred181<-predict(ARF181, newdata = ARI_WR_S)
+Pred182<-predict(ARF182, newdata = ARI_WR_S)
+Pred183<-predict(ARF183, newdata = ARI_WR_S)
+Pred184<-predict(ARF184, newdata = ARI_WR_S)
+Pred185<-predict(ARF185, newdata = ARI_WR_S)
+Pred186<-predict(ARF186, newdata = ARI_WR_S)
+Pred187<-predict(ARF187, newdata = ARI_WR_S)
+Pred188<-predict(ARF188, newdata = ARI_WR_S)
+Pred189<-predict(ARF189, newdata = ARI_WR_S)
+Pred190<-predict(ARF190, newdata = ARI_WR_S)
+Pred191<-predict(ARF191, newdata = ARI_WR_S)
+Pred192<-predict(ARF192, newdata = ARI_WR_S)
+Pred193<-predict(ARF193, newdata = ARI_WR_S)
+Pred194<-predict(ARF194, newdata = ARI_WR_S)
+Pred195<-predict(ARF195, newdata = ARI_WR_S)
+Pred196<-predict(ARF196, newdata = ARI_WR_S)
+Pred197<-predict(ARF197, newdata = ARI_WR_S)
+Pred198<-predict(ARF198, newdata = ARI_WR_S)
+Pred199<-predict(ARF199, newdata = ARI_WR_S)
+Pred200<-predict(ARF200, newdata = ARI_RB_S)
+Pred201<-predict(ARF201, newdata = ARI_RB_S)
+Pred202<-predict(ARF202, newdata = ARI_RB_S)
+Pred203<-predict(ARF203, newdata = ARI_RB_S)
+Pred204<-predict(ARF204, newdata = ARI_RB_S)
+Pred205<-predict(ARF205, newdata = ARI_RB_S)
+Pred206<-predict(ARF206, newdata = ARI_RB_S)
+Pred207<-predict(ARF207, newdata = ARI_RB_S)
+Pred208<-predict(ARF208, newdata = ARI_RB_S)
+Pred209<-predict(ARF209, newdata = ARI_RB_S)
+Pred210<-predict(ARF210, newdata = ARI_RB_S)
+Pred211<-predict(ARF211, newdata = ARI_RB_S)
+Pred212<-predict(ARF212, newdata = ARI_RB_S)
+Pred213<-predict(ARF213, newdata = ARI_RB_S)
+Pred214<-predict(ARF214, newdata = ARI_RB_S)
+Pred215<-predict(ARF215, newdata = ARI_RB_S)
+Pred216<-predict(ARF216, newdata = ARI_RB_S)
+Pred217<-predict(ARF217, newdata = ARI_RB_S)
+Pred218<-predict(ARF218, newdata = ARI_RB_S)
+Pred219<-predict(ARF219, newdata = ARI_RB_S)
+Pred220<-predict(ARF220, newdata = ARI_RB_S)
+Pred221<-predict(ARF221, newdata = ARI_DEF_W)
+Pred222<-predict(ARF222, newdata = ARI_DEF_W)
+Pred223<-predict(ARF223, newdata = ARI_DEF_W)
+Pred224<-predict(ARF224, newdata = ARI_DEF_W)
+Pred225<-predict(ARF225, newdata = ARI_DEF_W)
+Pred226<-predict(ARF226, newdata = ARI_DEF_W)
+Pred227<-predict(ARF227, newdata = ARI_DEF_W)
+Pred228<-predict(ARF228, newdata = ARI_WR_W)
+Pred229<-predict(ARF229, newdata = ARI_WR_W)
+Pred230<-predict(ARF230, newdata = ARI_WR_W)
+Pred231<-predict(ARF231, newdata = ARI_WR_W)
+Pred232<-predict(ARF232, newdata = ARI_WR_W)
+Pred233<-predict(ARF233, newdata = ARI_RB_W)
+Pred234<-predict(ARF234, newdata = ARI_RB_W)
+Pred235<-predict(ARF235, newdata = ARI_RB_W)
+Pred236<-predict(ARF236, newdata = ARI_RB_W)
+Pred237<-predict(ARF237, newdata = ARI_RB_W)
+Pred286<-predict(ARF286, newdata = ARI_WR_W)
+Pred287<-predict(ARF287, newdata = ARI_WR_W)
+Pred288<-predict(ARF288, newdata = ARI_WR_W)
+Pred289<-predict(ARF289, newdata = ARI_WR_W)
+Pred290<-predict(ARF290, newdata = ARI_WR_W)
+Pred291<-predict(ARF291, newdata = ARI_WR_W)
+Pred292<-predict(ARF292, newdata = ARI_WR_W)
+Pred293<-predict(ARF293, newdata = ARI_WR_W)
+Pred294<-predict(ARF294, newdata = ARI_WR_W)
+Pred295<-predict(ARF295, newdata = ARI_WR_W)
+Pred296<-predict(ARF296, newdata = ARI_WR_W)
+Pred297<-predict(ARF297, newdata = ARI_WR_W)
+Pred298<-predict(ARF298, newdata = ARI_RB_W)
+Pred299<-predict(ARF299, newdata = ARI_RB_W)
+Pred300<-predict(ARF300, newdata = ARI_RB_W)
+Pred301<-predict(ARF301, newdata = ARI_RB_W)
+Pred302<-predict(ARF302, newdata = ARI_RB_W)
+Pred303<-predict(ARF303, newdata = ARI_RB_W)
+Pred304<-predict(ARF304, newdata = ARI_RB_W)
+Pred305<-predict(ARF305, newdata = ARI_WR_W)
+Pred306<-predict(ARF306, newdata = ARI_WR_W)
+Pred307<-predict(ARF307, newdata = ARI_WR_W)
+Pred308<-predict(ARF308, newdata = ARI_WR_W)
+Pred309<-predict(ARF309, newdata = ARI_WR_W)
+Pred310<-predict(ARF310, newdata = ARI_WR_W)
+Pred311<-predict(ARF311, newdata = ARI_WR_W)
+Pred312<-predict(ARF312, newdata = ARI_WR_W)
+Pred313<-predict(ARF313, newdata = ARI_WR_W)
+Pred314<-predict(ARF314, newdata = ARI_WR_W)
+Pred315<-predict(ARF315, newdata = ARI_WR_W)
+Pred316<-predict(ARF316, newdata = ARI_WR_W)
+Pred317<-predict(ARF317, newdata = ARI_WR_W)
+Pred318<-predict(ARF318, newdata = ARI_WR_W)
+Pred319<-predict(ARF319, newdata = ARI_WR_W)
+Pred320<-predict(ARF320, newdata = ARI_WR_W)
+Pred321<-predict(ARF321, newdata = ARI_WR_W)
+Pred322<-predict(ARF322, newdata = ARI_WR_W)
+Pred323<-predict(ARF323, newdata = ARI_WR_W)
+Pred324<-predict(ARF324, newdata = ARI_WR_W)
+Pred325<-predict(ARF325, newdata = ARI_WR_W)
+Pred326<-predict(ARF326, newdata = ARI_WR_W)
+Pred327<-predict(ARF327, newdata = ARI_WR_W)
+Pred328<-predict(ARF328, newdata = ARI_WR_W)
+Pred329<-predict(ARF329, newdata = ARI_WR_W)
+Pred330<-predict(ARF330, newdata = ARI_WR_W)
+Pred331<-predict(ARF331, newdata = ARI_WR_W)
+Pred332<-predict(ARF332, newdata = ARI_WR_W)
+Pred333<-predict(ARF333, newdata = ARI_WR_W)
+Pred334<-predict(ARF334, newdata = ARI_WR_W)
+Pred335<-predict(ARF335, newdata = ARI_WR_W)
+Pred336<-predict(ARF336, newdata = ARI_WR_W)
+Pred337<-predict(ARF337, newdata = ARI_WR_W)
+Pred338<-predict(ARF338, newdata = ARI_WR_W)
+Pred339<-predict(ARF339, newdata = ARI_WR_W)
+Pred340<-predict(ARF340, newdata = ARI_WR_W)
+Pred341<-predict(ARF341, newdata = ARI_RB_W)
+Pred342<-predict(ARF342, newdata = ARI_RB_W)
+Pred343<-predict(ARF343, newdata = ARI_RB_W)
+Pred344<-predict(ARF344, newdata = ARI_RB_W)
+Pred345<-predict(ARF345, newdata = ARI_RB_W)
+Pred346<-predict(ARF346, newdata = ARI_RB_W)
+Pred347<-predict(ARF347, newdata = ARI_RB_W)
+Pred348<-predict(ARF348, newdata = ARI_RB_W)
+Pred349<-predict(ARF349, newdata = ARI_RB_W)
+Pred350<-predict(ARF350, newdata = ARI_RB_W)
+Pred351<-predict(ARF351, newdata = ARI_RB_W)
+Pred352<-predict(ARF352, newdata = ARI_RB_W)
+Pred353<-predict(ARF353, newdata = ARI_RB_W)
+Pred354<-predict(ARF354, newdata = ARI_RB_W)
+Pred355<-predict(ARF355, newdata = ARI_RB_W)
+Pred356<-predict(ARF356, newdata = ARI_RB_W)
+Pred357<-predict(ARF357, newdata = ARI_RB_W)
+Pred358<-predict(ARF358, newdata = ARI_RB_W)
+Pred359<-predict(ARF359, newdata = ARI_RB_W)
+Pred360<-predict(ARF360, newdata = ARI_RB_W)
+Pred361<-predict(ARF361, newdata = ARI_RB_W)
+
+```
+

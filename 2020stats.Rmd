@@ -1,0 +1,36 @@
+---
+title: "2020stats"
+output: word_document
+---
+
+```{r}
+library(readxl)
+wr2020 <- read_excel("C:/Users/ericr/Desktop/wr2020.xlsx", 
+    col_types = c("text", "skip", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+
+RB2020 <- read_excel("C:/Users/ericr/Desktop/RB2020.xlsx")
+
+aggregate(
+  x = wr2020[c("CUSH", "SEP","TAY","CTCH","YAC")],
+  by = wr2020[c("TEAM")],
+  FUN = mean, na.rm = TRUE
+)
+
+
+aggregate(
+  x = RB2020[c("EFF", "ED","TLOS","AVG")],
+  by = RB2020[c("TEAM")],
+  FUN = mean, na.rm = TRUE
+)
+
+
+
+
+
+```
+

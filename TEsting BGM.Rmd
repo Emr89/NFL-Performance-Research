@@ -1,0 +1,565 @@
+---
+title: "TESTING BGM"
+output: word_document
+---
+```{r}
+library(readxl)
+WEEKLY_TEAM_PERFORMANCE <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/WEEKLY TEAM PERFORMANCE.xlsx")
+
+
+WEEKLY_TEAM_PERFORMANCE[4:33] <- lapply(WEEKLY_TEAM_PERFORMANCE[4:33], as.numeric)
+
+WEEKLY_TEAM_PERFORMANCE$TO[is.na(WEEKLY_TEAM_PERFORMANCE$TO)] = 0
+
+WEEKLY_TEAM_PERFORMANCE$DTO[is.na(WEEKLY_TEAM_PERFORMANCE$DTO)] = 0
+
+
+
+WEEKLY_TEAM_PERFORMANCE<- na.omit(WEEKLY_TEAM_PERFORMANCE)
+
+# prediction models
+
+Rams_SV1 <- data.frame(TT = 2.7875, CAY= 5.8608,AGG = 6.6085, AYTS = -.8908, COMP = 63.56, Week = 17, TLOS = 2.57, EFF=4.65,EM=32.01,CUSH=5.47, SEP=1.95, TAY=9.79, CTCH=65.50,YACR=5.95,AVG=4.89)
+
+ARI_SV1 <- data.frame(TT =2.22 , CAY=4.52 ,AGG =11.057 , AYTS =-4.01 , COMP =65 , Week = 17, TLOS =2.57 , EFF=3.89,EM=18.6993,CUSH=5.62, SEP=1.9688, TAY=7.475, CTCH=67.86,YACR=4.75,AVG=4.73)
+
+
+RAMS_SV2 <- data.frame(TT = 2.7875 , CAY= 5.925 ,AGG = 11.575 , AYTS =-1.21  , COMP =61.95 , Week = 17, TLOS =2.94 , EFF=4.66,EM=32.76,CUSH=6.35, SEP=3.28, TAY=8.9, CTCH=65.3,YACR=5.69,AVG=3.91)
+
+
+ARI_SV2 <- data.frame(TT = 2.683, CAY=4.9 ,AGG =13.825 , AYTS =-2.46 , COMP =64.61 , Week = 17, TLOS =2.94 , EFF=4.02,EM=18.48,CUSH=6.01, SEP=3.25, TAY=8.57, CTCH=67.45,YACR=4.714,AVG=4.53)
+
+
+
+SC_Rams_SV1 <- data.frame(TT = 2.7875, CAY= 5.8608,AGG = 6.6085, AYTS = -.8908, COMP = 63.56, Week = 17, TLOS = 2.57, EFF=4.65,EM=32.01,CUSH=5.47, SEP=1.95, TAY=9.79, CTCH=65.50,YACR=5.95,AVG=4.89)
+
+SC_ARI_SV1 <- data.frame(TT =2.22 , CAY=4.52 ,AGG =11.057 , AYTS =-4.01 , COMP =65 , Week = 17, TLOS =2.57 , EFF=3.89,EM=18.6993,CUSH=5.62, SEP=1.9688, TAY=7.475, CTCH=67.86,YACR=4.75,AVG=4.73)
+
+
+SC_RAMS_SV2 <- data.frame(TT = 2.7875 , CAY= 5.925 ,AGG = 11.575 , AYTS =-1.21  , COMP =61.95 , Week = 17, TLOS =2.94 , EFF=4.66,EM=32.76,CUSH=6.35, SEP=3.28, TAY=8.9, CTCH=65.3,YACR=5.69,AVG=3.91)
+
+
+SC_ARI_SV2 <- data.frame(TT = 2.683, CAY=4.9 ,AGG =13.825 , AYTS =-2.46 , COMP =64.61 , Week = 17, TLOS =2.94 , EFF=4.02,EM=18.48,CUSH=6.01, SEP=3.25, TAY=8.57, CTCH=67.45,YACR=4.714,AVG=4.53)
+
+
+#ARI_SV1 <- data.frame(TT = , CAY= ,AGG = , AYTS = , COMP = , Week = 17, TLOS = , EFF=,ED=,CUSH=, SEP=, TAY=, CTCH=,YACR=,AVG=)
+
+# creating normalized models
+library(dplyr)
+
+WTP<- scale(WEEKLY_TEAM_PERFORMANCE[4:34])
+
+scaleList_WTP <- list(scale = attr(WTP, "scaled:scale"),
+    center = attr(WTP, "scaled:center"))
+
+
+
+# storing scaled values
+
+SC_Rams_SV1$TT<-(Rams_SV1$TT-mean(WEEKLY_TEAM_PERFORMANCE$TT))/sd(WEEKLY_TEAM_PERFORMANCE$TT)
+SC_Rams_SV1$CAY<-(Rams_SV1$CAY-mean(WEEKLY_TEAM_PERFORMANCE$CAY))/sd(WEEKLY_TEAM_PERFORMANCE$CAY)
+SC_Rams_SV1$AGG<-(Rams_SV1$AGG-mean(WEEKLY_TEAM_PERFORMANCE$AGG))/sd(WEEKLY_TEAM_PERFORMANCE$AGG)
+SC_Rams_SV1$AYTS<-(Rams_SV1$AYTS-mean(WEEKLY_TEAM_PERFORMANCE$AYTS))/sd(WEEKLY_TEAM_PERFORMANCE$AYTS)
+SC_Rams_SV1$COMP<-(Rams_SV1$COMP-mean(WEEKLY_TEAM_PERFORMANCE$COMP))/sd(WEEKLY_TEAM_PERFORMANCE$COMP)
+SC_Rams_SV1$EFF<-(Rams_SV1$EFF-mean(WEEKLY_TEAM_PERFORMANCE$EFF))/sd(WEEKLY_TEAM_PERFORMANCE$EFF)
+SC_Rams_SV1$EM<-(Rams_SV1$EM-mean(WEEKLY_TEAM_PERFORMANCE$EM))/sd(WEEKLY_TEAM_PERFORMANCE$EM)
+SC_Rams_SV1$TLOS<-(Rams_SV1$TLOS-mean(WEEKLY_TEAM_PERFORMANCE$TLOS))/sd(WEEKLY_TEAM_PERFORMANCE$TLOS)
+SC_Rams_SV1$AVG<-(Rams_SV1$AVG-mean(WEEKLY_TEAM_PERFORMANCE$AVG))/sd(WEEKLY_TEAM_PERFORMANCE$AVG)
+SC_Rams_SV1$CUSH<-(Rams_SV1$CUSH-mean(WEEKLY_TEAM_PERFORMANCE$CUSH))/sd(WEEKLY_TEAM_PERFORMANCE$CUSH)
+SC_Rams_SV1$SEP<-(Rams_SV1$SEP-mean(WEEKLY_TEAM_PERFORMANCE$SEP))/sd(WEEKLY_TEAM_PERFORMANCE$SEP)
+SC_Rams_SV1$TAY<-(Rams_SV1$TAY-mean(WEEKLY_TEAM_PERFORMANCE$TAY))/sd(WEEKLY_TEAM_PERFORMANCE$TAY)
+SC_Rams_SV1$CTCH<-(Rams_SV1$CTCH-mean(WEEKLY_TEAM_PERFORMANCE$CTCH))/sd(WEEKLY_TEAM_PERFORMANCE$CTCH)
+SC_Rams_SV1$YACR<-(Rams_SV1$YACR-mean(WEEKLY_TEAM_PERFORMANCE$YACR))/sd(WEEKLY_TEAM_PERFORMANCE$YACR)
+SC_RAMS_SV2$TT<-(RAMS_SV2$TT-mean(WEEKLY_TEAM_PERFORMANCE$TT))/sd(WEEKLY_TEAM_PERFORMANCE$TT)
+SC_RAMS_SV2$CAY<-(RAMS_SV2$CAY-mean(WEEKLY_TEAM_PERFORMANCE$CAY))/sd(WEEKLY_TEAM_PERFORMANCE$CAY)
+SC_RAMS_SV2$AGG<-(RAMS_SV2$AGG-mean(WEEKLY_TEAM_PERFORMANCE$AGG))/sd(WEEKLY_TEAM_PERFORMANCE$AGG)
+SC_RAMS_SV2$AYTS<-(RAMS_SV2$AYTS-mean(WEEKLY_TEAM_PERFORMANCE$AYTS))/sd(WEEKLY_TEAM_PERFORMANCE$AYTS)
+SC_RAMS_SV2$COMP<-(RAMS_SV2$COMP-mean(WEEKLY_TEAM_PERFORMANCE$COMP))/sd(WEEKLY_TEAM_PERFORMANCE$COMP)
+SC_RAMS_SV2$EFF<-(RAMS_SV2$EFF-mean(WEEKLY_TEAM_PERFORMANCE$EFF))/sd(WEEKLY_TEAM_PERFORMANCE$EFF)
+SC_RAMS_SV2$EM<-(RAMS_SV2$EM-mean(WEEKLY_TEAM_PERFORMANCE$EM))/sd(WEEKLY_TEAM_PERFORMANCE$EM)
+SC_RAMS_SV2$TLOS<-(RAMS_SV2$TLOS-mean(WEEKLY_TEAM_PERFORMANCE$TLOS))/sd(WEEKLY_TEAM_PERFORMANCE$TLOS)
+SC_RAMS_SV2$AVG<-(RAMS_SV2$AVG-mean(WEEKLY_TEAM_PERFORMANCE$AVG))/sd(WEEKLY_TEAM_PERFORMANCE$AVG)
+SC_RAMS_SV2$CUSH<-(RAMS_SV2$CUSH-mean(WEEKLY_TEAM_PERFORMANCE$CUSH))/sd(WEEKLY_TEAM_PERFORMANCE$CUSH)
+SC_RAMS_SV2$SEP<-(RAMS_SV2$SEP-mean(WEEKLY_TEAM_PERFORMANCE$SEP))/sd(WEEKLY_TEAM_PERFORMANCE$SEP)
+SC_RAMS_SV2$TAY<-(RAMS_SV2$TAY-mean(WEEKLY_TEAM_PERFORMANCE$TAY))/sd(WEEKLY_TEAM_PERFORMANCE$TAY)
+SC_RAMS_SV2$CTCH<-(RAMS_SV2$CTCH-mean(WEEKLY_TEAM_PERFORMANCE$CTCH))/sd(WEEKLY_TEAM_PERFORMANCE$CTCH)
+SC_RAMS_SV2$YACR<-(RAMS_SV2$YACR-mean(WEEKLY_TEAM_PERFORMANCE$YACR))/sd(WEEKLY_TEAM_PERFORMANCE$YACR)
+SC_ARI_SV1$TT<-(ARI_SV1$TT-mean(WEEKLY_TEAM_PERFORMANCE$TT))/sd(WEEKLY_TEAM_PERFORMANCE$TT)
+SC_ARI_SV1$CAY<-(ARI_SV1$CAY-mean(WEEKLY_TEAM_PERFORMANCE$CAY))/sd(WEEKLY_TEAM_PERFORMANCE$CAY)
+SC_ARI_SV1$AGG<-(ARI_SV1$AGG-mean(WEEKLY_TEAM_PERFORMANCE$AGG))/sd(WEEKLY_TEAM_PERFORMANCE$AGG)
+SC_ARI_SV1$AYTS<-(ARI_SV1$AYTS-mean(WEEKLY_TEAM_PERFORMANCE$AYTS))/sd(WEEKLY_TEAM_PERFORMANCE$AYTS)
+SC_ARI_SV1$COMP<-(ARI_SV1$COMP-mean(WEEKLY_TEAM_PERFORMANCE$COMP))/sd(WEEKLY_TEAM_PERFORMANCE$COMP)
+SC_ARI_SV1$EFF<-(ARI_SV1$EFF-mean(WEEKLY_TEAM_PERFORMANCE$EFF))/sd(WEEKLY_TEAM_PERFORMANCE$EFF)
+SC_ARI_SV1$EM<-(ARI_SV1$EM-mean(WEEKLY_TEAM_PERFORMANCE$EM))/sd(WEEKLY_TEAM_PERFORMANCE$EM)
+SC_ARI_SV1$TLOS<-(ARI_SV1$TLOS-mean(WEEKLY_TEAM_PERFORMANCE$TLOS))/sd(WEEKLY_TEAM_PERFORMANCE$TLOS)
+SC_ARI_SV1$AVG<-(ARI_SV1$AVG-mean(WEEKLY_TEAM_PERFORMANCE$AVG))/sd(WEEKLY_TEAM_PERFORMANCE$AVG)
+SC_ARI_SV1$CUSH<-(ARI_SV1$CUSH-mean(WEEKLY_TEAM_PERFORMANCE$CUSH))/sd(WEEKLY_TEAM_PERFORMANCE$CUSH)
+SC_ARI_SV1$SEP<-(ARI_SV1$SEP-mean(WEEKLY_TEAM_PERFORMANCE$SEP))/sd(WEEKLY_TEAM_PERFORMANCE$SEP)
+SC_ARI_SV1$TAY<-(ARI_SV1$TAY-mean(WEEKLY_TEAM_PERFORMANCE$TAY))/sd(WEEKLY_TEAM_PERFORMANCE$TAY)
+SC_ARI_SV1$CTCH<-(ARI_SV1$CTCH-mean(WEEKLY_TEAM_PERFORMANCE$CTCH))/sd(WEEKLY_TEAM_PERFORMANCE$CTCH)
+SC_ARI_SV1$YACR<-(ARI_SV1$YACR-mean(WEEKLY_TEAM_PERFORMANCE$YACR))/sd(WEEKLY_TEAM_PERFORMANCE$YACR)
+SC_ARI_SV2$TT<-(ARI_SV2$TT-mean(WEEKLY_TEAM_PERFORMANCE$TT))/sd(WEEKLY_TEAM_PERFORMANCE$TT)
+SC_ARI_SV2$CAY<-(ARI_SV2$CAY-mean(WEEKLY_TEAM_PERFORMANCE$CAY))/sd(WEEKLY_TEAM_PERFORMANCE$CAY)
+SC_ARI_SV2$AGG<-(ARI_SV2$AGG-mean(WEEKLY_TEAM_PERFORMANCE$AGG))/sd(WEEKLY_TEAM_PERFORMANCE$AGG)
+SC_ARI_SV2$AYTS<-(ARI_SV2$AYTS-mean(WEEKLY_TEAM_PERFORMANCE$AYTS))/sd(WEEKLY_TEAM_PERFORMANCE$AYTS)
+SC_ARI_SV2$COMP<-(ARI_SV2$COMP-mean(WEEKLY_TEAM_PERFORMANCE$COMP))/sd(WEEKLY_TEAM_PERFORMANCE$COMP)
+SC_ARI_SV2$EFF<-(ARI_SV2$EFF-mean(WEEKLY_TEAM_PERFORMANCE$EFF))/sd(WEEKLY_TEAM_PERFORMANCE$EFF)
+SC_ARI_SV2$EM<-(ARI_SV2$EM-mean(WEEKLY_TEAM_PERFORMANCE$EM))/sd(WEEKLY_TEAM_PERFORMANCE$EM)
+SC_ARI_SV2$TLOS<-(ARI_SV2$TLOS-mean(WEEKLY_TEAM_PERFORMANCE$TLOS))/sd(WEEKLY_TEAM_PERFORMANCE$TLOS)
+SC_ARI_SV2$AVG<-(ARI_SV2$AVG-mean(WEEKLY_TEAM_PERFORMANCE$AVG))/sd(WEEKLY_TEAM_PERFORMANCE$AVG)
+SC_ARI_SV2$CUSH<-(ARI_SV2$CUSH-mean(WEEKLY_TEAM_PERFORMANCE$CUSH))/sd(WEEKLY_TEAM_PERFORMANCE$CUSH)
+SC_ARI_SV2$SEP<-(ARI_SV2$SEP-mean(WEEKLY_TEAM_PERFORMANCE$SEP))/sd(WEEKLY_TEAM_PERFORMANCE$SEP)
+SC_ARI_SV2$TAY<-(ARI_SV2$TAY-mean(WEEKLY_TEAM_PERFORMANCE$TAY))/sd(WEEKLY_TEAM_PERFORMANCE$TAY)
+SC_ARI_SV2$CTCH<-(ARI_SV2$CTCH-mean(WEEKLY_TEAM_PERFORMANCE$CTCH))/sd(WEEKLY_TEAM_PERFORMANCE$CTCH)
+SC_ARI_SV2$YACR<-(ARI_SV2$YACR-mean(WEEKLY_TEAM_PERFORMANCE$YACR))/sd(WEEKLY_TEAM_PERFORMANCE$YACR)
+
+
+# important for scaling example 
+ste <- SC_ARI_SV1$TT * scaleList_WTP$scale[11] + scaleList_WTP$center[11]
+
+
+
+
+#rescalimg 
+
+WTP <- WEEKLY_TEAM_PERFORMANCE %>% mutate_at(c(4:34), ~(scale(.) %>% as.vector))
+
+scaleList_WTP <- list(scale = attr(WTP, "scaled:scale"),
+    center = attr(WTP, "scaled:center"))
+
+WTP <- as.data.frame(WTP)
+
+lapply(WTP,class)
+
+AWTP <- subset(WEEKLY_TEAM_PERFORMANCE,select=c(TT,	CAY,AGG,AYTS,COMP,Week,EFF,EM,TLOS,AVG,CUSH,SEP,	TAY,CTCH,YACR
+)) 
+
+BWTP <- subset(WTP,select=c(TT,	CAY,AGG,AYTS,COMP,Week,EFF,EM,TLOS,AVG,CUSH,SEP,	TAY,CTCH,YACR
+)) 
+
+
+library(rJava)
+library(glmulti)
+#GENETIC MODELS
+BGM1<-glmulti(outcome~AGG+AYTS+COMP+EFF+EM+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM2<-glmulti(TEAMS~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM3<-glmulti(OPPS~AGG+Week+EFF+EM+AVG+CUSH,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM4<-glmulti(FD~TT+AYTS+COMP+Week+AVG+CUSH+TAY+CTCH,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM5<-glmulti(PY~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM6<-glmulti(RY~TT+AGG+AYTS+COMP+AVG+CUSH+TAY+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM7<-glmulti(TO~CAY+AYTS+EFF+EM+AVG+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM8<-glmulti(DFD~CAY+AGG+COMP+AVG,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM9<-glmulti(DPY~CAY+AGG+TLOS+CTCH,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM10<-glmulti(DRY~Week+TLOS+AVG+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM11<-glmulti(DTO~Week+EFF+EM,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="h")
+BGM12<-glmulti(TT~CAY+AGG+COMP+Week+EM+TLOS+SEP+TAY,data=AWTP,level=2,crit="aic",method="g")
+BGM13<-glmulti(CAY~TT+AYTS+COMP+TLOS+SEP+TAY+CTCH,data=AWTP,level=2,crit="aic",method="g")
+BGM14<-glmulti(AGG~TT+AYTS+COMP+EFF+CUSH+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM15<-glmulti(LCAD~TT+CAY+AYTS+AVG+CUSH+SEP+TAY+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM16<-glmulti(AYTS~CAY+AGG+COMP+Week+TLOS+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM17<-glmulti(ATT~TT+AYTS+COMP+Week+AVG+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM18<-glmulti(TD~CAY+AYTS+COMP+Week+EFF+AVG+TAY+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM19<-glmulti(INT~TT+AYTS+COMP+Week+AVG+TAY,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM20<-glmulti(COMP~TT+CAY+AGG+AYTS+Week+TLOS+TAY+CTCH,data=AWTP,level=2,crit="aic",method="g")
+BGM21<-glmulti(RUSHATT~AGG+AYTS+Week+EFF+AVG+SEP+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM22<-glmulti(RUSHTD~AGG+COMP+EM+TLOS+AVG+SEP+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+BGM23<-glmulti(EFF~AGG+TLOS+AVG+SEP+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM24<-glmulti(EM~TT+COMP+CTCH+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM25<-glmulti(TLOS~TT+CAY+AYTS+COMP+EFF+AVG+CUSH+CTCH,data=AWTP,level=2,crit="aic",method="g")
+BGM26<-glmulti(AVG~Week+EFF+TLOS+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM27<-glmulti(CUSH~AGG+Week+EFF+TLOS+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM28<-glmulti(SEP~CAY+AGG+AYTS+EFF+CUSH+TAY+CTCH+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM29<-glmulti(TAY~TT+AGG+AYTS+COMP+Week+CUSH+SEP+CTCH,data=AWTP,level=2,crit="aic",method="g")
+BGM30<-glmulti(CTCH~CAY+COMP+EM+TLOS+AVG+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+BGM31<-glmulti(YACR~AGG+COMP+EFF+EM+AVG+CUSH+SEP+CTCH,data=AWTP,level=2,crit="aic",method="g")
+
+```
+
+
+```{r}
+
+GLMRVA1	<-	predict.glmulti(	BGM1	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA2	<-	predict.glmulti(	BGM2	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA3	<-	predict.glmulti(	BGM3	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA4	<-	predict.glmulti(	BGM4	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA5	<-	predict.glmulti(	BGM5	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA6	<-	predict.glmulti(	BGM6	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA7	<-	predict.glmulti(	BGM7	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA8	<-	predict.glmulti(	BGM8	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA9	<-	predict.glmulti(	BGM9	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA10	<-	predict.glmulti(	BGM10	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA11	<-	predict.glmulti(	BGM11	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA12	<-	predict.glmulti(	BGM12	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA13	<-	predict.glmulti(	BGM13	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA14	<-	predict.glmulti(	BGM14	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA15	<-	predict.glmulti(	BGM15	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA16	<-	predict.glmulti(	BGM16	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA17	<-	predict.glmulti(	BGM17	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA18	<-	predict.glmulti(	BGM18	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA19	<-	predict.glmulti(	BGM19	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA20	<-	predict.glmulti(	BGM20	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA21	<-	predict.glmulti(	BGM21	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA22	<-	predict.glmulti(	BGM22	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA23	<-	predict.glmulti(	BGM23	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA24	<-	predict.glmulti(	BGM24	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA25	<-	predict.glmulti(	BGM25	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA26	<-	predict.glmulti(	BGM26	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA27	<-	predict.glmulti(	BGM27	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA28	<-	predict.glmulti(	BGM28	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA29	<-	predict.glmulti(	BGM29	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA30	<-	predict.glmulti(	BGM30	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA31	<-	predict.glmulti(	BGM31	,	newdata = 	SC_Rams_SV1	,	se.fit = TRUE	)
+GLMRVA32	<-	predict.glmulti(	BGM1	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA33	<-	predict.glmulti(	BGM2	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA34	<-	predict.glmulti(	BGM3	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA35	<-	predict.glmulti(	BGM4	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA36	<-	predict.glmulti(	BGM5	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA37	<-	predict.glmulti(	BGM6	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA38	<-	predict.glmulti(	BGM7	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA39	<-	predict.glmulti(	BGM8	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA40	<-	predict.glmulti(	BGM9	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA41	<-	predict.glmulti(	BGM10	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA42	<-	predict.glmulti(	BGM11	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA43	<-	predict.glmulti(	BGM12	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA44	<-	predict.glmulti(	BGM13	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA45	<-	predict.glmulti(	BGM14	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA46	<-	predict.glmulti(	BGM15	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA47	<-	predict.glmulti(	BGM16	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA48	<-	predict.glmulti(	BGM17	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA49	<-	predict.glmulti(	BGM18	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA50	<-	predict.glmulti(	BGM19	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA51	<-	predict.glmulti(	BGM20	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA52	<-	predict.glmulti(	BGM21	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA53	<-	predict.glmulti(	BGM22	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA54	<-	predict.glmulti(	BGM23	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA55	<-	predict.glmulti(	BGM24	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA56	<-	predict.glmulti(	BGM25	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA57	<-	predict.glmulti(	BGM26	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA58	<-	predict.glmulti(	BGM27	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA59	<-	predict.glmulti(	BGM28	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA60	<-	predict.glmulti(	BGM29	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA61	<-	predict.glmulti(	BGM30	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA62	<-	predict.glmulti(	BGM31	,	newdata = 	SC_ARI_SV1	,	se.fit = TRUE	)
+GLMRVA63	<-	predict.glmulti(	BGM1	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA64	<-	predict.glmulti(	BGM2	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA65	<-	predict.glmulti(	BGM3	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA66	<-	predict.glmulti(	BGM4	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA67	<-	predict.glmulti(	BGM5	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA68	<-	predict.glmulti(	BGM6	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA69	<-	predict.glmulti(	BGM7	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA70	<-	predict.glmulti(	BGM8	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA71	<-	predict.glmulti(	BGM9	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA72	<-	predict.glmulti(	BGM10	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA73	<-	predict.glmulti(	BGM11	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA74	<-	predict.glmulti(	BGM12	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA75	<-	predict.glmulti(	BGM13	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA76	<-	predict.glmulti(	BGM14	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA77	<-	predict.glmulti(	BGM15	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA78	<-	predict.glmulti(	BGM16	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA79	<-	predict.glmulti(	BGM17	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA80	<-	predict.glmulti(	BGM18	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA81	<-	predict.glmulti(	BGM19	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA82	<-	predict.glmulti(	BGM20	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA83	<-	predict.glmulti(	BGM21	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA84	<-	predict.glmulti(	BGM22	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA85	<-	predict.glmulti(	BGM23	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA86	<-	predict.glmulti(	BGM24	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA87	<-	predict.glmulti(	BGM25	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA88	<-	predict.glmulti(	BGM26	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA89	<-	predict.glmulti(	BGM27	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA90	<-	predict.glmulti(	BGM28	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA91	<-	predict.glmulti(	BGM29	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA92	<-	predict.glmulti(	BGM30	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA93	<-	predict.glmulti(	BGM31	,	newdata = 	SC_RAMS_SV2	,	se.fit = TRUE	)
+GLMRVA94	<-	predict.glmulti(	BGM1	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA95	<-	predict.glmulti(	BGM2	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA96	<-	predict.glmulti(	BGM3	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA97	<-	predict.glmulti(	BGM4	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA98	<-	predict.glmulti(	BGM5	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA99	<-	predict.glmulti(	BGM6	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA100	<-	predict.glmulti(	BGM7	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA101	<-	predict.glmulti(	BGM8	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA102	<-	predict.glmulti(	BGM9	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA103	<-	predict.glmulti(	BGM10	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA104	<-	predict.glmulti(	BGM11	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA105	<-	predict.glmulti(	BGM12	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA106	<-	predict.glmulti(	BGM13	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA107	<-	predict.glmulti(	BGM14	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA108	<-	predict.glmulti(	BGM15	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA109	<-	predict.glmulti(	BGM16	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA110	<-	predict.glmulti(	BGM17	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA111	<-	predict.glmulti(	BGM18	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA112	<-	predict.glmulti(	BGM19	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA113	<-	predict.glmulti(	BGM20	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA114	<-	predict.glmulti(	BGM21	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA115	<-	predict.glmulti(	BGM22	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA116	<-	predict.glmulti(	BGM23	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA117	<-	predict.glmulti(	BGM24	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA118	<-	predict.glmulti(	BGM25	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA119	<-	predict.glmulti(	BGM26	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA120	<-	predict.glmulti(	BGM27	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA121	<-	predict.glmulti(	BGM28	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA122	<-	predict.glmulti(	BGM29	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA123	<-	predict.glmulti(	BGM30	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+GLMRVA124	<-	predict.glmulti(	BGM31	,	newdata = 	SC_ARI_SV2	,	se.fit = TRUE	)
+
+```
+
+```{r}
+ste <- SC_ARI_SV1$TT * scaleList_WTP$scale[11] + scaleList_WTP$center[11]
+
+GLMRVA1<-0.444965
+GLMRVA2<-13.85042
+GLMRVA3<-16.76845
+GLMRVA4<--9.937609
+GLMRVA5<--275.3496
+GLMRVA6<-52.16405
+GLMRVA7<-2.449354
+GLMRVA8<-18.66851
+GLMRVA9<-258.1796
+GLMRVA10<-100.2178
+GLMRVA11<-1.051971
+GLMRVA12<-2.465037
+GLMRVA13<-6.604045
+GLMRVA14<-64.43133
+GLMRVA15<-14.19443
+GLMRVA16<--2.506169
+GLMRVA17<-9.810472
+GLMRVA18<--2.544162
+GLMRVA19<-0.5066785
+GLMRVA20<-74.36231
+GLMRVA21<-14.10963
+GLMRVA22<--0.6516011
+GLMRVA23<--67.71411
+GLMRVA24<-10.99632
+GLMRVA25<-2.07396
+GLMRVA26<-19.44753
+GLMRVA27<-6.301169
+GLMRVA28<-1.790515
+GLMRVA29<--13.40598
+GLMRVA30<-15.25485
+GLMRVA31<-4.695241
+GLMRVA32<-0.3975647
+GLMRVA33<-14.91615
+GLMRVA34<-17.07209
+GLMRVA35<--9.920735
+GLMRVA36<--310.9385
+GLMRVA37<-51.15176
+GLMRVA38<-2.418989
+GLMRVA39<-18.68021
+GLMRVA40<-258.4003
+GLMRVA41<-98.69475
+GLMRVA42<-1.043132
+GLMRVA43<-2.425951
+GLMRVA44<-10.80581
+GLMRVA45<-58.97143
+GLMRVA46<-8.801583
+GLMRVA47<--2.262011
+GLMRVA48<--4.75467
+GLMRVA49<--2.046536
+GLMRVA50<-0.8992486
+GLMRVA51<-112.2739
+GLMRVA52<-14.44714
+GLMRVA53<--0.4918556
+GLMRVA54<--67.53251
+GLMRVA55<-5.586345
+GLMRVA56<-2.080948
+GLMRVA57<-19.73954
+GLMRVA58<-6.307526
+GLMRVA59<-1.27367
+GLMRVA60<--36.13635
+GLMRVA61<-18.21602
+GLMRVA62<-4.625636
+GLMRVA63<-0.4141067
+GLMRVA64<-14.18588
+GLMRVA65<-17.31696
+GLMRVA66<--8.551307
+GLMRVA67<--280.469
+GLMRVA68<-51.65267
+GLMRVA69<-2.308452
+GLMRVA70<-18.59222
+GLMRVA71<-244.5209
+GLMRVA72<-104.0832
+GLMRVA73<-1.052503
+GLMRVA74<-2.441451
+GLMRVA75<--0.1752652
+GLMRVA76<-55.38665
+GLMRVA77<-14.01065
+GLMRVA78<-1.962593
+GLMRVA79<-12.39923
+GLMRVA80<--2.456383
+GLMRVA81<-0.4365359
+GLMRVA82<-81.83603
+GLMRVA83<-14.18826
+GLMRVA84<-0.9387965
+GLMRVA85<--29.42714
+GLMRVA86<-11.00698
+GLMRVA87<-2.138308
+GLMRVA88<-14.77328
+GLMRVA89<-6.165532
+GLMRVA90<-1.732115
+GLMRVA91<--13.5071
+GLMRVA92<-41.50774
+GLMRVA93<-4.69664
+GLMRVA94<-0.3846027
+GLMRVA95<-14.3885
+GLMRVA96<-17.30256
+GLMRVA97<--9.182036
+GLMRVA98<--296.2271
+GLMRVA99<-51.76929
+GLMRVA100<-2.395678
+GLMRVA101<-18.66191
+GLMRVA102<-246.3776
+GLMRVA103<-102.6855
+GLMRVA104<-1.042838
+GLMRVA105<-2.430441
+GLMRVA106<--0.07537431
+GLMRVA107<-54.11797
+GLMRVA108<-11.5032
+GLMRVA109<-1.969831
+GLMRVA110<-7.619119
+GLMRVA111<--2.290463
+GLMRVA112<-0.5143274
+GLMRVA113<-89.22986
+GLMRVA114<-14.3159
+GLMRVA115<-1.007776
+GLMRVA116<--28.07185
+GLMRVA117<-10.02084
+GLMRVA118<-2.096434
+GLMRVA119<-14.97358
+GLMRVA120<-6.171211
+GLMRVA121<-1.537051
+GLMRVA122<--17.98348
+GLMRVA123<-41.36291
+GLMRVA124<-4.648104
+
+
+GLMRVA2<-GLMRVA2*scaleList_WTP$scale[1]+scaleList_WTP$center[1]
+GLMRVA3<-GLMRVA3*scaleList_WTP$scale[2]+scaleList_WTP$center[2]
+GLMRVA4<-GLMRVA4*scaleList_WTP$scale[3]+scaleList_WTP$center[3]
+GLMRVA5<-GLMRVA5*scaleList_WTP$scale[4]+scaleList_WTP$center[4]
+GLMRVA6<-GLMRVA6*scaleList_WTP$scale[5]+scaleList_WTP$center[5]
+GLMRVA7<-GLMRVA7*scaleList_WTP$scale[6]+scaleList_WTP$center[6]
+GLMRVA8<-GLMRVA8*scaleList_WTP$scale[7]+scaleList_WTP$center[7]
+GLMRVA9<-GLMRVA9*scaleList_WTP$scale[8]+scaleList_WTP$center[8]
+GLMRVA10<-GLMRVA10*scaleList_WTP$scale[9]+scaleList_WTP$center[9]
+GLMRVA11<-GLMRVA11*scaleList_WTP$scale[10]+scaleList_WTP$center[10]
+GLMRVA12<-GLMRVA12*scaleList_WTP$scale[11]+scaleList_WTP$center[11]
+GLMRVA13<-GLMRVA13*scaleList_WTP$scale[12]+scaleList_WTP$center[12]
+GLMRVA14<-GLMRVA14*scaleList_WTP$scale[13]+scaleList_WTP$center[13]
+GLMRVA15<-GLMRVA15*scaleList_WTP$scale[14]+scaleList_WTP$center[14]
+GLMRVA16<-GLMRVA16*scaleList_WTP$scale[15]+scaleList_WTP$center[15]
+GLMRVA17<-GLMRVA17*scaleList_WTP$scale[16]+scaleList_WTP$center[16]
+GLMRVA18<-GLMRVA18*scaleList_WTP$scale[17]+scaleList_WTP$center[17]
+GLMRVA19<-GLMRVA19*scaleList_WTP$scale[18]+scaleList_WTP$center[18]
+GLMRVA20<-GLMRVA20*scaleList_WTP$scale[19]+scaleList_WTP$center[19]
+GLMRVA21<-GLMRVA21*scaleList_WTP$scale[21]+scaleList_WTP$center[21]
+GLMRVA22<-GLMRVA22*scaleList_WTP$scale[22]+scaleList_WTP$center[22]
+GLMRVA23<-GLMRVA23*scaleList_WTP$scale[23]+scaleList_WTP$center[23]
+GLMRVA24<-GLMRVA24*scaleList_WTP$scale[24]+scaleList_WTP$center[24]
+GLMRVA25<-GLMRVA25*scaleList_WTP$scale[25]+scaleList_WTP$center[25]
+GLMRVA26<-GLMRVA26*scaleList_WTP$scale[26]+scaleList_WTP$center[26]
+GLMRVA27<-GLMRVA27*scaleList_WTP$scale[27]+scaleList_WTP$center[27]
+GLMRVA28<-GLMRVA28*scaleList_WTP$scale[28]+scaleList_WTP$center[28]
+GLMRVA29<-GLMRVA29*scaleList_WTP$scale[29]+scaleList_WTP$center[29]
+GLMRVA30<-GLMRVA30*scaleList_WTP$scale[30]+scaleList_WTP$center[30]
+GLMRVA31<-GLMRVA31*scaleList_WTP$scale[31]+scaleList_WTP$center[31]
+GLMRVA33<-GLMRVA33*scaleList_WTP$scale[1]+scaleList_WTP$center[1]
+GLMRVA34<-GLMRVA34*scaleList_WTP$scale[2]+scaleList_WTP$center[2]
+GLMRVA35<-GLMRVA35*scaleList_WTP$scale[3]+scaleList_WTP$center[3]
+GLMRVA36<-GLMRVA36*scaleList_WTP$scale[4]+scaleList_WTP$center[4]
+GLMRVA37<-GLMRVA37*scaleList_WTP$scale[5]+scaleList_WTP$center[5]
+GLMRVA38<-GLMRVA38*scaleList_WTP$scale[6]+scaleList_WTP$center[6]
+GLMRVA39<-GLMRVA39*scaleList_WTP$scale[7]+scaleList_WTP$center[7]
+GLMRVA40<-GLMRVA40*scaleList_WTP$scale[8]+scaleList_WTP$center[8]
+GLMRVA41<-GLMRVA41*scaleList_WTP$scale[9]+scaleList_WTP$center[9]
+GLMRVA42<-GLMRVA42*scaleList_WTP$scale[10]+scaleList_WTP$center[10]
+GLMRVA43<-GLMRVA43*scaleList_WTP$scale[11]+scaleList_WTP$center[11]
+GLMRVA44<-GLMRVA44*scaleList_WTP$scale[12]+scaleList_WTP$center[12]
+GLMRVA45<-GLMRVA45*scaleList_WTP$scale[13]+scaleList_WTP$center[13]
+GLMRVA46<-GLMRVA46*scaleList_WTP$scale[14]+scaleList_WTP$center[14]
+GLMRVA47<-GLMRVA47*scaleList_WTP$scale[15]+scaleList_WTP$center[15]
+GLMRVA48<-GLMRVA48*scaleList_WTP$scale[16]+scaleList_WTP$center[16]
+GLMRVA49<-GLMRVA49*scaleList_WTP$scale[17]+scaleList_WTP$center[17]
+GLMRVA50<-GLMRVA50*scaleList_WTP$scale[18]+scaleList_WTP$center[18]
+GLMRVA51<-GLMRVA51*scaleList_WTP$scale[19]+scaleList_WTP$center[19]
+GLMRVA52<-GLMRVA52*scaleList_WTP$scale[21]+scaleList_WTP$center[21]
+GLMRVA53<-GLMRVA53*scaleList_WTP$scale[22]+scaleList_WTP$center[22]
+GLMRVA54<-GLMRVA54*scaleList_WTP$scale[23]+scaleList_WTP$center[23]
+GLMRVA55<-GLMRVA55*scaleList_WTP$scale[24]+scaleList_WTP$center[24]
+GLMRVA56<-GLMRVA56*scaleList_WTP$scale[25]+scaleList_WTP$center[25]
+GLMRVA57<-GLMRVA57*scaleList_WTP$scale[26]+scaleList_WTP$center[26]
+GLMRVA58<-GLMRVA58*scaleList_WTP$scale[27]+scaleList_WTP$center[27]
+GLMRVA59<-GLMRVA59*scaleList_WTP$scale[28]+scaleList_WTP$center[28]
+GLMRVA60<-GLMRVA60*scaleList_WTP$scale[29]+scaleList_WTP$center[29]
+GLMRVA61<-GLMRVA61*scaleList_WTP$scale[30]+scaleList_WTP$center[30]
+GLMRVA62<-GLMRVA62*scaleList_WTP$scale[31]+scaleList_WTP$center[31]
+GLMRVA64<-GLMRVA64*scaleList_WTP$scale[1]+scaleList_WTP$center[1]
+GLMRVA65<-GLMRVA65*scaleList_WTP$scale[2]+scaleList_WTP$center[2]
+GLMRVA66<-GLMRVA66*scaleList_WTP$scale[3]+scaleList_WTP$center[3]
+GLMRVA67<-GLMRVA67*scaleList_WTP$scale[4]+scaleList_WTP$center[4]
+GLMRVA68<-GLMRVA68*scaleList_WTP$scale[5]+scaleList_WTP$center[5]
+GLMRVA69<-GLMRVA69*scaleList_WTP$scale[6]+scaleList_WTP$center[6]
+GLMRVA70<-GLMRVA70*scaleList_WTP$scale[7]+scaleList_WTP$center[7]
+GLMRVA71<-GLMRVA71*scaleList_WTP$scale[8]+scaleList_WTP$center[8]
+GLMRVA72<-GLMRVA72*scaleList_WTP$scale[9]+scaleList_WTP$center[9]
+GLMRVA73<-GLMRVA73*scaleList_WTP$scale[10]+scaleList_WTP$center[10]
+GLMRVA74<-GLMRVA74*scaleList_WTP$scale[11]+scaleList_WTP$center[11]
+GLMRVA75<-GLMRVA75*scaleList_WTP$scale[12]+scaleList_WTP$center[12]
+GLMRVA76<-GLMRVA76*scaleList_WTP$scale[13]+scaleList_WTP$center[13]
+GLMRVA77<-GLMRVA77*scaleList_WTP$scale[14]+scaleList_WTP$center[14]
+GLMRVA78<-GLMRVA78*scaleList_WTP$scale[15]+scaleList_WTP$center[15]
+GLMRVA79<-GLMRVA79*scaleList_WTP$scale[16]+scaleList_WTP$center[16]
+GLMRVA80<-GLMRVA80*scaleList_WTP$scale[17]+scaleList_WTP$center[17]
+GLMRVA81<-GLMRVA81*scaleList_WTP$scale[18]+scaleList_WTP$center[18]
+GLMRVA82<-GLMRVA82*scaleList_WTP$scale[19]+scaleList_WTP$center[19]
+GLMRVA83<-GLMRVA83*scaleList_WTP$scale[21]+scaleList_WTP$center[21]
+GLMRVA84<-GLMRVA84*scaleList_WTP$scale[22]+scaleList_WTP$center[22]
+GLMRVA85<-GLMRVA85*scaleList_WTP$scale[23]+scaleList_WTP$center[23]
+GLMRVA86<-GLMRVA86*scaleList_WTP$scale[24]+scaleList_WTP$center[24]
+GLMRVA87<-GLMRVA87*scaleList_WTP$scale[25]+scaleList_WTP$center[25]
+GLMRVA88<-GLMRVA88*scaleList_WTP$scale[26]+scaleList_WTP$center[26]
+GLMRVA89<-GLMRVA89*scaleList_WTP$scale[27]+scaleList_WTP$center[27]
+GLMRVA90<-GLMRVA90*scaleList_WTP$scale[28]+scaleList_WTP$center[28]
+GLMRVA91<-GLMRVA91*scaleList_WTP$scale[29]+scaleList_WTP$center[29]
+GLMRVA92<-GLMRVA92*scaleList_WTP$scale[30]+scaleList_WTP$center[30]
+GLMRVA93<-GLMRVA93*scaleList_WTP$scale[31]+scaleList_WTP$center[31]
+GLMRVA95<-GLMRVA95*scaleList_WTP$scale[1]+scaleList_WTP$center[1]
+GLMRVA96<-GLMRVA96*scaleList_WTP$scale[2]+scaleList_WTP$center[2]
+GLMRVA97<-GLMRVA97*scaleList_WTP$scale[3]+scaleList_WTP$center[3]
+GLMRVA98<-GLMRVA98*scaleList_WTP$scale[4]+scaleList_WTP$center[4]
+GLMRVA99<-GLMRVA99*scaleList_WTP$scale[5]+scaleList_WTP$center[5]
+GLMRVA100<-GLMRVA100*scaleList_WTP$scale[6]+scaleList_WTP$center[6]
+GLMRVA101<-GLMRVA101*scaleList_WTP$scale[7]+scaleList_WTP$center[7]
+GLMRVA102<-GLMRVA102*scaleList_WTP$scale[8]+scaleList_WTP$center[8]
+GLMRVA103<-GLMRVA103*scaleList_WTP$scale[9]+scaleList_WTP$center[9]
+GLMRVA104<-GLMRVA104*scaleList_WTP$scale[10]+scaleList_WTP$center[10]
+GLMRVA105<-GLMRVA105*scaleList_WTP$scale[11]+scaleList_WTP$center[11]
+GLMRVA106<-GLMRVA106*scaleList_WTP$scale[12]+scaleList_WTP$center[12]
+GLMRVA107<-GLMRVA107*scaleList_WTP$scale[13]+scaleList_WTP$center[13]
+GLMRVA108<-GLMRVA108*scaleList_WTP$scale[14]+scaleList_WTP$center[14]
+GLMRVA109<-GLMRVA109*scaleList_WTP$scale[15]+scaleList_WTP$center[15]
+GLMRVA110<-GLMRVA110*scaleList_WTP$scale[16]+scaleList_WTP$center[16]
+GLMRVA111<-GLMRVA111*scaleList_WTP$scale[17]+scaleList_WTP$center[17]
+GLMRVA112<-GLMRVA112*scaleList_WTP$scale[18]+scaleList_WTP$center[18]
+GLMRVA113<-GLMRVA113*scaleList_WTP$scale[19]+scaleList_WTP$center[19]
+GLMRVA114<-GLMRVA114*scaleList_WTP$scale[21]+scaleList_WTP$center[21]
+GLMRVA115<-GLMRVA115*scaleList_WTP$scale[22]+scaleList_WTP$center[22]
+GLMRVA116<-GLMRVA116*scaleList_WTP$scale[23]+scaleList_WTP$center[23]
+GLMRVA117<-GLMRVA117*scaleList_WTP$scale[24]+scaleList_WTP$center[24]
+GLMRVA118<-GLMRVA118*scaleList_WTP$scale[25]+scaleList_WTP$center[25]
+GLMRVA119<-GLMRVA119*scaleList_WTP$scale[26]+scaleList_WTP$center[26]
+GLMRVA120<-GLMRVA120*scaleList_WTP$scale[27]+scaleList_WTP$center[27]
+GLMRVA121<-GLMRVA121*scaleList_WTP$scale[28]+scaleList_WTP$center[28]
+GLMRVA122<-GLMRVA122*scaleList_WTP$scale[29]+scaleList_WTP$center[29]
+GLMRVA123<-GLMRVA123*scaleList_WTP$scale[30]+scaleList_WTP$center[30]
+GLMRVA124<-GLMRVA124*scaleList_WTP$scale[31]+scaleList_WTP$center[31]
+
+
+
+
+
+
+
+```
+

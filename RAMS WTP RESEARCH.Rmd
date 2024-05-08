@@ -1,0 +1,357 @@
+---
+title: "RAMS WTP RESEARCH"
+output: word_document
+---
+```{r,warning=FALSE}
+library(readxl)
+WEEKLY_TEAM_PERFORMANCE <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/WEEKLY TEAM PERFORMANCE.xlsx")
+
+
+WEEKLY_TEAM_PERFORMANCE[4:33] <- lapply(WEEKLY_TEAM_PERFORMANCE[4:33], as.numeric)
+
+WEEKLY_TEAM_PERFORMANCE$TO[is.na(WEEKLY_TEAM_PERFORMANCE$TO)] = 0
+
+WEEKLY_TEAM_PERFORMANCE$DTO[is.na(WEEKLY_TEAM_PERFORMANCE$DTO)] = 0
+
+
+
+WEEKLY_TEAM_PERFORMANCE<- na.omit(WEEKLY_TEAM_PERFORMANCE)
+
+
+# prediction models
+
+Rams_SV1 <- data.frame(TT = 2.7875, CAY= 5.8608,AGG = 6.6085, AYTS = -.8908, COMP = 63.56, Week = 17, TLOS = 2.57, EFF=4.65,EM=32.01,CUSH=5.47, SEP=1.95, TAY=9.79, CTCH=65.50,YACR=5.95,AVG=4.89)
+
+ARI_SV1 <- data.frame(TT =2.22 , CAY=4.52 ,AGG =11.057 , AYTS =-4.01 , COMP =65 , Week = 17, TLOS =2.57 , EFF=3.89,EM=18.6993,CUSH=5.62, SEP=1.9688, TAY=7.475, CTCH=67.86,YACR=4.75,AVG=4.73)
+
+
+RAMS_SV2 <- data.frame(TT = 2.7875 , CAY= 5.925 ,AGG = 11.575 , AYTS =-1.21  , COMP =61.95 , Week = 17, TLOS =2.94 , EFF=4.66,EM=32.76,CUSH=6.35, SEP=3.28, TAY=8.9, CTCH=65.3,YACR=5.69,AVG=3.91)
+
+
+ARI_SV2 <- data.frame(TT = 2.683, CAY=4.9 ,AGG =13.825 , AYTS =-2.46 , COMP =64.61 , Week = 17, TLOS =2.94 , EFF=4.02,EM=18.48,CUSH=6.01, SEP=3.25, TAY=8.57, CTCH=67.45,YACR=4.714,AVG=4.53)
+
+
+
+SC_Rams_SV1 <- data.frame(TT = 2.7875, CAY= 5.8608,AGG = 6.6085, AYTS = -.8908, COMP = 63.56, Week = 17, TLOS = 2.57, EFF=4.65,EM=32.01,CUSH=5.47, SEP=1.95, TAY=9.79, CTCH=65.50,YACR=5.95,AVG=4.89)
+
+SC_ARI_SV1 <- data.frame(TT =2.22 , CAY=4.52 ,AGG =11.057 , AYTS =-4.01 , COMP =65 , Week = 17, TLOS =2.57 , EFF=3.89,EM=18.6993,CUSH=5.62, SEP=1.9688, TAY=7.475, CTCH=67.86,YACR=4.75,AVG=4.73)
+
+
+SC_RAMS_SV2 <- data.frame(TT = 2.7875 , CAY= 5.925 ,AGG = 11.575 , AYTS =-1.21  , COMP =61.95 , Week = 17, TLOS =2.94 , EFF=4.66,EM=32.76,CUSH=6.35, SEP=3.28, TAY=8.9, CTCH=65.3,YACR=5.69,AVG=3.91)
+
+
+SC_ARI_SV2 <- data.frame(TT = 2.683, CAY=4.9 ,AGG =13.825 , AYTS =-2.46 , COMP =64.61 , Week = 17, TLOS =2.94 , EFF=4.02,EM=18.48,CUSH=6.01, SEP=3.25, TAY=8.57, CTCH=67.45,YACR=4.714,AVG=4.53)
+
+
+#ARI_SV1 <- data.frame(TT = , CAY= ,AGG = , AYTS = , COMP = , Week = 17, TLOS = , EFF=,ED=,CUSH=, SEP=, TAY=, CTCH=,YACR=,AVG=)
+
+
+
+AWTP <- subset(WEEKLY_TEAM_PERFORMANCE,select=c(Team,TT,	CAY,AGG,AYTS,COMP,Week,EFF,EM,TLOS,AVG,CUSH,SEP,	TAY,CTCH,YACR
+)) 
+
+library(rJava)
+library(glmulti)
+library(randomForest)
+
+#Creating rams subset and Arizona subset for data
+
+ARI_WTP <- subset(WEEKLY_TEAM_PERFORMANCE, Team=="ARI" )
+ARI_AWTP <- subset(AWTP, Team=="ARI")
+
+RAMS_WTP <- subset(WEEKLY_TEAM_PERFORMANCE, Team=="LAR" )
+RAMS_AWTP <- subset(AWTP, Team=="LAR")
+
+#ARI 
+
+#geneticfullmodels
+ARIGLM1<-glmulti(outcome~AGG+AYTS+COMP+EFF+EM+CUSH+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM2<-glmulti(TEAMS~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+#ARIGLM3<-glmulti(OPPS~AGG+Week+EFF+EM+AVG+CUSH,data=ARI_WTP,level=2,crit="aic",method="g")
+#ARIGLM4<-glmulti(FD~TT+AYTS+COMP+AVG+CUSH+CTCH,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM5<-glmulti(PY~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM6<-glmulti(RY~TT+AGG+AYTS+COMP+AVG+CUSH+TAY+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM7<-glmulti(TO~CAY+AYTS+EFF+EM+AVG+CUSH+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+#ARIGLM8<-glmulti(DFD~CAY+AGG+COMP+AVG,data=ARI_WTP,level=2,crit="aic",method="g")
+
+```
+
+```{r}
+ARIGLM9<-glmulti(DPY~CAY+AGG+TLOS+CTCH,data=ARI_WTP,level=2,crit="aic",method="g")
+#ARIGLM10<-glmulti(DRY~Week+TLOS+AVG+CUSH+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+```
+
+```{r}
+ARIGLM11<-glmulti(DTO~Week+EFF+EM,data=ARI_WTP,level=2,crit="aic",method="h")
+ARIGLM12<-glmulti(TT~CAY+AGG+COMP+Week+EM+TLOS+SEP+TAY,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM13<-glmulti(CAY~TT+AYTS+COMP+TLOS+SEP+TAY+CTCH,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM14<-glmulti(AGG~TT+AYTS+COMP+EFF+CUSH+SEP+TAY+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM15<-glmulti(LCAD~TT+CAY+AYTS+AVG+CUSH+SEP+TAY+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM16<-glmulti(AYTS~CAY+AGG+COMP+Week+TLOS+SEP+TAY+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM17<-glmulti(ATT~TT+AYTS+COMP+Week+AVG+CUSH+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM18<-glmulti(TD~CAY+AYTS+COMP+Week+EFF+AVG+TAY+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM19<-glmulti(INT~TT+AYTS+COMP+Week+AVG+TAY,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM20<-glmulti(COMP~TT+CAY+AGG+AYTS+Week+TLOS+TAY+CTCH,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM21<-glmulti(RUSHATT~AGG+AYTS+Week+EFF+AVG+SEP+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM22<-glmulti(RUSHTD~AGG+COMP+EM+TLOS+AVG+SEP+CTCH+YACR,data=ARI_WTP,level=2,crit="aic",method="g")
+ARIGLM23<-glmulti(EFF~AGG+TLOS+AVG+SEP+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM24<-glmulti(EM~TT+COMP+CTCH+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM25<-glmulti(TLOS~TT+CAY+AYTS+COMP+EFF+AVG+CUSH+CTCH,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM26<-glmulti(AVG~Week+EFF+TLOS+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM27<-glmulti(CUSH~AGG+Week+EFF+TLOS+SEP+TAY+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM28<-glmulti(SEP~CAY+AGG+AYTS+EFF+CUSH+TAY+CTCH+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM29<-glmulti(TAY~TT+AGG+AYTS+COMP+Week+CUSH+SEP+CTCH,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM30<-glmulti(CTCH~CAY+COMP+EM+TLOS+AVG+SEP+TAY+YACR,data=ARI_AWTP,level=2,crit="aic",method="g")
+ARIGLM31<-glmulti(YACR~AGG+COMP+EFF+EM+AVG+CUSH+SEP+CTCH,data=ARI_AWTP,level=2,crit="aic",method="g")
+
+# random forest models
+
+ARIWTP1<-randomForest(outcome~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP2<-randomForest(TEAMS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP3<-randomForest(OPPS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP4<-randomForest(FD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP5<-randomForest(PY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP6<-randomForest(RY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP7<-randomForest(TO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP8<-randomForest(DFD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP9<-randomForest(DPY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP10<-randomForest(DRY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP11<-randomForest(DTO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP12<-randomForest(TT~CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP13<-randomForest(CAY~TT+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP14<-randomForest(AGG~TT+CAY+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP15<-randomForest(LCAD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP16<-randomForest(AYTS~TT+CAY+AGG+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP17<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP18<-randomForest(TD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+#ARIWTP19<-randomForest(INT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+```
+
+```{r}
+
+ARIWTP20<-randomForest(COMP~TT+CAY+AGG+AYTS+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP21<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP22<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP23<-randomForest(EFF~TT+CAY+AGG+AYTS+COMP+Week+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP24<-randomForest(EM~TT+CAY+AGG+AYTS+COMP+Week+EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP25<-randomForest(TLOS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+AVG+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP26<-randomForest(AVG~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+CUSH+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP27<-randomForest(CUSH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+SEP+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP28<-randomForest(SEP~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+TAY+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP29<-randomForest(TAY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+CTCH+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP30<-randomForest(CTCH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+YACR,data=ARI_WTP, importance = TRUE)
+ARIWTP31<-randomForest(YACR~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH,data=ARI_WTP, importance = TRUE)
+
+#Rams
+
+#geneticfullmodels
+RGLM1<-glmulti(outcome~AGG+AYTS+COMP+EFF+EM+CUSH+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM2<-glmulti(TEAMS~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM3<-glmulti(OPPS~AGG+Week+EFF+EM+AVG+CUSH,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM4<-glmulti(FD~TT+AYTS+COMP+Week+AVG+CUSH+TAY+CTCH,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM5<-glmulti(PY~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM6<-glmulti(RY~TT+AGG+AYTS+COMP+AVG+CUSH+TAY+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM7<-glmulti(TO~CAY+AYTS+EFF+EM+AVG+CUSH+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM8<-glmulti(DFD~CAY+AGG+COMP+AVG,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM9<-glmulti(DPY~CAY+AGG+TLOS+CTCH,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM10<-glmulti(DRY~Week+TLOS+AVG+CUSH+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM11<-glmulti(DTO~Week+EFF+EM,data=RAMS_WTP,level=2,crit="aic",method="h")
+RGLM12<-glmulti(TT~CAY+AGG+COMP+Week+EM+TLOS+SEP+TAY,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM13<-glmulti(CAY~TT+AYTS+COMP+TLOS+SEP+TAY+CTCH,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM14<-glmulti(AGG~TT+AYTS+COMP+EFF+CUSH+SEP+TAY+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM15<-glmulti(LCAD~TT+CAY+AYTS+AVG+CUSH+SEP+TAY+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM16<-glmulti(AYTS~CAY+AGG+COMP+Week+TLOS+SEP+TAY+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM17<-glmulti(ATT~TT+AYTS+COMP+Week+AVG+CUSH+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM18<-glmulti(TD~CAY+AYTS+COMP+Week+EFF+AVG+TAY+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM19<-glmulti(INT~TT+AYTS+COMP+Week+AVG+TAY,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM20<-glmulti(COMP~TT+CAY+AGG+AYTS+Week+TLOS+TAY+CTCH,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM21<-glmulti(RUSHATT~AGG+AYTS+Week+EFF+AVG+SEP+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM22<-glmulti(RUSHTD~AGG+COMP+EM+TLOS+AVG+SEP+CTCH+YACR,data=RAMS_WTP,level=2,crit="aic",method="g")
+RGLM23<-glmulti(EFF~AGG+TLOS+AVG+SEP+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM24<-glmulti(EM~TT+COMP+CTCH+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM25<-glmulti(TLOS~TT+CAY+AYTS+COMP+EFF+AVG+CUSH+CTCH,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM26<-glmulti(AVG~Week+EFF+TLOS+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM27<-glmulti(CUSH~AGG+Week+EFF+TLOS+SEP+TAY+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM28<-glmulti(SEP~CAY+AGG+AYTS+EFF+CUSH+TAY+CTCH+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM29<-glmulti(TAY~TT+AGG+AYTS+COMP+Week+CUSH+SEP+CTCH,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM30<-glmulti(CTCH~CAY+COMP+EM+TLOS+AVG+SEP+TAY+YACR,data=RAMS_AWTP,level=2,crit="aic",method="g")
+RGLM31<-glmulti(YACR~AGG+COMP+EFF+EM+AVG+CUSH+SEP+CTCH,data=RAMS_AWTP,level=2,crit="aic",method="g")
+
+# random forest models
+
+RWTP1<-randomForest(outcome~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP2<-randomForest(TEAMS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP3<-randomForest(OPPS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP4<-randomForest(FD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP5<-randomForest(PY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP6<-randomForest(RY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP7<-randomForest(TO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP8<-randomForest(DFD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP9<-randomForest(DPY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP10<-randomForest(DRY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP11<-randomForest(DTO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP12<-randomForest(TT~CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP13<-randomForest(CAY~TT+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP14<-randomForest(AGG~TT+CAY+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP15<-randomForest(LCAD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP16<-randomForest(AYTS~TT+CAY+AGG+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP17<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP18<-randomForest(TD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP19<-randomForest(INT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP20<-randomForest(COMP~TT+CAY+AGG+AYTS+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP21<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP22<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP23<-randomForest(EFF~TT+CAY+AGG+AYTS+COMP+Week+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP24<-randomForest(EM~TT+CAY+AGG+AYTS+COMP+Week+EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP25<-randomForest(TLOS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+AVG+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP26<-randomForest(AVG~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+CUSH+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP27<-randomForest(CUSH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+SEP+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP28<-randomForest(SEP~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+TAY+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP29<-randomForest(TAY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+CTCH+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP30<-randomForest(CTCH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+YACR,data=RAMS_WTP, importance = TRUE)
+RWTP31<-randomForest(YACR~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH,data=RAMS_WTP, importance = TRUE)
+
+
+```
+
+
+```{r}
+
+
+
+RTO1	<-	predict(	RWTP1	,	newdata = 	Rams_SV1		)
+RTO2	<-	predict(	RWTP2	,	newdata = 	Rams_SV1		)
+RTO3	<-	predict(	RWTP3	,	newdata = 	Rams_SV1		)
+RTO4	<-	predict(	RWTP4	,	newdata = 	Rams_SV1		)
+RTO5	<-	predict(	RWTP5	,	newdata = 	Rams_SV1		)
+RTO6	<-	predict(	RWTP6	,	newdata = 	Rams_SV1		)
+RTO7	<-	predict(	RWTP7	,	newdata = 	Rams_SV1		)
+RTO8	<-	predict(	RWTP8	,	newdata = 	Rams_SV1		)
+RTO9	<-	predict(	RWTP9	,	newdata = 	Rams_SV1		)
+RTO10	<-	predict(	RWTP10	,	newdata = 	Rams_SV1		)
+RTO11	<-	predict(	RWTP11	,	newdata = 	Rams_SV1		)
+RTO12	<-	predict(	RWTP12	,	newdata = 	Rams_SV1	[-1]	)
+RTO13	<-	predict(	RWTP13	,	newdata = 	Rams_SV1	[-2]	)
+RTO14	<-	predict(	RWTP14	,	newdata = 	Rams_SV1	[-3]	)
+RTO15	<-	predict(	RWTP15	,	newdata = 	Rams_SV1		)
+RTO16	<-	predict(	RWTP16	,	newdata = 	Rams_SV1	[-4]	)
+RTO17	<-	predict(	RWTP17	,	newdata = 	Rams_SV1		)
+RTO18	<-	predict(	RWTP18	,	newdata = 	Rams_SV1		)
+RTO19	<-	predict(	RWTP19	,	newdata = 	Rams_SV1		)
+RTO20	<-	predict(	RWTP20	,	newdata = 	Rams_SV1	[-5]	)
+RTO21	<-	predict(	RWTP21	,	newdata = 	Rams_SV1		)
+RTO22	<-	predict(	RWTP22	,	newdata = 	Rams_SV1		)
+RTO23	<-	predict(	RWTP23	,	newdata = 	Rams_SV1	[-8]	)
+RTO24	<-	predict(	RWTP24	,	newdata = 	Rams_SV1	[-9]	)
+RTO25	<-	predict(	RWTP25	,	newdata = 	Rams_SV1	[-7]	)
+RTO26	<-	predict(	RWTP26	,	newdata = 	Rams_SV1	[-15]	)
+RTO27	<-	predict(	RWTP27	,	newdata = 	Rams_SV1	[-10]	)
+RTO28	<-	predict(	RWTP28	,	newdata = 	Rams_SV1	[-11]	)
+RTO29	<-	predict(	RWTP29	,	newdata = 	Rams_SV1	[-12]	)
+RTO30	<-	predict(	RWTP30	,	newdata = 	Rams_SV1	[-13]	)
+RTO31	<-	predict(	RWTP31	,	newdata = 	Rams_SV1	[-14]	)
+
+ATO63	<-	predict(	ARIWTP1	,	ARI_SV1	)
+ATO64	<-	predict(	ARIWTP2	,	ARI_SV1	)
+ATO65	<-	predict(	ARIWTP3	,	ARI_SV1	)
+ATO66	<-	predict(	ARIWTP4	,	ARI_SV1	)
+ATO67	<-	predict(	ARIWTP5	,	ARI_SV1	)
+ATO68	<-	predict(	ARIWTP6	,	ARI_SV1	)
+ATO69	<-	predict(	ARIWTP7	,	ARI_SV1	)
+ATO70	<-	predict(	ARIWTP8	,	ARI_SV1	)
+ATO71	<-	predict(	ARIWTP9	,	ARI_SV1	)
+ATO72	<-	predict(	ARIWTP10	,	ARI_SV1	)
+ATO73	<-	predict(	ARIWTP11	,	ARI_SV1	)
+ATO74	<-	predict(	ARIWTP12	,	ARI_SV1	)
+ATO75	<-	predict(	ARIWTP13	,	ARI_SV1	)
+ATO76	<-	predict(	ARIWTP14	,	ARI_SV1	)
+ATO77	<-	predict(	ARIWTP15	,	ARI_SV1	)
+ATO78	<-	predict(	ARIWTP16	,	ARI_SV1	)
+ATO79	<-	predict(	ARIWTP17	,	ARI_SV1	)
+ATO80	<-	predict(	ARIWTP18	,	ARI_SV1	)
+#ATO81	<-	predict(	ARIWTP19	,	ARI_SV1	)
+ATO82	<-	predict(	ARIWTP20	,	ARI_SV1	)
+ATO83	<-	predict(	ARIWTP21	,	ARI_SV1	)
+ATO84	<-	predict(	ARIWTP22	,	ARI_SV1	)
+ATO85	<-	predict(	ARIWTP23	,	ARI_SV1	)
+ATO86	<-	predict(	ARIWTP24	,	ARI_SV1	)
+ATO87	<-	predict(	ARIWTP25	,	ARI_SV1	)
+ATO88	<-	predict(	ARIWTP26	,	ARI_SV1	)
+ATO89	<-	predict(	ARIWTP27	,	ARI_SV1	)
+ATO90	<-	predict(	ARIWTP28	,	ARI_SV1	)
+ATO91	<-	predict(	ARIWTP29	,	ARI_SV1	)
+ATO92	<-	predict(	ARIWTP30	,	ARI_SV1	)
+ATO93	<-	predict(	ARIWTP31	,	ARI_SV1	)
+
+
+TOD1<-predict.glmulti(RGLM1,newdata=Rams_SV1,se.fit=TRUE)
+TOD2<-predict.glmulti(RGLM2,newdata=Rams_SV1,se.fit=TRUE)
+TOD3<-predict.glmulti(RGLM3,newdata=Rams_SV1,se.fit=TRUE)
+TOD4<-predict.glmulti(RGLM4,newdata=Rams_SV1,se.fit=TRUE)
+TOD5<-predict.glmulti(RGLM5,newdata=Rams_SV1,se.fit=TRUE)
+TOD6<-predict.glmulti(RGLM6,newdata=Rams_SV1,se.fit=TRUE)
+TOD7<-predict.glmulti(RGLM7,newdata=Rams_SV1,se.fit=TRUE)
+TOD8<-predict.glmulti(RGLM8,newdata=Rams_SV1,se.fit=TRUE)
+TOD9<-predict.glmulti(RGLM9,newdata=Rams_SV1,se.fit=TRUE)
+TOD10<-predict.glmulti(RGLM10,newdata=Rams_SV1,se.fit=TRUE)
+TOD11<-predict.glmulti(RGLM11,newdata=Rams_SV1,se.fit=TRUE)
+TOD12<-predict.glmulti(RGLM12,newdata=Rams_SV1,se.fit=TRUE)
+TOD13<-predict.glmulti(RGLM13,newdata=Rams_SV1,se.fit=TRUE)
+TOD14<-predict.glmulti(RGLM14,newdata=Rams_SV1,se.fit=TRUE)
+TOD15<-predict.glmulti(RGLM15,newdata=Rams_SV1,se.fit=TRUE)
+TOD16<-predict.glmulti(RGLM16,newdata=Rams_SV1,se.fit=TRUE)
+TOD17<-predict.glmulti(RGLM17,newdata=Rams_SV1,se.fit=TRUE)
+TOD18<-predict.glmulti(RGLM18,newdata=Rams_SV1,se.fit=TRUE)
+TOD19<-predict.glmulti(RGLM19,newdata=Rams_SV1,se.fit=TRUE)
+TOD20<-predict.glmulti(RGLM20,newdata=Rams_SV1,se.fit=TRUE)
+TOD21<-predict.glmulti(RGLM21,newdata=Rams_SV1,se.fit=TRUE)
+TOD22<-predict.glmulti(RGLM22,newdata=Rams_SV1,se.fit=TRUE)
+TOD23<-predict.glmulti(RGLM23,newdata=Rams_SV1,se.fit=TRUE)
+TOD24<-predict.glmulti(RGLM24,newdata=Rams_SV1,se.fit=TRUE)
+TOD25<-predict.glmulti(RGLM25,newdata=Rams_SV1,se.fit=TRUE)
+TOD26<-predict.glmulti(RGLM26,newdata=Rams_SV1,se.fit=TRUE)
+TOD27<-predict.glmulti(RGLM27,newdata=Rams_SV1,se.fit=TRUE)
+TOD28<-predict.glmulti(RGLM28,newdata=Rams_SV1,se.fit=TRUE)
+TOD29<-predict.glmulti(RGLM29,newdata=Rams_SV1,se.fit=TRUE)
+TOD30<-predict.glmulti(RGLM30,newdata=Rams_SV1,se.fit=TRUE)
+TOD31<-predict.glmulti(RGLM31,newdata=Rams_SV1,se.fit=TRUE)
+TOD32<-predict.glmulti(ARIGLM1,newdata=ARI_SV1,se.fit=TRUE)
+TOD33<-predict.glmulti(ARIGLM2,newdata=ARI_SV1,se.fit=TRUE)
+#TOD34<-predict.glmulti(ARIGLM3,newdata=ARI_SV1,se.fit=TRUE)
+#TOD35<-predict.glmulti(ARIGLM4,newdata=ARI_SV1,se.fit=TRUE)
+
+```
+
+```{r}
+
+TOD36<-predict.glmulti(ARIGLM5,newdata=ARI_SV1,se.fit=TRUE)
+TOD37<-predict.glmulti(ARIGLM6,newdata=ARI_SV1,se.fit=TRUE)
+TOD38<-predict.glmulti(ARIGLM7,newdata=ARI_SV1,se.fit=TRUE)
+#TOD39<-predict.glmulti(ARIGLM8,newdata=ARI_SV1,se.fit=TRUE)
+#TOD40<-predict.glmulti(ARIGLM9,newdata=ARI_SV1,se.fit=TRUE)
+#TOD41<-predict.glmulti(ARIGLM10,newdata=ARI_SV1,se.fit=TRUE)
+TOD42<-predict.glmulti(ARIGLM11,newdata=ARI_SV1,se.fit=TRUE)
+TOD43<-predict.glmulti(ARIGLM12,newdata=ARI_SV1,se.fit=TRUE)
+TOD44<-predict.glmulti(ARIGLM13,newdata=ARI_SV1,se.fit=TRUE)
+TOD45<-predict.glmulti(ARIGLM14,newdata=ARI_SV1,se.fit=TRUE)
+TOD46<-predict.glmulti(ARIGLM15,newdata=ARI_SV1,se.fit=TRUE)
+TOD47<-predict.glmulti(ARIGLM16,newdata=ARI_SV1,se.fit=TRUE)
+TOD48<-predict.glmulti(ARIGLM17,newdata=ARI_SV1,se.fit=TRUE)
+TOD49<-predict.glmulti(ARIGLM18,newdata=ARI_SV1,se.fit=TRUE)
+#TOD50<-predict.glmulti(ARIGLM19,newdata=ARI_SV1,se.fit=TRUE)
+TOD51<-predict.glmulti(ARIGLM20,newdata=ARI_SV1,se.fit=TRUE)
+TOD52<-predict.glmulti(ARIGLM21,newdata=ARI_SV1,se.fit=TRUE)
+TOD53<-predict.glmulti(ARIGLM22,newdata=ARI_SV1,se.fit=TRUE)
+TOD54<-predict.glmulti(ARIGLM23,newdata=ARI_SV1,se.fit=TRUE)
+TOD55<-predict.glmulti(ARIGLM24,newdata=ARI_SV1,se.fit=TRUE)
+TOD56<-predict.glmulti(ARIGLM25,newdata=ARI_SV1,se.fit=TRUE)
+TOD57<-predict.glmulti(ARIGLM26,newdata=ARI_SV1,se.fit=TRUE)
+TOD58<-predict.glmulti(ARIGLM27,newdata=ARI_SV1,se.fit=TRUE)
+TOD59<-predict.glmulti(ARIGLM28,newdata=ARI_SV1,se.fit=TRUE)
+TOD60<-predict.glmulti(ARIGLM29,newdata=ARI_SV1,se.fit=TRUE)
+TOD61<-predict.glmulti(ARIGLM30,newdata=ARI_SV1,se.fit=TRUE)
+TOD62<-predict.glmulti(ARIGLM31,newdata=ARI_SV1,se.fit=TRUE)
+
+
+```
+

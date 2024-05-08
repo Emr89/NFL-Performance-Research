@@ -1,0 +1,3230 @@
+---
+title: "MIA TZCHI"
+output: word_document
+---
+
+
+```{r warning=FALSE}
+library(readxl)
+library(tidyverse)
+
+
+ Defense_Season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense Season.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+Defense_Weekly <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense Weekly.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+ESPN_PASSING_WEEKLY <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/ESPN_PASSING_WEEKLY.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric","numeric"))
+
+Full_team_Points_Game_season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Full team Points Game season.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+
+
+ Kick_Return_Season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Kick Return Season.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+
+NEXT_GEN_STATS_PASSING <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NEXT GEN STATS PASSING.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+Next_gen_stats_receving <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Next gen stats receving.xlsx", 
+    col_types = c("text", "text", "text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+
+Passing_Weekly <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Passing Weekly.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+
+
+ Punt_Return_season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Punt Return season.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+
+ QB_SEASON_PASSING <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/QB SEASON PASSING.xlsx", 
+    col_types = c("numeric", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+
+REC_WEEKLY <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/REC WEEKLY.xlsx",col_types = c("text", "text", "text","text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+
+
+
+Receiving_SEASON <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Receiving SEASON.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+
+Rushing_Season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Rushing Season.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+Scoring_Season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Scoring Season.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "skip", "skip", "numeric", 
+        "numeric"))
+
+teams_downs_seasons <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/teams downs seasons.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", "numeric"))
+TEAMS_PASSING_SEASON <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/TEAMS PASSING SEASON.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+teams_percentage_plays_season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/teams percentage plays season.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+teams_rushing_season <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/teams rushing season.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+teams_scoring_seasons <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/teams scoring seasons.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "skip", "skip", 
+        "numeric", "numeric", "numeric"))
+
+Weekly_Rushing_Stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly Rushing Stats.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+Weekly_Passing <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly_Passing.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+ADV_DEF_MOD_STATS <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Adv_DEF_MOD_STATS.xlsx")
+
+
+WEEKLY_ADV_RUSH_STATS <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/WEEKLY_ADV_RUSH_STATS.xlsx")
+
+WEEKLY_REC_WEEK <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly_REC_WEEK.xlsx")
+
+
+
+
+
+WEEKLY_ADV_RUSH_STATS[3:10] <- lapply(WEEKLY_ADV_RUSH_STATS[3:10], as.numeric)
+
+WEEKLY_REC_WEEK[4:13] <- lapply(WEEKLY_REC_WEEK[4:13], as.numeric)
+
+#Creating Subsets 
+
+NYG_Defense_season <- subset(Defense_Season, Defense_Season$Team == "NYG")
+
+MIA_Defense_season <- subset(Defense_Season, Defense_Season$Team == "MIA")
+
+NYG_Defense_weekly <- subset(Defense_Weekly, Defense_Weekly$Team == "NYG")
+
+MIA_Defense_weekly <- subset(Defense_Weekly, Defense_Weekly$Team == "MIA")
+
+NYG_espn_weekly_passing <- subset(ESPN_PASSING_WEEKLY, ESPN_PASSING_WEEKLY$TEAM == "NYG")
+
+MIA_espn_weekly_passing <- subset(ESPN_PASSING_WEEKLY, ESPN_PASSING_WEEKLY$TEAM == "LAR")
+
+
+NYG_fullteam_points_game <- subset(Full_team_Points_Game_season, Full_team_Points_Game_season$Team == "New York GiantsNY Giants")
+
+MIA_fullteam_points_game <- subset(Full_team_Points_Game_season, Full_team_Points_Game_season$Team == "Miami DolphinsMiami")
+
+NYG_kickreturn_szn<- subset(Kick_Return_Season, Kick_Return_Season$Team == "NYG")
+
+MIA_kickreturn_szn<- subset(Kick_Return_Season, Kick_Return_Season$Team == "MIA")
+
+NYG_nextgenstats_passing<- subset(NEXT_GEN_STATS_PASSING, NEXT_GEN_STATS_PASSING$TEAM == "NYG")
+
+MIA_nextgenstats_passing<- subset(NEXT_GEN_STATS_PASSING, NEXT_GEN_STATS_PASSING$TEAM == "LAR")
+
+NYG_nextgenstats_receving<- subset(Next_gen_stats_receving, Next_gen_stats_receving$TEAM == "NYG")
+
+MIA_nextgenstats_receving<- subset(Next_gen_stats_receving, Next_gen_stats_receving$TEAM == "LAR")
+
+NYG_passing_weekkly<- subset(Passing_Weekly, Passing_Weekly$Team == "NYG")
+
+MIA_passing_weekkly<- subset(Passing_Weekly, Passing_Weekly$Team == "MIA")
+
+NYG_punt_return<- subset(Punt_Return_season, Punt_Return_season$Team == "NYG")
+
+MIA_punt_return<- subset(Punt_Return_season, Punt_Return_season$Team == "MIA")
+
+NYG_qb_passing<- subset(QB_SEASON_PASSING, QB_SEASON_PASSING$Team == "NYG")
+
+MIA_qb_passing<- subset(QB_SEASON_PASSING, QB_SEASON_PASSING$Team == "MIA")
+
+NYG_rec_weekly<- subset(REC_WEEKLY, REC_WEEKLY$Team == "NYG")
+
+MIA_rec_weekly<- subset(REC_WEEKLY, REC_WEEKLY$Team == "MIA")
+
+NYG_rec_season<- subset(Receiving_SEASON, Receiving_SEASON$Team == "NYG")
+
+MIA_rec_season<- subset(Receiving_SEASON, Receiving_SEASON$Team == "MIA")
+
+NYG_rushing_season<- subset(Rushing_Season, Rushing_Season$Team == "NYG")
+
+MIA_rushing_season<- subset(Rushing_Season, Rushing_Season$Team == "MIA")
+
+NYG_scoring_season<- subset(Scoring_Season, Scoring_Season$Team == "NYG")
+
+MIA_scoring_season<- subset(Scoring_Season, Scoring_Season$Team == "MIA")
+
+NYG_downs_season<- subset(teams_downs_seasons, teams_downs_seasons$Team == "New York GiantsNY Giants")
+
+MIA_downs_season<- subset(teams_downs_seasons, teams_downs_seasons$Team == "Miami DolphinsMiami")
+
+NYG_team_passingseason<- subset(TEAMS_PASSING_SEASON, TEAMS_PASSING_SEASON$Team == "New York GiantsNY Giants")
+
+MIA_team_passingseason<- subset(TEAMS_PASSING_SEASON, TEAMS_PASSING_SEASON$Team == "Miami DolphinsMiami")
+
+NYG_team_percentageplays<- subset(teams_percentage_plays_season, teams_percentage_plays_season$Team == "New York GiantsNY Giants")
+
+MIA_team_percentageplays<- subset(teams_percentage_plays_season, teams_percentage_plays_season$Team == "Miami DolphinsMiami")
+
+NYG_team_rushing_season<- subset(teams_rushing_season, teams_rushing_season$Team == "New York GiantsNY Giants")
+
+MIA_team_rushing_season<- subset(teams_rushing_season, teams_rushing_season$Team == "Miami DolphinsMiami")
+
+NYG_team_scoring_season<- subset(teams_scoring_seasons, teams_scoring_seasons$Team == "New York GiantsNY Giants")
+
+MIA_team_scoring_season<- subset(teams_scoring_seasons, teams_scoring_seasons$Team == "Miami DolphinsMiami")
+
+
+NYG_weekly_rushing_stats <- subset(Weekly_Rushing_Stats, Weekly_Rushing_Stats$Team == "NYG")
+
+MIA_weekly_rushing_stats <- subset(Weekly_Rushing_Stats, Weekly_Rushing_Stats$Team == "MIA")
+
+NYG_weekly_passing_12_stats <- subset(Weekly_Passing, Weekly_Passing$TEAM == "NYG")
+
+MIA_weekly_passing_12_stats <- subset(Weekly_Passing, Weekly_Passing$TEAM == "LAR")
+
+# new section
+
+MIA_weekly_adv_rec <- subset(WEEKLY_REC_WEEK, WEEKLY_REC_WEEK$TEAM == "LAR")
+
+MIA_adv_weekly_rushing_stats <- subset(WEEKLY_ADV_RUSH_STATS, WEEKLY_ADV_RUSH_STATS$TEAM == "LAR")
+
+NYG_weekly_adv_rec <-  subset(WEEKLY_REC_WEEK, WEEKLY_REC_WEEK$TEAM == "NYG")
+
+NYG_adv_weekly_rushing_stats <- subset(WEEKLY_ADV_RUSH_STATS, WEEKLY_ADV_RUSH_STATS$TEAM == "NYG")
+
+
+
+# TESTING SECTION FOR FINAL MODELS AT END OF PROJECT:
+
+CIN_WP <-subset(Weekly_Passing, Weekly_Passing$TEAM =="CIN")
+
+CIN_WR <-subset(WEEKLY_REC_WEEK, WEEKLY_REC_WEEK$TEAM =="CIN")
+
+CIN_WRUSH <-subset(WEEKLY_ADV_RUSH_STATS, WEEKLY_ADV_RUSH_STATS$TEAM =="CIN")
+
+
+
+KC_WP <-subset(Weekly_Passing, Weekly_Passing$TEAM =="KC")
+
+KC_WR <-subset(WEEKLY_REC_WEEK, WEEKLY_REC_WEEK$TEAM =="KC")
+
+KC_WRUSH <-subset(WEEKLY_ADV_RUSH_STATS, WEEKLY_ADV_RUSH_STATS$TEAM =="KC")
+
+
+
+
+# Statistical tests 
+library("ggpubr")
+
+ #Full Team points 
+
+Full_team_Points_Game_season$ttp <- Full_team_Points_Game_season$`Tot?Pts`
+MIA_fullteam_points_game$ttp  <-MIA_fullteam_points_game$`Tot?Pts`
+#Total points
+Mu_ftp <- mean(Full_team_Points_Game_season$ttp)
+sigma_ftp <- sd(Full_team_Points_Game_season$ttp)
+TBA_ftp <- mean(MIA_fullteam_points_game$ttp)
+SE_TBD_ftp <-sigma_ftp/sqrt(length(MIA_fullteam_points_game$ttp)) 
+NYG_ftp <- (TBA_ftp - Mu_ftp)/SE_TBD_ftp
+
+NYG_ftp
+#Total points
+Mu_ftp <- mean(Full_team_Points_Game_season$`Tot Pts`)
+sigma_ftp <- sd(Full_team_Points_Game_season$`Tot Pts`)
+TBA_ftp <- mean(MIA_fullteam_points_game$`Tot Pts`)
+SE_TBD_ftp <- sigma_ftp/sqrt(length(MIA_fullteam_points_game$`Tot Pts`)) 
+MIA_ftp <- (TBA_ftp - Mu_ftp)/SE_TBD_ftp
+
+#point per game 
+Mu_ftp_1 <- mean(Full_team_Points_Game_season$`Pts/G`)
+sigma_ftp_1 <- sd(Full_team_Points_Game_season$`Pts/G`)
+TBA_ftp_1 <- mean(MIA_fullteam_points_game$`Pts/G`)
+SE_TBD_ftp_1 <- sigma_ftp_1/sqrt(length(MIA_fullteam_points_game$`Pts/G`)) 
+MIA_ftp_1 <- (TBA_ftp_1 - Mu_ftp_1)/SE_TBD_ftp_1
+MIA_ftp_1
+
+#Rush yards
+Mu_ftp_2 <- mean(Full_team_Points_Game_season$RushYds)
+sigma_ftp_2 <- sd(Full_team_Points_Game_season$RushYds)
+TBA_ftp_2 <- mean(MIA_fullteam_points_game$RushYds)
+SE_TBD_ftp_2 <- sigma_ftp_2/sqrt(length(MIA_fullteam_points_game$RushYds)) 
+MIA_ftp_2 <- (TBA_ftp_2 - Mu_ftp_2)/SE_TBD_ftp_2
+MIA_ftp_2
+
+#rush yards per game 
+Mu_ftp_3 <- mean(Full_team_Points_Game_season$`RYds/G`)
+sigma_ftp_3 <- sd(Full_team_Points_Game_season$`RYds/G`)
+TBA_ftp_3 <- mean(MIA_fullteam_points_game$`RYds/G`)
+SE_TBD_ftp_3<- sigma_ftp_3/sqrt(length(MIA_fullteam_points_game$`RYds/G`)) 
+MIA_ftp_3 <- (TBA_ftp_3 - Mu_ftp_3)/SE_TBD_ftp_3
+MIA_ftp_3
+
+#passing yards
+Mu_ftp_4 <- mean(Full_team_Points_Game_season$PassYds)
+sigma_ftp_4 <- sd(Full_team_Points_Game_season$PassYds)
+TBA_ftp_4 <- mean(MIA_fullteam_points_game$PassYds)
+SE_TBD_ftp_4<- sigma_ftp_4/sqrt(length(MIA_fullteam_points_game$PassYds)) 
+MIA_ftp_4 <- (TBA_ftp_4 - Mu_ftp_4)/SE_TBD_ftp_4
+MIA_ftp_4
+
+
+
+#passing yards per game 
+Mu_ftp_5 <- mean(Full_team_Points_Game_season$`PYds/G`)
+sigma_ftp_5 <-sd(Full_team_Points_Game_season$`PYds/G`)
+TBA_ftp_5 <- mean(MIA_fullteam_points_game$`PYds/G`)
+SE_TBD_ftp_5<- sigma_ftp_5/sqrt(length(MIA_fullteam_points_game$`PYds/G`)) 
+MIA_ftp_5<- (TBA_ftp_5 - Mu_ftp_5)/SE_TBD_ftp_5
+MIA_ftp_5
+
+#total yards
+Mu_ftp_6 <- mean(Full_team_Points_Game_season$TotYds)
+sigma_ftp_6 <-sd(Full_team_Points_Game_season$TotYds)
+TBA_ftp_6 <- mean(MIA_fullteam_points_game$TotYds)
+SE_TBD_ftp_6<- sigma_ftp_6/sqrt(length(MIA_fullteam_points_game$TotYds)) 
+MIA_ftp_6<- (TBA_ftp_6 - Mu_ftp_6)/SE_TBD_ftp_6
+MIA_ftp_6
+
+
+#total yards per game 
+Mu_ftp_7 <- mean(Full_team_Points_Game_season$`Yds/G`)
+sigma_ftp_7 <-sd(Full_team_Points_Game_season$`Yds/G`)
+TBA_ftp_7 <- mean(MIA_fullteam_points_game$`Yds/G`)
+SE_TBD_ftp_7<- sigma_ftp_7/sqrt(length(MIA_fullteam_points_game$`Yds/G`)) 
+MIA_ftp_7<- (TBA_ftp_7 - Mu_ftp_7)/SE_TBD_ftp_7
+MIA_ftp_7
+
+
+#Next gen stats passing
+
+#TT
+Mu_ngp <- mean(NEXT_GEN_STATS_PASSING$TT)
+sigma_ngp <-sd(NEXT_GEN_STATS_PASSING$TT)
+TBA_ngp <- mean(MIA_nextgenstats_passing$TT)
+SE_TBD_ngp<- sigma_ngp/sqrt(length(MIA_nextgenstats_passing$TT)) 
+MIA_ngp<- (TBA_ngp - Mu_ngp)/SE_TBD_ngp
+MIA_ngp
+
+
+#Next gen stats passing
+#CAY
+Mu_ngp_1 <- mean(NEXT_GEN_STATS_PASSING$CAY)
+sigma_ngp_1 <-sd(NEXT_GEN_STATS_PASSING$CAY)
+TBA_ngp_1 <- mean(MIA_nextgenstats_passing$CAY)
+SE_TBD_ngp_1<- sigma_ngp_1/sqrt(length(MIA_nextgenstats_passing$CAY)) 
+MIA_ngp_1<- (TBA_ngp_1 - Mu_ngp_1)/SE_TBD_ngp_1
+MIA_ngp_1
+
+#Next gen stats passing
+#total yards per game 
+Mu_ngp_2 <- mean(NEXT_GEN_STATS_PASSING$IAY)
+sigma_ngp_2 <-sd(NEXT_GEN_STATS_PASSING$IAY)
+TBA_ngp_2 <- mean(MIA_nextgenstats_passing$IAY)
+SE_TBD_ngp_2<- sigma_ngp_2/sqrt(length(MIA_nextgenstats_passing$IAY)) 
+MIA_ngp_2<- (TBA_ngp_2 - Mu_ngp_2)/SE_TBD_ngp_2
+MIA_ngp_2
+
+#Next gen stats passing
+#ayd
+Mu_ngp_3 <- mean(NEXT_GEN_STATS_PASSING$AYD)
+sigma_ngp_3 <-sd(NEXT_GEN_STATS_PASSING$AYD)
+TBA_ngp_3<- mean(MIA_nextgenstats_passing$AYD)
+SE_TBD_ngp_3<- sigma_ngp_3/sqrt(length(MIA_nextgenstats_passing$AYD)) 
+MIA_ngp_3<- (TBA_ngp_3 - Mu_ngp_3)/SE_TBD_ngp_3
+MIA_ngp_3
+
+
+#agg
+Mu_ngp_4 <- mean(NEXT_GEN_STATS_PASSING$`AGG%`)
+sigma_ngp_4 <-sd(NEXT_GEN_STATS_PASSING$`AGG%`)
+TBA_ngp_4<- mean(MIA_nextgenstats_passing$`AGG%`)
+SE_TBD_ngp_4<- sigma_ngp_4/sqrt(length(MIA_nextgenstats_passing$`AGG%`)) 
+MIA_ngp_4<- (TBA_ngp_4 - Mu_ngp_4)/SE_TBD_ngp_4
+MIA_ngp_4
+
+#LCAD
+Mu_ngp_5 <- mean(NEXT_GEN_STATS_PASSING$LCAD)
+sigma_ngp_5 <-sd(NEXT_GEN_STATS_PASSING$LCAD)
+TBA_ngp_5<- mean(MIA_nextgenstats_passing$LCAD)
+SE_TBD_ngp_5<- sigma_ngp_5/sqrt(length(MIA_nextgenstats_passing$LCAD)) 
+MIA_ngp_5<- (TBA_ngp_5 - Mu_ngp_5)/SE_TBD_ngp_5
+MIA_ngp_5
+
+#AYTS
+Mu_ngp_6 <- mean(NEXT_GEN_STATS_PASSING$AYTS)
+sigma_ngp_6 <-sd(NEXT_GEN_STATS_PASSING$AYTS)
+TBA_ngp_6<- mean(MIA_nextgenstats_passing$AYTS)
+SE_TBD_ngp_6<- sigma_ngp_6/sqrt(length(MIA_nextgenstats_passing$AYTS)) 
+MIA_ngp_6<- (TBA_ngp_6 - Mu_ngp_6)/SE_TBD_ngp_6
+MIA_ngp_6
+
+#ATT
+Mu_ngp_7 <- mean(NEXT_GEN_STATS_PASSING$ATT)
+sigma_ngp_7 <-sd(NEXT_GEN_STATS_PASSING$ATT)
+TBA_ngp_7<- mean(MIA_nextgenstats_passing$ATT)
+SE_TBD_ngp_7<- sigma_ngp_7/sqrt(length(MIA_nextgenstats_passing$ATT)) 
+MIA_ngp_7<- (TBA_ngp_7 - Mu_ngp_7)/SE_TBD_ngp_7
+MIA_ngp_7
+
+#
+Mu_ngp_8 <- mean(NEXT_GEN_STATS_PASSING$YDS)
+sigma_ngp_8 <-sd(NEXT_GEN_STATS_PASSING$YDS)
+TBA_ngp_8<- mean(MIA_nextgenstats_passing$YDS)
+SE_TBD_ngp_8<- sigma_ngp_8/sqrt(length(MIA_nextgenstats_passing$YDS)) 
+MIA_ngp_8<- (TBA_ngp_8 - Mu_ngp_8)/SE_TBD_ngp_8
+MIA_ngp_8
+
+z_score_function <- function(x,y){
+  Mu_ngp_8 <- mean(x)
+sigma_ngp_8 <-sd(x)
+TBA_ngp_8<- mean(y)
+SE_TBD_ngp_8<- sigma_ngp_8/sqrt(length(y)) 
+MIA_ngp_8<- (TBA_ngp_8 - Mu_ngp_8)/SE_TBD_ngp_8
+MIA_ngp_8
+  
+}
+
+#touchdowns
+MIA_ngp_9 <- z_score_function(NEXT_GEN_STATS_PASSING$TD,MIA_nextgenstats_passing$TD)
+
+MIA_ngp_9
+
+#Int
+MIA_ngp_10 <- z_score_function(NEXT_GEN_STATS_PASSING$INT,MIA_nextgenstats_passing$INT)
+
+MIA_ngp_10
+
+#rate
+MIA_ngp_11 <- z_score_function(NEXT_GEN_STATS_PASSING$RATE,MIA_nextgenstats_passing$RATE)
+
+MIA_ngp_11
+
+#comp
+MIA_ngp_12 <- z_score_function(NEXT_GEN_STATS_PASSING$`COMP%`,MIA_nextgenstats_passing$`COMP%`)
+
+MIA_ngp_12
+
+#comp exp
+MIA_ngp_13 <- z_score_function(NEXT_GEN_STATS_PASSING$`xCOMP%`,MIA_nextgenstats_passing$`xCOMP%`)
+
+MIA_ngp_13
+
+
+#QB passing cont data set
+
+
+#attempts per game
+MIA_ngp_14 <- z_score_function(QB_SEASON_PASSING$`Att/G`,MIA_qb_passing$`Att/G`)
+
+MIA_ngp_14
+
+#1st
+MIA_ngp_15 <- z_score_function(QB_SEASON_PASSING$`1st`,MIA_qb_passing$`1st`)
+
+MIA_ngp_15
+
+#1st percentage
+MIA_ngp_16 <- z_score_function(QB_SEASON_PASSING$`1st%`,MIA_qb_passing$`1st%`)
+
+MIA_ngp_16
+
+#lng
+MIA_ngp_17 <- z_score_function(QB_SEASON_PASSING$Lng,MIA_qb_passing$Lng)
+
+MIA_ngp_17
+
+#20+
+MIA_ngp_18 <- z_score_function(QB_SEASON_PASSING$`20+`,MIA_qb_passing$`20+`)
+
+MIA_ngp_18
+
+#40+
+MIA_ngp_19 <- z_score_function(QB_SEASON_PASSING$`40+`,MIA_qb_passing$`40+`)
+
+MIA_ngp_19
+
+#sack
+MIA_ngp_20 <- z_score_function(QB_SEASON_PASSING$Sck,MIA_qb_passing$Sck)
+
+MIA_ngp_20
+
+#sack rate
+MIA_ngp_21 <- z_score_function(QB_SEASON_PASSING$Rate,MIA_qb_passing$Rate)
+
+MIA_ngp_21
+
+#teams Downs season 
+
+#first down rush
+MIA_teams_ds <- z_score_function(teams_downs_seasons$`First Downs Rush`,MIA_downs_season$`First Downs Rush`)
+
+MIA_teams_ds
+
+#first down pass
+MIA_teams_ds_1 <- z_score_function(teams_downs_seasons$`First Downs Pass`,MIA_downs_season$`First Downs Pass`)
+
+MIA_teams_ds_1
+
+#first down pen
+MIA_teams_ds_2 <- z_score_function(teams_downs_seasons$`First Downs Pen`,MIA_downs_season$`First Downs Pen`)
+
+MIA_teams_ds_2
+
+#first down tot
+MIA_teams_ds_2 <- z_score_function(teams_downs_seasons$`First Downs Tot`,MIA_downs_season$`First Downs Tot`)
+
+MIA_teams_ds_2
+
+#third down eff att
+MIA_teams_ds_3 <- z_score_function(teams_downs_seasons$`Third Down Efficiency Att`,MIA_downs_season$`Third Down Efficiency Att`)
+
+MIA_teams_ds_3
+
+#third down eff made
+MIA_teams_ds_4 <- z_score_function(teams_downs_seasons$`Third Down Efficiency Made`,MIA_downs_season$`Third Down Efficiency Made`)
+
+MIA_teams_ds_4
+
+#third down eff pct
+MIA_teams_ds_5 <- z_score_function(teams_downs_seasons$`Third Down Efficiency Pct`,MIA_downs_season$`Third Down Efficiency Pct`)
+
+MIA_teams_ds_5
+
+#fourth down att
+MIA_teams_ds_6 <- z_score_function(teams_downs_seasons$`Fourth Down Efficiency Att`,MIA_downs_season$`Fourth Down Efficiency Att`)
+
+MIA_teams_ds_6
+
+#fourth down made
+MIA_teams_ds_7 <- z_score_function(teams_downs_seasons$`Fourth Down Efficiency Made`,MIA_downs_season$`Fourth Down Efficiency Made`)
+
+MIA_teams_ds_7
+
+#fourth down pct
+MIA_teams_ds_8 <- z_score_function(teams_downs_seasons$`Fourth Down Efficiency Pct`,MIA_downs_season$`Fourth Down Efficiency Pct`)
+
+MIA_teams_ds_8
+
+#Teams passing season
+
+#yards per attempt passing 
+MIA_teams_ps_1<- z_score_function(TEAMS_PASSING_SEASON$YPA,MIA_team_passingseason$YPA)
+
+MIA_teams_ps_1
+
+
+#sack yards loss
+MIA_teams_ps_2<- z_score_function(TEAMS_PASSING_SEASON$Loss,MIA_team_passingseason$Loss)
+
+MIA_teams_ps_2
+
+#net yards season 
+MIA_teams_ps_3<- z_score_function(TEAMS_PASSING_SEASON$NetYds,MIA_team_passingseason$NetYds)
+
+MIA_teams_ps_3
+
+#passing yards/game
+MIA_teams_ps_4<- z_score_function(TEAMS_PASSING_SEASON$`Yds/G`,MIA_team_passingseason$`Yds/G`)
+
+MIA_teams_ps_4
+
+
+# Percentage plays 
+
+#plays done
+MIA_percentage_1<- z_score_function(teams_percentage_plays_season$Plays,MIA_team_percentageplays$Plays)
+
+MIA_percentage_1
+
+
+#rush percentage
+MIA_percentage_2<- z_score_function(teams_percentage_plays_season$`Rush%`,MIA_team_percentageplays$`Rush%`)
+
+MIA_percentage_2
+
+#rush plays
+MIA_percentage_3<- z_score_function(teams_percentage_plays_season$Rush,MIA_team_percentageplays$Rush)
+
+MIA_percentage_3
+
+#pass plays
+MIA_percentage_4<- z_score_function(teams_percentage_plays_season$Pass,MIA_team_percentageplays$Pass)
+
+MIA_percentage_4
+
+#pass percentage
+MIA_percentage_5<- z_score_function(teams_percentage_plays_season$`Pass%`,MIA_team_percentageplays$`Pass%`)
+
+MIA_percentage_5
+
+#Teams rushing season 
+#rushing attempts
+MIA_team_rushing_1<- z_score_function(teams_rushing_season$Att,MIA_team_rushing_season$Att)
+
+MIA_team_rushing_1
+
+#rushing yards
+MIA_team_rushing_2<- z_score_function(teams_rushing_season$Yds,MIA_team_rushing_season$Yds)
+
+MIA_team_rushing_2
+
+#rushing avg
+MIA_team_rushing_3<- z_score_function(teams_rushing_season$Avg,MIA_team_rushing_season$Avg)
+
+MIA_team_rushing_3
+
+#rushing td
+MIA_team_rushing_4<- z_score_function(teams_rushing_season$TD,MIA_team_rushing_season$TD)
+
+MIA_team_rushing_4
+
+#rushing FD
+MIA_team_rushing_5<- z_score_function(teams_rushing_season$FD,MIA_team_rushing_season$FD)
+
+MIA_team_rushing_5
+
+#rushing 
+MIA_team_rushing_6<- z_score_function(teams_rushing_season$`Yds/G`,MIA_team_rushing_season$`Yds/G`)
+
+MIA_team_rushing_6
+
+#Team Scoring season 
+
+#scoring td total
+MIA_team_scoring_1<- z_score_function(teams_scoring_seasons$`Touchdowns Tot`,MIA_team_scoring_season$`Touchdowns Tot`)
+
+MIA_team_scoring_1
+
+#scoring td r 
+MIA_team_scoring_2<- z_score_function(teams_scoring_seasons$`Touchdowns R`,MIA_team_scoring_season$`Touchdowns R`)
+
+MIA_team_scoring_2
+
+#scoring td p 
+MIA_team_scoring_3 <- z_score_function(teams_scoring_seasons$`Touchdowns P`,MIA_team_scoring_season$`Touchdowns P`)
+
+MIA_team_scoring_3
+
+#scoring td kr
+MIA_team_scoring_4<- z_score_function(teams_scoring_seasons$`Touchdowns KR`,MIA_team_scoring_season$`Touchdowns KR`)
+
+MIA_team_scoring_4
+
+#scoring td  pr
+MIA_team_scoring_5<- z_score_function(teams_scoring_seasons$`Touchdowns PR`,MIA_team_scoring_season$`Touchdowns PR`)
+
+MIA_team_scoring_5
+
+#scoring td ir 
+MIA_team_scoring_6<- z_score_function(teams_scoring_seasons$`Touchdowns IR`,MIA_team_scoring_season$`Touchdowns IR`)
+
+MIA_team_scoring_6
+
+#scoring td fr
+MIA_team_scoring_7<- z_score_function(teams_scoring_seasons$`Touchdowns FR`,MIA_team_scoring_season$`Touchdowns FR`)
+
+MIA_team_scoring_7
+
+#scoring td bk
+MIA_team_scoring_8<- z_score_function(teams_scoring_seasons$`Touchdowns BK`,MIA_team_scoring_season$`Touchdowns BK`)
+
+MIA_team_scoring_8
+
+#scoring td bp
+MIA_team_scoring_9<- z_score_function(teams_scoring_seasons$`Touchdowns BP`,MIA_team_scoring_season$`Touchdowns BP`)
+
+MIA_team_scoring_9
+
+
+#scoring misc conv
+MIA_team_scoring_13<- z_score_function(teams_scoring_seasons$`Misc Conv`,MIA_team_scoring_season$`Misc Conv`)
+
+MIA_team_scoring_13
+
+#scoring misc saf
+MIA_team_scoring_14<- z_score_function(teams_scoring_seasons$`Misc Saf`,MIA_team_scoring_season$`Misc Saf`)
+
+MIA_team_scoring_14
+
+#scoring misc pts
+MIA_team_scoring_15<- z_score_function(teams_scoring_seasons$`Misc Pts`,MIA_team_scoring_season$`Misc Pts`)
+
+MIA_team_scoring_15
+
+
+#t tests for several points 
+
+t_function_test <- function(x,y){
+  z <-mean(y)
+  t.test(x,mean = z)
+}
+
+# interceptions 
+MIA_def_season_result_1<- t_function_test(MIA_Defense_season$`Interceptions Int`,Defense_Season$`Interceptions Int`)
+
+MIA_def_season_result_1
+
+# interception yards
+MIA_def_season_result_2<- t_function_test(MIA_Defense_season$`Interceptions Yds`,Defense_Season$`Interceptions Yds`)
+
+MIA_def_season_result_2
+
+
+# interception avg
+MIA_def_season_result_3<- t_function_test(MIA_Defense_season$`Interceptions Avg`,Defense_Season$`Interceptions Avg`)
+
+MIA_def_season_result_3
+
+# interception long
+MIA_def_season_result_4<- t_function_test(MIA_Defense_season$`Interceptions Lg`,Defense_Season$`Interceptions Lg`)
+
+MIA_def_season_result_4
+
+# interception TD
+MIA_def_season_result_5<- t_function_test(MIA_Defense_season$`Interceptions TD`,Defense_Season$`Interceptions TD`)
+
+MIA_def_season_result_5
+
+# solo tackles
+MIA_def_season_result_6<- t_function_test(MIA_Defense_season$`Tackles Solo`,Defense_Season$`Tackles Solo`)
+
+MIA_def_season_result_6
+
+# ast tackles
+MIA_def_season_result_7<- t_function_test(MIA_Defense_season$`Tackles Ast`,Defense_Season$`Tackles Ast`)
+
+MIA_def_season_result_7
+
+# tot tackles
+MIA_def_season_result_8<- t_function_test(MIA_Defense_season$`Tackles Tot`,Defense_Season$`Tackles Tot`)
+
+MIA_def_season_result_8
+
+# sacks
+MIA_def_season_result_9<- t_function_test(MIA_Defense_season$`Sacks Sack`,Defense_Season$`Sacks Sack`)
+
+MIA_def_season_result_9
+
+# sack yards lost
+MIA_def_season_result_10<- t_function_test(MIA_Defense_season$`Sacks YdsL`,Defense_Season$`Sacks YdsL`)
+
+MIA_def_season_result_10
+
+#Defense Weekly 
+
+# sacks
+MIA_def_weekly_result_1<- t_function_test(MIA_Defense_weekly$Sacks,Defense_Weekly$Sacks)
+
+MIA_def_weekly_result_1
+
+
+# sacks yards 
+MIA_def_weekly_result_2<- t_function_test(MIA_Defense_weekly$`Sack Yds`,Defense_Weekly$`Sack Yds`)
+
+MIA_def_weekly_result_2
+
+# qb hits
+MIA_def_weekly_result_3<- t_function_test(MIA_Defense_weekly$`QB Hits`,Defense_Weekly$`QB Hits`)
+
+MIA_def_weekly_result_3
+
+# tackles
+MIA_def_weekly_result_4<- t_function_test(MIA_Defense_weekly$Tackles,Defense_Weekly$Tackles)
+
+MIA_def_weekly_result_4
+
+# assists 
+MIA_def_weekly_result_5<- t_function_test(MIA_Defense_weekly$Assists,Defense_Weekly$Assists)
+
+MIA_def_weekly_result_5
+
+# fumbles forced
+MIA_def_weekly_result_6<- t_function_test(MIA_Defense_weekly$`Fumbles Forced`,Defense_Weekly$`Fumbles Forced`)
+
+MIA_def_weekly_result_6
+
+# fumbleds recovered 
+MIA_def_weekly_result_7<- t_function_test(MIA_Defense_weekly$`Fumbles Recovered`,Defense_Weekly$`Fumbles Recovered`)
+
+MIA_def_weekly_result_7
+
+#ESPN passing 
+
+# comp
+MIA_ESPN_Passing_weekly_result_1<- t_function_test(MIA_espn_weekly_passing$COMP,ESPN_PASSING_WEEKLY$COMP)
+
+MIA_ESPN_Passing_weekly_result_1
+
+# attempts
+MIA_ESPN_Passing_weekly_result_2<- t_function_test(MIA_espn_weekly_passing$ATT,ESPN_PASSING_WEEKLY$ATT)
+
+MIA_ESPN_Passing_weekly_result_2
+
+# yards
+MIA_ESPN_Passing_weekly_result_3<- t_function_test(MIA_espn_weekly_passing$YDS,ESPN_PASSING_WEEKLY$YDS)
+
+MIA_ESPN_Passing_weekly_result_3
+
+# td
+MIA_ESPN_Passing_weekly_result_4<- t_function_test(MIA_espn_weekly_passing$TD,ESPN_PASSING_WEEKLY$TD)
+
+MIA_ESPN_Passing_weekly_result_4
+
+# interception
+MIA_ESPN_Passing_weekly_result_5<- t_function_test(MIA_espn_weekly_passing$INT,ESPN_PASSING_WEEKLY$INT)
+
+MIA_ESPN_Passing_weekly_result_5
+
+# sack
+MIA_ESPN_Passing_weekly_result_6<- t_function_test(MIA_espn_weekly_passing$SACK,ESPN_PASSING_WEEKLY$SACK)
+
+MIA_ESPN_Passing_weekly_result_6
+
+# fumbles
+MIA_ESPN_Passing_weekly_result_7<- t_function_test(MIA_espn_weekly_passing$FUM,ESPN_PASSING_WEEKLY$FUM)
+
+MIA_ESPN_Passing_weekly_result_7
+
+# qb rating 
+MIA_ESPN_Passing_weekly_result_8<- t_function_test(MIA_espn_weekly_passing$RAT,ESPN_PASSING_WEEKLY$RAT)
+
+MIA_ESPN_Passing_weekly_result_8
+
+#Kick Return seasom
+
+# yards
+MIA_kick_return_1<- t_function_test(MIA_kickreturn_szn$Yds,Kick_Return_Season$Yds)
+
+MIA_kick_return_1
+
+#Kick Return seasom
+
+# avg
+MIA_kick_return_2<- t_function_test(MIA_kickreturn_szn$Avg,Kick_Return_Season$Avg)
+
+MIA_kick_return_2
+
+#Kick Return seasom
+
+# FC
+MIA_kick_return_3<- t_function_test(MIA_kickreturn_szn$FC,Kick_Return_Season$FC)
+
+MIA_kick_return_3
+
+#Kick Return seasom
+
+# lg
+MIA_kick_return_4<- t_function_test(MIA_kickreturn_szn$Lg,Kick_Return_Season$Lg)
+
+MIA_kick_return_4
+
+#Kick Return seasom
+
+# td
+MIA_kick_return_5<- t_function_test(MIA_kickreturn_szn$TD,Kick_Return_Season$TD)
+
+MIA_kick_return_5
+
+#Next gen stats receving:
+
+#Kick Return seasom
+
+# cushion
+MIA_nextgenstats_rec_1<- t_function_test(MIA_nextgenstats_receving$CUSH,Next_gen_stats_receving$CUSH)
+
+MIA_nextgenstats_rec_1
+
+# Sep
+MIA_nextgenstats_rec_2<- t_function_test(MIA_nextgenstats_receving$SEP,Next_gen_stats_receving$SEP)
+
+MIA_nextgenstats_rec_2
+
+# tay
+MIA_nextgenstats_rec_3<- t_function_test(MIA_nextgenstats_receving$TAY,Next_gen_stats_receving$TAY)
+
+MIA_nextgenstats_rec_3
+
+# Tay percen
+MIA_nextgenstats_rec_4<- t_function_test(MIA_nextgenstats_receving$`TAY%`,Next_gen_stats_receving$`TAY%`)
+
+MIA_nextgenstats_rec_4
+
+# Rec
+MIA_nextgenstats_rec_5<- t_function_test(MIA_nextgenstats_receving$REC,Next_gen_stats_receving$REC)
+
+MIA_nextgenstats_rec_5
+
+# Tar
+MIA_nextgenstats_rec_6<- t_function_test(MIA_nextgenstats_receving$TAR,Next_gen_stats_receving$TAR)
+
+MIA_nextgenstats_rec_6
+
+
+# catch percentage
+MIA_nextgenstats_rec_7<- t_function_test(MIA_nextgenstats_receving$`CTCH%`,Next_gen_stats_receving$`CTCH%`)
+
+MIA_nextgenstats_rec_7
+
+
+# yards
+MIA_nextgenstats_rec_8<- t_function_test(MIA_nextgenstats_receving$YDS,Next_gen_stats_receving$YDS)
+
+MIA_nextgenstats_rec_8
+
+# td
+MIA_nextgenstats_rec_9<- t_function_test(MIA_nextgenstats_receving$TD,Next_gen_stats_receving$TD)
+
+MIA_nextgenstats_rec_9
+
+
+# yards after catch per recpetion
+MIA_nextgenstats_rec_10<- t_function_test(MIA_nextgenstats_receving$`YAC/R`,Next_gen_stats_receving$`YAC/R`)
+
+MIA_nextgenstats_rec_10
+
+
+# expected yac/r
+MIA_nextgenstats_rec_11<- t_function_test(MIA_nextgenstats_receving$`xYAC/R`,Next_gen_stats_receving$`xYAC/R`)
+
+MIA_nextgenstats_rec_11
+
+# differential of yards after catch per reception 
+MIA_nextgenstats_rec_12<- t_function_test(MIA_nextgenstats_receving$`+/-`,Next_gen_stats_receving$`+/-`)
+
+MIA_nextgenstats_rec_12
+
+
+#Passing Weekly 
+
+#Comp
+MIA_passing_weekly_results_1<- t_function_test(MIA_passing_weekkly$Comp,Passing_Weekly$Comp)
+
+MIA_passing_weekly_results_1
+
+#att
+MIA_passing_weekly_results_2<- t_function_test(MIA_passing_weekkly$Att,Passing_Weekly$Att)
+
+MIA_passing_weekly_results_2
+
+#yards
+MIA_passing_weekly_results_3<- t_function_test(MIA_passing_weekkly$Yds,Passing_Weekly$Yds)
+
+MIA_passing_weekly_results_3
+
+#td
+MIA_passing_weekly_results_4<- t_function_test(MIA_passing_weekkly$TD,Passing_Weekly$TD)
+
+MIA_passing_weekly_results_4
+
+#int
+MIA_passing_weekly_results_5<- t_function_test(MIA_passing_weekkly$Int,Passing_Weekly$Int)
+
+MIA_passing_weekly_results_5
+
+#sack
+MIA_passing_weekly_results_6<- t_function_test(MIA_passing_weekkly$Sck,Passing_Weekly$Sck)
+
+MIA_passing_weekly_results_6
+
+#fumbles
+MIA_passing_weekly_results_7<- t_function_test(MIA_passing_weekkly$FUM,Passing_Weekly$FUM)
+
+MIA_passing_weekly_results_7
+
+#rate
+MIA_passing_weekly_results_8<- t_function_test(MIA_passing_weekkly$Rate,Passing_Weekly$Rate)
+
+MIA_passing_weekly_results_8
+
+
+#Punt Return 
+
+#yards
+MIA_puntreturn_1<- t_function_test(MIA_punt_return$Yds,Punt_Return_season$Yds)
+
+MIA_puntreturn_1
+
+#avg
+MIA_puntreturn_2<- t_function_test(MIA_punt_return$Avg,Punt_Return_season$Avg)
+
+MIA_puntreturn_2
+
+#FC
+MIA_puntreturn_3<- t_function_test(MIA_punt_return$FC,Punt_Return_season$FC)
+
+MIA_puntreturn_3
+
+#lg
+MIA_puntreturn_4<- t_function_test(MIA_punt_return$Lg,Punt_Return_season$Lg)
+
+MIA_puntreturn_4
+
+#td
+MIA_puntreturn_5<- t_function_test(MIA_punt_return$TD,Punt_Return_season$TD)
+
+MIA_puntreturn_5
+
+#Receving Weekly 
+
+#rec
+MIA_recweekly_1<- t_function_test(MIA_rec_weekly$Rec,REC_WEEKLY$Rec)
+
+MIA_recweekly_1
+
+#yards
+MIA_recweekly_2<- t_function_test(MIA_rec_weekly$Yds,REC_WEEKLY$Yds)
+
+MIA_recweekly_2
+
+#avg
+MIA_recweekly_3<- t_function_test(MIA_rec_weekly$Avg,REC_WEEKLY$Avg)
+
+MIA_recweekly_3
+
+#td
+MIA_recweekly_4<- t_function_test(MIA_rec_weekly$TD,REC_WEEKLY$TD)
+
+MIA_recweekly_4
+
+#fumbles
+MIA_recweekly_5<- t_function_test(MIA_rec_weekly$FUM,REC_WEEKLY$FUM)
+
+MIA_recweekly_5
+
+#Rushing Season 
+
+#rushing td
+MIA_rushingseason_1<- t_function_test(MIA_rushing_season$TD,Rushing_Season$TD)
+
+MIA_rushingseason_1
+
+
+#rushing att
+MIA_rushingseason_2<- t_function_test(MIA_rushing_season$Att,Rushing_Season$Att)
+
+MIA_rushingseason_2
+
+#rushing yards
+MIA_rushingseason_3<- t_function_test(MIA_rushing_season$Yds,Rushing_Season$Yds)
+
+MIA_rushingseason_3
+
+#rushing avg
+MIA_rushingseason_4<- t_function_test(MIA_rushing_season$Avg,Rushing_Season$Avg)
+
+MIA_rushingseason_4
+
+#rushing ypg
+MIA_rushingseason_5<- t_function_test(MIA_rushing_season$YPG,Rushing_Season$YPG)
+
+MIA_rushingseason_5
+
+#rushing lg
+MIA_rushingseason_6<- t_function_test(MIA_rushing_season$Lg,Rushing_Season$Lg)
+
+MIA_rushingseason_6
+
+#rushing fd
+MIA_rushingseason_7<- t_function_test(MIA_rushing_season$FD,Rushing_Season$FD)
+
+MIA_rushingseason_7
+
+#Scoring season stats
+
+#scoring points
+MIA_Scoring_scoring_1<- t_function_test(MIA_scoring_season$Pts,Scoring_Season$Pts)
+
+MIA_Scoring_scoring_1
+
+#stouchdown total
+MIA_Scoring_scoring_2<- t_function_test(MIA_scoring_season$`Touchdowns Tot`,Scoring_Season$`Touchdowns Tot`)
+
+MIA_Scoring_scoring_2
+
+#touchdown r
+MIA_Scoring_scoring_3<- t_function_test(MIA_scoring_season$`Touchdowns R`,Scoring_Season$`Touchdowns R`)
+
+MIA_Scoring_scoring_3
+
+#touchdown p
+MIA_Scoring_scoring_4<- t_function_test(MIA_scoring_season$`Touchdowns P`,Scoring_Season$`Touchdowns P`)
+
+MIA_Scoring_scoring_4
+
+#touchdown kr
+MIA_Scoring_scoring_5<- t_function_test(MIA_scoring_season$`Touchdowns KR`, Scoring_Season$`Touchdowns KR`)
+
+MIA_Scoring_scoring_5
+
+#touchdown pr
+MIA_Scoring_scoring_6<- t_function_test(MIA_scoring_season$`Touchdowns PR`,Scoring_Season$`Touchdowns PR`)
+
+MIA_Scoring_scoring_6
+
+#touchdown IR
+MIA_Scoring_scoring_7<- t_function_test(MIA_scoring_season$`Touchdowns IR`,Scoring_Season$`Touchdowns IR`)
+MIA_Scoring_scoring_7
+
+#touchdown fr
+MIA_Scoring_scoring_8<- t_function_test(MIA_scoring_season$`Touchdowns FR`,Scoring_Season$`Touchdowns FR`)
+
+MIA_Scoring_scoring_8
+
+#touchdown bk
+MIA_Scoring_scoring_9<- t_function_test(MIA_scoring_season$`Touchdowns BK`,Scoring_Season$`Touchdowns BK`)
+
+MIA_Scoring_scoring_9
+
+#touchdown bp
+MIA_Scoring_scoring_10<- t_function_test(MIA_scoring_season$`Touchdowns BP`,Scoring_Season$`Touchdowns BP`)
+
+MIA_Scoring_scoring_10
+
+#touchdown fgr
+MIA_Scoring_scoring_11<- t_function_test(MIA_scoring_season$`Touchdowns FGR`,Scoring_Season$`Touchdowns FGR`)
+
+MIA_Scoring_scoring_11
+
+#misc conv
+MIA_Scoring_scoring_14<- t_function_test(MIA_scoring_season$`Misc Conv`,Scoring_Season$`Misc Conv`)
+
+MIA_Scoring_scoring_14
+
+#misc saf
+MIA_Scoring_scoring_15<- t_function_test(MIA_scoring_season$`Misc Saf`,Scoring_Season$`Misc Saf`)
+
+MIA_Scoring_scoring_15
+
+#Weekly Rushing stats 
+
+#attempts
+MIA_weekly_rushing_stats_1<- t_function_test(MIA_weekly_rushing_stats$Att,Weekly_Rushing_Stats$Att)
+
+MIA_weekly_rushing_stats_1
+
+#yards
+MIA_weekly_rushing_stats_2<- t_function_test(MIA_weekly_rushing_stats$Yds,Weekly_Rushing_Stats$Yds)
+
+MIA_weekly_rushing_stats_2
+
+#avg
+MIA_weekly_rushing_stats_3<- t_function_test(MIA_weekly_rushing_stats$Avg,Weekly_Rushing_Stats$Avg)
+
+MIA_weekly_rushing_stats_3
+
+#td
+MIA_weekly_rushing_stats_4<- t_function_test(MIA_weekly_rushing_stats$TD,Weekly_Rushing_Stats$TD)
+
+MIA_weekly_rushing_stats_4
+
+#fum
+MIA_weekly_rushing_stats_5<- t_function_test(MIA_weekly_rushing_stats$FUM,Weekly_Rushing_Stats$FUM)
+
+MIA_weekly_rushing_stats_5
+
+
+#Weekly Passing 
+
+#TT
+MIA_weeklypassing_12_1<- t_function_test(MIA_weekly_passing_12_stats$TT,Weekly_Passing$TT)
+
+MIA_weeklypassing_12_1
+
+#CAY
+MIA_weeklypassing_12_2<- t_function_test(MIA_weekly_passing_12_stats$CAY,Weekly_Passing$CAY)
+
+MIA_weeklypassing_12_2
+
+#IAY
+MIA_weeklypassing_12_3<- t_function_test(MIA_weekly_passing_12_stats$IAY,Weekly_Passing$IAY)
+
+MIA_weeklypassing_12_3
+
+#ayd
+MIA_weeklypassing_12_4<- t_function_test(MIA_weekly_passing_12_stats$AYD,Weekly_Passing$AYD)
+
+MIA_weeklypassing_12_4
+
+#agg
+MIA_weeklypassing_12_5<- t_function_test(MIA_weekly_passing_12_stats$`AGG%`,Weekly_Passing$`AGG%`)
+
+MIA_weeklypassing_12_5
+
+#lcad
+MIA_weeklypassing_12_6<- t_function_test(MIA_weekly_passing_12_stats$LCAD,Weekly_Passing$LCAD)
+
+MIA_weeklypassing_12_6
+
+#ayts
+MIA_weeklypassing_12_7<- t_function_test(MIA_weekly_passing_12_stats$AYTS,Weekly_Passing$AYTS)
+
+MIA_weeklypassing_12_7
+
+#att
+MIA_weeklypassing_12_8<- t_function_test(MIA_weekly_passing_12_stats$ATT,Weekly_Passing$ATT)
+
+MIA_weeklypassing_12_8
+
+#yds
+MIA_weeklypassing_12_9<- t_function_test(MIA_weekly_passing_12_stats$YDS,Weekly_Passing$YDS)
+
+MIA_weeklypassing_12_9
+
+#TD
+MIA_weeklypassing_12_10<- t_function_test(MIA_weekly_passing_12_stats$TD,Weekly_Passing$TD)
+
+MIA_weeklypassing_12_10
+
+#int
+MIA_weeklypassing_12_11<- t_function_test(MIA_weekly_passing_12_stats$INT,Weekly_Passing$INT)
+
+MIA_weeklypassing_12_11
+
+#comp
+MIA_weeklypassing_12_13<- t_function_test(MIA_weekly_passing_12_stats$`COMP%`,Weekly_Passing$`COMP%`)
+
+MIA_weeklypassing_12_13
+
+
+#expected comp
+MIA_weeklypassing_12_14<- t_function_test(MIA_weekly_passing_12_stats$`xCOMP%`,Weekly_Passing$`xCOMP%`)
+
+MIA_weeklypassing_12_14
+
+# Statistical tests 
+library("ggpubr")
+
+ #Full Team points 
+Full_team_Points_Game_season$ttp <- Full_team_Points_Game_season$`Tot?Pts`
+NYG_fullteam_points_game$ttp  <-NYG_fullteam_points_game$`Tot?Pts`
+#Total points
+Mu_ftp <- mean(Full_team_Points_Game_season$ttp)
+sigma_ftp <- sd(Full_team_Points_Game_season$ttp)
+TBA_ftp <- mean(NYG_fullteam_points_game$ttp)
+SE_TBD_ftp <-sigma_ftp/sqrt(length(NYG_fullteam_points_game$ttp)) 
+NYG_ftp <- (TBA_ftp - Mu_ftp)/SE_TBD_ftp
+
+NYG_ftp
+
+#point per game 
+Mu_ftp_1 <- mean(Full_team_Points_Game_season$`Pts/G`)
+sigma_ftp_1 <- sd(Full_team_Points_Game_season$`Pts/G`)
+TBA_ftp_1 <- mean(NYG_fullteam_points_game$`Pts/G`)
+SE_TBD_ftp_1 <- sigma_ftp_1/sqrt(length(NYG_fullteam_points_game$`Pts/G`)) 
+NYG_ftp_1 <- (TBA_ftp_1 - Mu_ftp_1)/SE_TBD_ftp_1
+NYG_ftp_1
+
+#Rush yards
+Mu_ftp_2 <- mean(Full_team_Points_Game_season$RushYds)
+sigma_ftp_2 <- sd(Full_team_Points_Game_season$RushYds)
+TBA_ftp_2 <- mean(NYG_fullteam_points_game$RushYds)
+SE_TBD_ftp_2 <- sigma_ftp_2/sqrt(length(NYG_fullteam_points_game$RushYds)) 
+NYG_ftp_2 <- (TBA_ftp_2 - Mu_ftp_2)/SE_TBD_ftp_2
+NYG_ftp_2
+
+#rush yards per game 
+Mu_ftp_3 <- mean(Full_team_Points_Game_season$`RYds/G`)
+sigma_ftp_3 <- sd(Full_team_Points_Game_season$`RYds/G`)
+TBA_ftp_3 <- mean(NYG_fullteam_points_game$`RYds/G`)
+SE_TBD_ftp_3<- sigma_ftp_3/sqrt(length(NYG_fullteam_points_game$`RYds/G`)) 
+NYG_ftp_3 <- (TBA_ftp_3 - Mu_ftp_3)/SE_TBD_ftp_3
+NYG_ftp_3
+
+#passing yards
+Mu_ftp_4 <- mean(Full_team_Points_Game_season$PassYds)
+sigma_ftp_4 <- sd(Full_team_Points_Game_season$PassYds)
+TBA_ftp_4 <- mean(NYG_fullteam_points_game$PassYds)
+SE_TBD_ftp_4<- sigma_ftp_4/sqrt(length(NYG_fullteam_points_game$PassYds)) 
+NYG_ftp_4 <- (TBA_ftp_4 - Mu_ftp_4)/SE_TBD_ftp_4
+NYG_ftp_4
+
+
+
+#passing yards per game 
+Mu_ftp_5 <- mean(Full_team_Points_Game_season$`PYds/G`)
+sigma_ftp_5 <-sd(Full_team_Points_Game_season$`PYds/G`)
+TBA_ftp_5 <- mean(NYG_fullteam_points_game$`PYds/G`)
+SE_TBD_ftp_5<- sigma_ftp_5/sqrt(length(NYG_fullteam_points_game$`PYds/G`)) 
+NYG_ftp_5<- (TBA_ftp_5 - Mu_ftp_5)/SE_TBD_ftp_5
+NYG_ftp_5
+
+#total yards
+Mu_ftp_6 <- mean(Full_team_Points_Game_season$TotYds)
+sigma_ftp_6 <-sd(Full_team_Points_Game_season$TotYds)
+TBA_ftp_6 <- mean(NYG_fullteam_points_game$TotYds)
+SE_TBD_ftp_6<- sigma_ftp_6/sqrt(length(NYG_fullteam_points_game$TotYds)) 
+NYG_ftp_6<- (TBA_ftp_6 - Mu_ftp_6)/SE_TBD_ftp_6
+NYG_ftp_6
+
+
+#total yards per game 
+Mu_ftp_7 <- mean(Full_team_Points_Game_season$`Yds/G`)
+sigma_ftp_7 <-sd(Full_team_Points_Game_season$`Yds/G`)
+TBA_ftp_7 <- mean(NYG_fullteam_points_game$`Yds/G`)
+SE_TBD_ftp_7<- sigma_ftp_7/sqrt(length(NYG_fullteam_points_game$`Yds/G`)) 
+NYG_ftp_7<- (TBA_ftp_7 - Mu_ftp_7)/SE_TBD_ftp_7
+NYG_ftp_7
+
+
+#Next gen stats passing
+
+#TT
+Mu_ngp <- mean(NEXT_GEN_STATS_PASSING$TT)
+sigma_ngp <-sd(NEXT_GEN_STATS_PASSING$TT)
+TBA_ngp <- mean(NYG_nextgenstats_passing$TT)
+SE_TBD_ngp<- sigma_ngp/sqrt(length(NYG_nextgenstats_passing$TT)) 
+NYG_ngp<- (TBA_ngp - Mu_ngp)/SE_TBD_ngp
+NYG_ngp
+
+
+#Next gen stats passing
+#CAY
+Mu_ngp_1 <- mean(NEXT_GEN_STATS_PASSING$CAY)
+sigma_ngp_1 <-sd(NEXT_GEN_STATS_PASSING$CAY)
+TBA_ngp_1 <- mean(NYG_nextgenstats_passing$CAY)
+SE_TBD_ngp_1<- sigma_ngp_1/sqrt(length(NYG_nextgenstats_passing$CAY)) 
+NYG_ngp_1<- (TBA_ngp_1 - Mu_ngp_1)/SE_TBD_ngp_1
+NYG_ngp_1
+
+#Next gen stats passing
+#total yards per game 
+Mu_ngp_2 <- mean(NEXT_GEN_STATS_PASSING$IAY)
+sigma_ngp_2 <-sd(NEXT_GEN_STATS_PASSING$IAY)
+TBA_ngp_2 <- mean(NYG_nextgenstats_passing$IAY)
+SE_TBD_ngp_2<- sigma_ngp_2/sqrt(length(NYG_nextgenstats_passing$IAY)) 
+NYG_ngp_2<- (TBA_ngp_2 - Mu_ngp_2)/SE_TBD_ngp_2
+NYG_ngp_2
+
+#Next gen stats passing
+#ayd
+Mu_ngp_3 <- mean(NEXT_GEN_STATS_PASSING$AYD)
+sigma_ngp_3 <-sd(NEXT_GEN_STATS_PASSING$AYD)
+TBA_ngp_3<- mean(NYG_nextgenstats_passing$AYD)
+SE_TBD_ngp_3<- sigma_ngp_3/sqrt(length(NYG_nextgenstats_passing$AYD)) 
+NYG_ngp_3<- (TBA_ngp_3 - Mu_ngp_3)/SE_TBD_ngp_3
+NYG_ngp_3
+
+
+#agg
+Mu_ngp_4 <- mean(NEXT_GEN_STATS_PASSING$`AGG%`)
+sigma_ngp_4 <-sd(NEXT_GEN_STATS_PASSING$`AGG%`)
+TBA_ngp_4<- mean(NYG_nextgenstats_passing$`AGG%`)
+SE_TBD_ngp_4<- sigma_ngp_4/sqrt(length(NYG_nextgenstats_passing$`AGG%`)) 
+NYG_ngp_4<- (TBA_ngp_4 - Mu_ngp_4)/SE_TBD_ngp_4
+NYG_ngp_4
+
+#LCAD
+Mu_ngp_5 <- mean(NEXT_GEN_STATS_PASSING$LCAD)
+sigma_ngp_5 <-sd(NEXT_GEN_STATS_PASSING$LCAD)
+TBA_ngp_5<- mean(NYG_nextgenstats_passing$LCAD)
+SE_TBD_ngp_5<- sigma_ngp_5/sqrt(length(NYG_nextgenstats_passing$LCAD)) 
+NYG_ngp_5<- (TBA_ngp_5 - Mu_ngp_5)/SE_TBD_ngp_5
+NYG_ngp_5
+
+#AYTS
+Mu_ngp_6 <- mean(NEXT_GEN_STATS_PASSING$AYTS)
+sigma_ngp_6 <-sd(NEXT_GEN_STATS_PASSING$AYTS)
+TBA_ngp_6<- mean(NYG_nextgenstats_passing$AYTS)
+SE_TBD_ngp_6<- sigma_ngp_6/sqrt(length(NYG_nextgenstats_passing$AYTS)) 
+NYG_ngp_6<- (TBA_ngp_6 - Mu_ngp_6)/SE_TBD_ngp_6
+NYG_ngp_6
+
+#ATT
+Mu_ngp_7 <- mean(NEXT_GEN_STATS_PASSING$ATT)
+sigma_ngp_7 <-sd(NEXT_GEN_STATS_PASSING$ATT)
+TBA_ngp_7<- mean(NYG_nextgenstats_passing$ATT)
+SE_TBD_ngp_7<- sigma_ngp_7/sqrt(length(NYG_nextgenstats_passing$ATT)) 
+NYG_ngp_7<- (TBA_ngp_7 - Mu_ngp_7)/SE_TBD_ngp_7
+NYG_ngp_7
+
+#
+Mu_ngp_8 <- mean(NEXT_GEN_STATS_PASSING$YDS)
+sigma_ngp_8 <-sd(NEXT_GEN_STATS_PASSING$YDS)
+TBA_ngp_8<- mean(NYG_nextgenstats_passing$YDS)
+SE_TBD_ngp_8<- sigma_ngp_8/sqrt(length(NYG_nextgenstats_passing$YDS)) 
+NYG_ngp_8<- (TBA_ngp_8 - Mu_ngp_8)/SE_TBD_ngp_8
+NYG_ngp_8
+
+z_score_function <- function(x,y){
+  Mu_ngp_8 <- mean(x)
+sigma_ngp_8 <-sd(x)
+TBA_ngp_8<- mean(y)
+SE_TBD_ngp_8<- sigma_ngp_8/sqrt(length(y)) 
+NYG_ngp_8<- (TBA_ngp_8 - Mu_ngp_8)/SE_TBD_ngp_8
+NYG_ngp_8
+  
+}
+
+#touchdowns
+NYG_ngp_9 <- z_score_function(NEXT_GEN_STATS_PASSING$TD,NYG_nextgenstats_passing$TD)
+
+NYG_ngp_9
+
+#Int
+NYG_ngp_10 <- z_score_function(NEXT_GEN_STATS_PASSING$INT,NYG_nextgenstats_passing$INT)
+
+NYG_ngp_10
+
+#rate
+NYG_ngp_11 <- z_score_function(NEXT_GEN_STATS_PASSING$RATE,NYG_nextgenstats_passing$RATE)
+
+NYG_ngp_11
+
+#comp
+NYG_ngp_12 <- z_score_function(NEXT_GEN_STATS_PASSING$`COMP%`,NYG_nextgenstats_passing$`COMP%`)
+
+NYG_ngp_12
+
+#comp exp
+NYG_ngp_13 <- z_score_function(NEXT_GEN_STATS_PASSING$`xCOMP%`,NYG_nextgenstats_passing$`xCOMP%`)
+
+NYG_ngp_13
+
+
+#QB passing cont data set
+
+
+#attempts per game
+NYG_ngp_14 <- z_score_function(QB_SEASON_PASSING$`Att/G`,NYG_qb_passing$`Att/G`)
+
+NYG_ngp_14
+
+#1st
+NYG_ngp_15 <- z_score_function(QB_SEASON_PASSING$`1st`,NYG_qb_passing$`1st`)
+
+NYG_ngp_15
+
+#1st percentage
+NYG_ngp_16 <- z_score_function(QB_SEASON_PASSING$`1st%`,NYG_qb_passing$`1st%`)
+
+NYG_ngp_16
+
+#lng
+NYG_ngp_17 <- z_score_function(QB_SEASON_PASSING$Lng,NYG_qb_passing$Lng)
+
+NYG_ngp_17
+
+#20+
+NYG_ngp_18 <- z_score_function(QB_SEASON_PASSING$`20+`,NYG_qb_passing$`20+`)
+
+NYG_ngp_18
+
+#40+
+NYG_ngp_19 <- z_score_function(QB_SEASON_PASSING$`40+`,NYG_qb_passing$`40+`)
+
+NYG_ngp_19
+
+#sack
+NYG_ngp_20 <- z_score_function(QB_SEASON_PASSING$Sck,NYG_qb_passing$Sck)
+
+NYG_ngp_20
+
+#sack rate
+NYG_ngp_21 <- z_score_function(QB_SEASON_PASSING$Rate,NYG_qb_passing$Rate)
+
+NYG_ngp_21
+
+#teams Downs season 
+
+#first down rush
+NYG_teams_ds <- z_score_function(teams_downs_seasons$`First Downs Rush`,NYG_downs_season$`First Downs Rush`)
+
+NYG_teams_ds
+
+#first down pass
+NYG_teams_ds_1 <- z_score_function(teams_downs_seasons$`First Downs Pass`,NYG_downs_season$`First Downs Pass`)
+
+NYG_teams_ds_1
+
+#first down pen
+NYG_teams_ds_9 <- z_score_function(teams_downs_seasons$`First Downs Pen`,NYG_downs_season$`First Downs Pen`)
+
+NYG_teams_ds_9
+
+#first down tot
+NYG_teams_ds_2 <- z_score_function(teams_downs_seasons$`First Downs Tot`,NYG_downs_season$`First Downs Tot`)
+
+NYG_teams_ds_2
+
+#third down eff att
+NYG_teams_ds_3 <- z_score_function(teams_downs_seasons$`Third Down Efficiency Att`,NYG_downs_season$`Third Down Efficiency Att`)
+
+NYG_teams_ds_3
+
+#third down eff made
+NYG_teams_ds_4 <- z_score_function(teams_downs_seasons$`Third Down Efficiency Made`,NYG_downs_season$`Third Down Efficiency Made`)
+
+NYG_teams_ds_4
+
+#third down eff pct
+NYG_teams_ds_5 <- z_score_function(teams_downs_seasons$`Third Down Efficiency Pct`,NYG_downs_season$`Third Down Efficiency Pct`)
+
+NYG_teams_ds_5
+
+#fourth down att
+NYG_teams_ds_6 <- z_score_function(teams_downs_seasons$`Fourth Down Efficiency Att`,NYG_downs_season$`Fourth Down Efficiency Att`)
+
+NYG_teams_ds_6
+
+#fourth down made
+NYG_teams_ds_7 <- z_score_function(teams_downs_seasons$`Fourth Down Efficiency Made`,NYG_downs_season$`Fourth Down Efficiency Made`)
+
+NYG_teams_ds_7
+
+#fourth down pct
+NYG_teams_ds_8 <- z_score_function(teams_downs_seasons$`Fourth Down Efficiency Pct`,NYG_downs_season$`Fourth Down Efficiency Pct`)
+
+NYG_teams_ds_8
+
+#Teams passing season
+
+#yards per attempt passing 
+NYG_teams_ps_1<- z_score_function(TEAMS_PASSING_SEASON$YPA,NYG_team_passingseason$YPA)
+
+NYG_teams_ps_1
+
+
+#sack yards loss
+NYG_teams_ps_2<- z_score_function(TEAMS_PASSING_SEASON$Loss,NYG_team_passingseason$Loss)
+
+NYG_teams_ps_2
+
+#net yards season 
+NYG_teams_ps_3<- z_score_function(TEAMS_PASSING_SEASON$NetYds,NYG_team_passingseason$NetYds)
+
+NYG_teams_ps_3
+
+#passing yards/game
+NYG_teams_ps_4<- z_score_function(TEAMS_PASSING_SEASON$`Yds/G`,NYG_team_passingseason$`Yds/G`)
+
+NYG_teams_ps_4
+
+
+# Percentage plays 
+
+#plays done
+NYG_percentage_1<- z_score_function(teams_percentage_plays_season$Plays,NYG_team_percentageplays$Plays)
+
+NYG_percentage_1
+
+
+#rush percentage
+NYG_percentage_2<- z_score_function(teams_percentage_plays_season$`Rush%`,NYG_team_percentageplays$`Rush%`)
+
+NYG_percentage_2
+
+#rush plays
+NYG_percentage_3<- z_score_function(teams_percentage_plays_season$Rush,NYG_team_percentageplays$Rush)
+
+NYG_percentage_3
+
+#pass plays
+NYG_percentage_4<- z_score_function(teams_percentage_plays_season$Pass,NYG_team_percentageplays$Pass)
+
+NYG_percentage_4
+
+#pass percentage
+NYG_percentage_5<- z_score_function(teams_percentage_plays_season$`Pass%`,NYG_team_percentageplays$`Pass%`)
+
+NYG_percentage_5
+
+#Teams rushing season 
+#rushing attempts
+NYG_team_rushing_1<- z_score_function(teams_rushing_season$Att,NYG_team_rushing_season$Att)
+
+NYG_team_rushing_1
+
+#rushing yards
+NYG_team_rushing_2<- z_score_function(teams_rushing_season$Yds,NYG_team_rushing_season$Yds)
+
+NYG_team_rushing_2
+
+#rushing avg
+NYG_team_rushing_3<- z_score_function(teams_rushing_season$Avg,NYG_team_rushing_season$Avg)
+
+NYG_team_rushing_3
+
+#rushing td
+NYG_team_rushing_4<- z_score_function(teams_rushing_season$TD,NYG_team_rushing_season$TD)
+
+NYG_team_rushing_4
+
+#rushing FD
+NYG_team_rushing_5<- z_score_function(teams_rushing_season$FD,NYG_team_rushing_season$FD)
+
+NYG_team_rushing_5
+
+#rushing 
+NYG_team_rushing_6<- z_score_function(teams_rushing_season$`Yds/G`,NYG_team_rushing_season$`Yds/G`)
+
+NYG_team_rushing_6
+
+#Team Scoring season 
+
+#scoring td total
+NYG_team_scoring_1<- z_score_function(teams_scoring_seasons$`Touchdowns Tot`,NYG_team_scoring_season$`Touchdowns Tot`)
+
+NYG_team_scoring_1
+
+#scoring td r 
+NYG_team_scoring_2<- z_score_function(teams_scoring_seasons$`Touchdowns R`,NYG_team_scoring_season$`Touchdowns R`)
+
+NYG_team_scoring_2
+
+#scoring td p 
+NYG_team_scoring_3 <- z_score_function(teams_scoring_seasons$`Touchdowns P`,NYG_team_scoring_season$`Touchdowns P`)
+
+NYG_team_scoring_3
+
+#scoring td kr
+NYG_team_scoring_4<- z_score_function(teams_scoring_seasons$`Touchdowns KR`,NYG_team_scoring_season$`Touchdowns KR`)
+
+NYG_team_scoring_4
+
+#scoring td  pr
+NYG_team_scoring_5<- z_score_function(teams_scoring_seasons$`Touchdowns PR`,NYG_team_scoring_season$`Touchdowns PR`)
+
+NYG_team_scoring_5
+
+#scoring td ir 
+NYG_team_scoring_6<- z_score_function(teams_scoring_seasons$`Touchdowns IR`,NYG_team_scoring_season$`Touchdowns IR`)
+
+NYG_team_scoring_6
+
+#scoring td fr
+NYG_team_scoring_7<- z_score_function(teams_scoring_seasons$`Touchdowns FR`,NYG_team_scoring_season$`Touchdowns FR`)
+
+NYG_team_scoring_7
+
+#scoring td bk
+NYG_team_scoring_8<- z_score_function(teams_scoring_seasons$`Touchdowns BK`,NYG_team_scoring_season$`Touchdowns BK`)
+
+NYG_team_scoring_8
+
+#scoring td bp
+NYG_team_scoring_9<- z_score_function(teams_scoring_seasons$`Touchdowns BP`,NYG_team_scoring_season$`Touchdowns BP`)
+
+NYG_team_scoring_9
+
+
+#scoring misc conv
+NYG_team_scoring_13<- z_score_function(teams_scoring_seasons$`Misc Conv`,NYG_team_scoring_season$`Misc Conv`)
+
+NYG_team_scoring_13
+
+#scoring misc saf
+NYG_team_scoring_14<- z_score_function(teams_scoring_seasons$`Misc Saf`,NYG_team_scoring_season$`Misc Saf`)
+
+NYG_team_scoring_14
+
+#scoring misc pts
+NYG_team_scoring_15<- z_score_function(teams_scoring_seasons$`Misc Pts`,NYG_team_scoring_season$`Misc Pts`)
+
+NYG_team_scoring_15
+
+
+#t tests for several points 
+
+t_function_test <- function(x,y){
+  z <-mean(y)
+  t.test(x,mean = z)
+}
+
+# interceptions 
+NYG_def_season_result_1<- t_function_test(NYG_Defense_season$`Interceptions Int`,Defense_Season$`Interceptions Int`)
+
+NYG_def_season_result_1
+
+# interception yards
+NYG_def_season_result_2<- t_function_test(NYG_Defense_season$`Interceptions Yds`,Defense_Season$`Interceptions Yds`)
+
+NYG_def_season_result_2
+
+
+# interception avg
+NYG_def_season_result_3<- t_function_test(NYG_Defense_season$`Interceptions Avg`,Defense_Season$`Interceptions Avg`)
+
+NYG_def_season_result_3
+
+# interception long
+NYG_def_season_result_4<- t_function_test(NYG_Defense_season$`Interceptions Lg`,Defense_Season$`Interceptions Lg`)
+
+NYG_def_season_result_4
+
+# interception TD
+NYG_def_season_result_5<- t_function_test(NYG_Defense_season$`Interceptions TD`,Defense_Season$`Interceptions TD`)
+
+NYG_def_season_result_5
+
+# solo tackles
+NYG_def_season_result_6<- t_function_test(NYG_Defense_season$`Tackles Solo`,Defense_Season$`Tackles Solo`)
+
+NYG_def_season_result_6
+
+# ast tackles
+NYG_def_season_result_7<- t_function_test(NYG_Defense_season$`Tackles Ast`,Defense_Season$`Tackles Ast`)
+
+NYG_def_season_result_7
+
+# tot tackles
+NYG_def_season_result_8<- t_function_test(NYG_Defense_season$`Tackles Tot`,Defense_Season$`Tackles Tot`)
+
+NYG_def_season_result_8
+
+# sacks
+NYG_def_season_result_9<- t_function_test(NYG_Defense_season$`Sacks Sack`,Defense_Season$`Sacks Sack`)
+
+NYG_def_season_result_9
+
+# sack yards lost
+NYG_def_season_result_10<- t_function_test(NYG_Defense_season$`Sacks YdsL`,Defense_Season$`Sacks YdsL`)
+
+NYG_def_season_result_10
+
+
+#
+
+NYG_def_season_result_10<-  pnorm(NYG_Defense_season$`Sacks YdsL`,Defense_Season$`Sacks YdsL`)
+
+NYG_def_season_result_10
+#Defense Weekly 
+
+# sacks
+NYG_def_weekly_result_1<- t_function_test(NYG_Defense_weekly$Sacks,Defense_Weekly$Sacks)
+
+NYG_def_weekly_result_1
+
+
+# sacks yards 
+NYG_def_weekly_result_2<- t_function_test(NYG_Defense_weekly$`Sack Yds`,Defense_Weekly$`Sack Yds`)
+
+NYG_def_weekly_result_2
+
+# qb hits
+NYG_def_weekly_result_3<- t_function_test(NYG_Defense_weekly$`QB Hits`,Defense_Weekly$`QB Hits`)
+
+NYG_def_weekly_result_3
+
+# tackles
+NYG_def_weekly_result_4<- t_function_test(NYG_Defense_weekly$Tackles,Defense_Weekly$Tackles)
+
+NYG_def_weekly_result_4
+
+# assists 
+NYG_def_weekly_result_5<- t_function_test(NYG_Defense_weekly$Assists,Defense_Weekly$Assists)
+
+NYG_def_weekly_result_5
+
+# fumbles forced
+NYG_def_weekly_result_6<- t_function_test(NYG_Defense_weekly$`Fumbles Forced`,Defense_Weekly$`Fumbles Forced`)
+
+NYG_def_weekly_result_6
+
+# fumbleds recovered 
+NYG_def_weekly_result_7<- t_function_test(NYG_Defense_weekly$`Fumbles Recovered`,Defense_Weekly$`Fumbles Recovered`)
+
+NYG_def_weekly_result_7
+
+#ESPN passing 
+
+# comp
+NYG_ESPN_Passing_weekly_result_1<- t_function_test(NYG_espn_weekly_passing$COMP,ESPN_PASSING_WEEKLY$COMP)
+
+NYG_ESPN_Passing_weekly_result_1
+
+# attempts
+NYG_ESPN_Passing_weekly_result_2<- t_function_test(NYG_espn_weekly_passing$ATT,ESPN_PASSING_WEEKLY$ATT)
+
+NYG_ESPN_Passing_weekly_result_2
+
+# yards
+NYG_ESPN_Passing_weekly_result_3<- t_function_test(NYG_espn_weekly_passing$YDS,ESPN_PASSING_WEEKLY$YDS)
+
+NYG_ESPN_Passing_weekly_result_3
+
+# td
+NYG_ESPN_Passing_weekly_result_4<- t_function_test(NYG_espn_weekly_passing$TD,ESPN_PASSING_WEEKLY$TD)
+
+NYG_ESPN_Passing_weekly_result_4
+
+# interception
+NYG_ESPN_Passing_weekly_result_5<- t_function_test(NYG_espn_weekly_passing$INT,ESPN_PASSING_WEEKLY$INT)
+
+NYG_ESPN_Passing_weekly_result_5
+
+# sack
+NYG_ESPN_Passing_weekly_result_6<- t_function_test(NYG_espn_weekly_passing$SACK,ESPN_PASSING_WEEKLY$SACK)
+
+NYG_ESPN_Passing_weekly_result_6
+
+# fumbles
+NYG_ESPN_Passing_weekly_result_7<- t_function_test(NYG_espn_weekly_passing$FUM,ESPN_PASSING_WEEKLY$FUM)
+
+NYG_ESPN_Passing_weekly_result_7
+
+# qb rating 
+NYG_ESPN_Passing_weekly_result_8<- t_function_test(NYG_espn_weekly_passing$RAT,ESPN_PASSING_WEEKLY$RAT)
+
+NYG_ESPN_Passing_weekly_result_8
+
+#Kick Return seasom
+
+# yards
+  
+  NYG_kick_return_1<-z_score_function(Kick_Return_Season$Yds,NYG_kickreturn_szn$Yds)
+
+NYG_kick_return_1
+
+#Kick Return seasom
+
+# avg
+ NYG_kick_return_2<-z_score_function(Kick_Return_Season$Avg,NYG_kickreturn_szn$Avg)
+
+NYG_kick_return_2
+
+# FC
+ NYG_kick_return_3<-z_score_function(Kick_Return_Season$FC,NYG_kickreturn_szn$FC)
+
+NYG_kick_return_3
+
+#Kick Return season
+
+# lg
+ NYG_kick_return_4<-z_score_function(Kick_Return_Season$Lg,NYG_kickreturn_szn$Lg)
+
+NYG_kick_return_4
+
+#TD
+
+ NYG_kick_return_5<-z_score_function(Kick_Return_Season$TD,NYG_kickreturn_szn$TD)
+
+NYG_kick_return_5
+
+#Next gen stats receving:
+
+#Kick Return seasom
+
+# cushion
+NYG_nextgenstats_rec_1<- t_function_test(NYG_nextgenstats_receving$CUSH,Next_gen_stats_receving$CUSH)
+
+NYG_nextgenstats_rec_1
+
+# Sep
+NYG_nextgenstats_rec_2<- t_function_test(NYG_nextgenstats_receving$SEP,Next_gen_stats_receving$SEP)
+
+NYG_nextgenstats_rec_2
+
+# tay
+NYG_nextgenstats_rec_3<- t_function_test(NYG_nextgenstats_receving$TAY,Next_gen_stats_receving$TAY)
+
+NYG_nextgenstats_rec_3
+
+# Tay percen
+NYG_nextgenstats_rec_4<- t_function_test(NYG_nextgenstats_receving$`TAY%`,Next_gen_stats_receving$`TAY%`)
+
+NYG_nextgenstats_rec_4
+
+# Rec
+NYG_nextgenstats_rec_5<- t_function_test(NYG_nextgenstats_receving$REC,Next_gen_stats_receving$REC)
+
+NYG_nextgenstats_rec_5
+
+# Tar
+NYG_nextgenstats_rec_6<- t_function_test(NYG_nextgenstats_receving$TAR,Next_gen_stats_receving$TAR)
+
+NYG_nextgenstats_rec_6
+
+
+# catch percentage
+NYG_nextgenstats_rec_7<- t_function_test(NYG_nextgenstats_receving$`CTCH%`,Next_gen_stats_receving$`CTCH%`)
+
+NYG_nextgenstats_rec_7
+
+
+# yards
+NYG_nextgenstats_rec_8<- t_function_test(NYG_nextgenstats_receving$YDS,Next_gen_stats_receving$YDS)
+
+NYG_nextgenstats_rec_8
+
+# td
+NYG_nextgenstats_rec_9<- t_function_test(NYG_nextgenstats_receving$TD,Next_gen_stats_receving$TD)
+
+NYG_nextgenstats_rec_9
+
+
+# yards after catch per recpetion
+NYG_nextgenstats_rec_10<- t_function_test(NYG_nextgenstats_receving$`YAC/R`,Next_gen_stats_receving$`YAC/R`)
+
+NYG_nextgenstats_rec_10
+
+
+# expected yac/r
+NYG_nextgenstats_rec_11<- t_function_test(NYG_nextgenstats_receving$`xYAC/R`,Next_gen_stats_receving$`xYAC/R`)
+
+NYG_nextgenstats_rec_11
+
+# differential of yards after catch per reception 
+NYG_nextgenstats_rec_12<- t_function_test(NYG_nextgenstats_receving$`+/-`,Next_gen_stats_receving$`+/-`)
+
+NYG_nextgenstats_rec_12
+
+
+#Passing Weekly 
+
+#Comp
+NYG_passing_weekly_results_1<- t_function_test(NYG_passing_weekkly$Comp,Passing_Weekly$Comp)
+
+NYG_passing_weekly_results_1
+
+#att
+NYG_passing_weekly_results_2<- t_function_test(NYG_passing_weekkly$Att,Passing_Weekly$Att)
+
+NYG_passing_weekly_results_2
+
+#yards
+NYG_passing_weekly_results_3<- t_function_test(NYG_passing_weekkly$Yds,Passing_Weekly$Yds)
+
+NYG_passing_weekly_results_3
+
+#td
+NYG_passing_weekly_results_4<- t_function_test(NYG_passing_weekkly$TD,Passing_Weekly$TD)
+
+NYG_passing_weekly_results_4
+
+#int
+NYG_passing_weekly_results_5<- t_function_test(NYG_passing_weekkly$Int,Passing_Weekly$Int)
+
+NYG_passing_weekly_results_5
+
+#sack
+NYG_passing_weekly_results_6<- t_function_test(NYG_passing_weekkly$Sck,Passing_Weekly$Sck)
+
+NYG_passing_weekly_results_6
+
+#fumbles
+NYG_passing_weekly_results_7<- t_function_test(NYG_passing_weekkly$FUM,Passing_Weekly$FUM)
+
+NYG_passing_weekly_results_7
+
+#rate
+NYG_passing_weekly_results_8<- t_function_test(NYG_passing_weekkly$Rate,Passing_Weekly$Rate)
+
+NYG_passing_weekly_results_8
+
+
+#Punt Return 
+
+#yards
+
+ NYG_punt_return_1<-z_score_function(Punt_Return_season$Yds,NYG_punt_return$Yds)
+
+NYG_punt_return_1
+
+#avg
+ NYG_punt_return_2<-z_score_function(Punt_Return_season$Avg,NYG_punt_return$Avg)
+
+NYG_punt_return_2
+#FC
+ NYG_punt_return_3<-z_score_function(Punt_Return_season$FC,NYG_punt_return$FC)
+
+NYG_punt_return_3
+
+#lg
+ NYG_punt_return_4<-z_score_function(Punt_Return_season$Lg,NYG_punt_return$Lg)
+
+NYG_punt_return_4
+
+#td
+ NYG_punt_return_5<-z_score_function(Punt_Return_season$TD,NYG_punt_return$TD)
+
+NYG_punt_return_5
+
+#Receving Weekly 
+
+#rec
+NYG_recweekly_1<- t_function_test(NYG_rec_weekly$Rec,REC_WEEKLY$Rec)
+
+NYG_recweekly_1
+
+#yards
+NYG_recweekly_2<- t_function_test(NYG_rec_weekly$Yds,REC_WEEKLY$Yds)
+
+NYG_recweekly_2
+
+#avg
+NYG_recweekly_3<- t_function_test(NYG_rec_weekly$Avg,REC_WEEKLY$Avg)
+
+NYG_recweekly_3
+
+#td
+NYG_recweekly_4<- t_function_test(NYG_rec_weekly$TD,REC_WEEKLY$TD)
+
+NYG_recweekly_4
+
+#fumbles
+NYG_recweekly_5<- t_function_test(NYG_rec_weekly$FUM,REC_WEEKLY$FUM)
+
+NYG_recweekly_5
+
+#Rushing Season 
+
+#rushing td
+NYG_rushingseason_1<- t_function_test(NYG_rushing_season$TD,Rushing_Season$TD)
+
+NYG_rushingseason_1
+
+
+#rushing att
+NYG_rushingseason_2<- t_function_test(NYG_rushing_season$Att,Rushing_Season$Att)
+
+NYG_rushingseason_2
+
+#rushing yards
+NYG_rushingseason_3<- t_function_test(NYG_rushing_season$Yds,Rushing_Season$Yds)
+
+NYG_rushingseason_3
+
+#rushing avg
+NYG_rushingseason_4<- t_function_test(NYG_rushing_season$Avg,Rushing_Season$Avg)
+
+NYG_rushingseason_4
+
+#rushing ypg
+NYG_rushingseason_5<- t_function_test(NYG_rushing_season$YPG,Rushing_Season$YPG)
+
+NYG_rushingseason_5
+
+#rushing lg
+NYG_rushingseason_6<- t_function_test(NYG_rushing_season$Lg,Rushing_Season$Lg)
+
+NYG_rushingseason_6
+
+#rushing fd
+NYG_rushingseason_7<- t_function_test(NYG_rushing_season$FD,Rushing_Season$FD)
+
+NYG_rushingseason_7
+
+#Scoring season stats
+
+#scoring points
+NYG_Scoring_scoring_1<- t_function_test(NYG_scoring_season$Pts,Scoring_Season$Pts)
+
+NYG_Scoring_scoring_1
+
+#stouchdown total
+NYG_Scoring_scoring_2<- t_function_test(NYG_scoring_season$`Touchdowns Tot`,Scoring_Season$`Touchdowns Tot`)
+
+NYG_Scoring_scoring_2
+
+#touchdown r
+NYG_Scoring_scoring_3<- t_function_test(NYG_scoring_season$`Touchdowns R`,Scoring_Season$`Touchdowns R`)
+
+NYG_Scoring_scoring_3
+
+#touchdown p
+NYG_Scoring_scoring_4<- t_function_test(NYG_scoring_season$`Touchdowns P`,Scoring_Season$`Touchdowns P`)
+
+NYG_Scoring_scoring_4
+
+#touchdown kr
+NYG_Scoring_scoring_5<- t_function_test(NYG_scoring_season$`Touchdowns KR`, Scoring_Season$`Touchdowns KR`)
+
+NYG_Scoring_scoring_5
+
+#touchdown pr
+NYG_Scoring_scoring_6<- t_function_test(NYG_scoring_season$`Touchdowns PR`,Scoring_Season$`Touchdowns PR`)
+
+NYG_Scoring_scoring_6
+
+#touchdown IR
+NYG_Scoring_scoring_7<- t_function_test(NYG_scoring_season$`Touchdowns IR`,Scoring_Season$`Touchdowns IR`)
+NYG_Scoring_scoring_7
+
+#touchdown fr
+NYG_Scoring_scoring_8<- t_function_test(NYG_scoring_season$`Touchdowns FR`,Scoring_Season$`Touchdowns FR`)
+
+NYG_Scoring_scoring_8
+
+#touchdown bk
+NYG_Scoring_scoring_9<- t_function_test(NYG_scoring_season$`Touchdowns BK`,Scoring_Season$`Touchdowns BK`)
+
+NYG_Scoring_scoring_9
+
+#touchdown bp
+NYG_Scoring_scoring_10<- t_function_test(NYG_scoring_season$`Touchdowns BP`,Scoring_Season$`Touchdowns BP`)
+
+NYG_Scoring_scoring_10
+
+#touchdown fgr
+NYG_Scoring_scoring_11<- t_function_test(NYG_scoring_season$`Touchdowns FGR`,Scoring_Season$`Touchdowns FGR`)
+
+NYG_Scoring_scoring_11
+
+
+#misc conv
+NYG_Scoring_scoring_14<- t_function_test(NYG_scoring_season$`Misc Conv`,Scoring_Season$`Misc Conv`)
+
+NYG_Scoring_scoring_14
+
+#misc saf
+NYG_Scoring_scoring_15<- t_function_test(NYG_scoring_season$`Misc Saf`,Scoring_Season$`Misc Saf`)
+
+NYG_Scoring_scoring_15
+
+#Weekly Rushing stats 
+
+#attempts
+NYG_weekly_rushing_stats_1<- t_function_test(NYG_weekly_rushing_stats$Att,Weekly_Rushing_Stats$Att)
+
+NYG_weekly_rushing_stats_1
+
+#yards
+NYG_weekly_rushing_stats_2<- t_function_test(NYG_weekly_rushing_stats$Yds,Weekly_Rushing_Stats$Yds)
+
+NYG_weekly_rushing_stats_2
+
+#avg
+NYG_weekly_rushing_stats_3<- t_function_test(NYG_weekly_rushing_stats$Avg,Weekly_Rushing_Stats$Avg)
+
+NYG_weekly_rushing_stats_3
+
+#td
+NYG_weekly_rushing_stats_4<- t_function_test(NYG_weekly_rushing_stats$TD,Weekly_Rushing_Stats$TD)
+
+NYG_weekly_rushing_stats_4
+
+#fum
+NYG_weekly_rushing_stats_5<- t_function_test(NYG_weekly_rushing_stats$FUM,Weekly_Rushing_Stats$FUM)
+
+NYG_weekly_rushing_stats_5
+
+
+#Weekly Passing 
+
+#TT
+NYG_weeklypassing_12_1<- t_function_test(NYG_weekly_passing_12_stats$TT,Weekly_Passing$TT)
+
+NYG_weeklypassing_12_1
+
+#CAY
+NYG_weeklypassing_12_2<- t_function_test(NYG_weekly_passing_12_stats$CAY,Weekly_Passing$CAY)
+
+NYG_weeklypassing_12_2
+
+#IAY
+NYG_weeklypassing_12_3<- t_function_test(NYG_weekly_passing_12_stats$IAY,Weekly_Passing$IAY)
+
+NYG_weeklypassing_12_3
+
+#ayd
+NYG_weeklypassing_12_4<- t_function_test(NYG_weekly_passing_12_stats$AYD,Weekly_Passing$AYD)
+
+NYG_weeklypassing_12_4
+
+#agg
+NYG_weeklypassing_12_5<- t_function_test(NYG_weekly_passing_12_stats$`AGG%`,Weekly_Passing$`AGG%`)
+
+NYG_weeklypassing_12_5
+
+#lcad
+NYG_weeklypassing_12_6<- t_function_test(NYG_weekly_passing_12_stats$LCAD,Weekly_Passing$LCAD)
+
+NYG_weeklypassing_12_6
+
+#ayts
+NYG_weeklypassing_12_7<- t_function_test(NYG_weekly_passing_12_stats$AYTS,Weekly_Passing$AYTS)
+
+NYG_weeklypassing_12_7
+
+#att
+NYG_weeklypassing_12_8<- t_function_test(NYG_weekly_passing_12_stats$ATT,Weekly_Passing$ATT)
+
+NYG_weeklypassing_12_8
+
+#yds
+NYG_weeklypassing_12_9<- t_function_test(NYG_weekly_passing_12_stats$YDS,Weekly_Passing$YDS)
+
+NYG_weeklypassing_12_9
+
+#TD
+NYG_weeklypassing_12_10<- t_function_test(NYG_weekly_passing_12_stats$TD,Weekly_Passing$TD)
+
+NYG_weeklypassing_12_10
+
+#int
+NYG_weeklypassing_12_11<- t_function_test(NYG_weekly_passing_12_stats$INT,Weekly_Passing$INT)
+
+NYG_weeklypassing_12_11
+
+#comp
+NYG_weeklypassing_12_13<- t_function_test(NYG_weekly_passing_12_stats$`COMP%`,Weekly_Passing$`COMP%`)
+
+NYG_weeklypassing_12_13
+
+
+#expected comp
+NYG_weeklypassing_12_14<- t_function_test(NYG_weekly_passing_12_stats$`xCOMP%`,Weekly_Passing$`xCOMP%`)
+
+NYG_weeklypassing_12_14
+
+
+# new section for t test function 
+
+
+#MIA
+
+MIA_weekly_adv_rec_1 <- t_function_test(   MIA_weekly_adv_rec$CUSH,WEEKLY_REC_WEEK$CUSH)
+
+MIA_weekly_adv_rec_1
+
+
+
+MIA_weekly_adv_rec_2 <- t_function_test(   MIA_weekly_adv_rec$SEP,WEEKLY_REC_WEEK$SEP)
+
+MIA_weekly_adv_rec_2
+
+
+
+MIA_weekly_adv_rec_3 <- t_function_test(   MIA_weekly_adv_rec$TAY,WEEKLY_REC_WEEK$TAY)
+
+MIA_weekly_adv_rec_3
+
+
+
+MIA_weekly_adv_rec_4 <- t_function_test(   MIA_weekly_adv_rec$`TAY%`,WEEKLY_REC_WEEK$`TAY%`)
+
+MIA_weekly_adv_rec_4
+
+
+
+
+MIA_weekly_adv_rec_5<- t_function_test(   MIA_weekly_adv_rec$REC,WEEKLY_REC_WEEK$REC)
+
+MIA_weekly_adv_rec_5
+
+
+
+
+MIA_weekly_adv_rec_6 <- t_function_test(   MIA_weekly_adv_rec$TAR,WEEKLY_REC_WEEK$TAR)
+
+MIA_weekly_adv_rec_6
+
+
+
+
+MIA_weekly_adv_rec_7 <- t_function_test(   MIA_weekly_adv_rec$`CTCH%`,WEEKLY_REC_WEEK$`CTCH%`)
+
+MIA_weekly_adv_rec_7
+
+
+
+
+MIA_weekly_adv_rec_8 <- t_function_test(   MIA_weekly_adv_rec$YDS,WEEKLY_REC_WEEK$YDS)
+
+MIA_weekly_adv_rec_8
+
+
+
+MIA_weekly_adv_rec_9 <- t_function_test(   MIA_weekly_adv_rec$TD,WEEKLY_REC_WEEK$TD)
+
+MIA_weekly_adv_rec_9
+
+
+
+
+
+
+MIA_weekly_adv_rec_10 <- t_function_test(   MIA_weekly_adv_rec$`YAC/R`,WEEKLY_REC_WEEK$`YAC/R`)
+
+MIA_weekly_adv_rec_10
+
+
+# rush
+
+MIA_weekly_adv_rush_1 <- t_function_test(  MIA_adv_weekly_rushing_stats$EFF ,WEEKLY_ADV_RUSH_STATS$EFF)
+
+MIA_weekly_adv_rush_1
+
+
+
+
+MIA_weekly_adv_rush_2 <- t_function_test(  MIA_adv_weekly_rushing_stats$`8+D%` ,WEEKLY_ADV_RUSH_STATS$`8+D%`)
+
+MIA_weekly_adv_rush_2
+
+
+
+
+
+MIA_weekly_adv_rush_3 <- t_function_test(  MIA_adv_weekly_rushing_stats$EFF ,WEEKLY_ADV_RUSH_STATS$EFF)
+
+MIA_weekly_adv_rush_3
+
+
+
+
+
+MIA_weekly_adv_rush_4 <- t_function_test(  MIA_adv_weekly_rushing_stats$TLOS ,WEEKLY_ADV_RUSH_STATS$TLOS)
+
+MIA_weekly_adv_rush_4
+
+
+
+
+
+MIA_weekly_adv_rush_5<- t_function_test(  MIA_adv_weekly_rushing_stats$ATT ,WEEKLY_ADV_RUSH_STATS$ATT)
+
+MIA_weekly_adv_rush_5
+
+
+
+
+MIA_weekly_adv_rush_6 <- t_function_test(  MIA_adv_weekly_rushing_stats$YDS ,WEEKLY_ADV_RUSH_STATS$YDS)
+
+MIA_weekly_adv_rush_6
+
+
+
+
+MIA_weekly_adv_rush_7 <- t_function_test(  MIA_adv_weekly_rushing_stats$AVG ,WEEKLY_ADV_RUSH_STATS$AVG)
+
+MIA_weekly_adv_rush_7
+
+
+
+
+MIA_weekly_adv_rush_8 <- t_function_test(  MIA_adv_weekly_rushing_stats$TD ,WEEKLY_ADV_RUSH_STATS$TD)
+
+MIA_weekly_adv_rush_8
+
+# NYGzona section 
+
+NYG_weekly_adv_rec_1 <- t_function_test(   NYG_weekly_adv_rec$CUSH,WEEKLY_REC_WEEK$CUSH)
+
+NYG_weekly_adv_rec_1
+
+
+
+NYG_weekly_adv_rec_2 <- t_function_test(   NYG_weekly_adv_rec$SEP,WEEKLY_REC_WEEK$SEP)
+
+NYG_weekly_adv_rec_2
+
+
+
+NYG_weekly_adv_rec_3 <- t_function_test(   NYG_weekly_adv_rec$TAY,WEEKLY_REC_WEEK$TAY)
+
+NYG_weekly_adv_rec_3
+
+
+
+NYG_weekly_adv_rec_4 <- t_function_test(   NYG_weekly_adv_rec$`TAY%`,WEEKLY_REC_WEEK$`TAY%`)
+
+NYG_weekly_adv_rec_4
+
+
+
+
+NYG_weekly_adv_rec_5<- t_function_test(   NYG_weekly_adv_rec$REC,WEEKLY_REC_WEEK$REC)
+
+NYG_weekly_adv_rec_5
+
+
+
+
+NYG_weekly_adv_rec_6 <- t_function_test(   NYG_weekly_adv_rec$TAR,WEEKLY_REC_WEEK$TAR)
+
+NYG_weekly_adv_rec_6
+
+
+
+
+NYG_weekly_adv_rec_7 <- t_function_test(   NYG_weekly_adv_rec$`CTCH%`,WEEKLY_REC_WEEK$`CTCH%`)
+
+NYG_weekly_adv_rec_7
+
+
+
+
+NYG_weekly_adv_rec_8 <- t_function_test(   NYG_weekly_adv_rec$YDS,WEEKLY_REC_WEEK$YDS)
+
+NYG_weekly_adv_rec_8
+
+
+
+NYG_weekly_adv_rec_9 <- t_function_test(   NYG_weekly_adv_rec$TD,WEEKLY_REC_WEEK$TD)
+
+NYG_weekly_adv_rec_9
+
+
+
+
+
+
+NYG_weekly_adv_rec_10 <- t_function_test(   NYG_weekly_adv_rec$`YAC/R`,WEEKLY_REC_WEEK$`YAC/R`)
+
+NYG_weekly_adv_rec_10
+
+
+# rush
+
+NYG_weekly_adv_rush_1 <- t_function_test(  NYG_adv_weekly_rushing_stats$EFF ,WEEKLY_ADV_RUSH_STATS$EFF)
+
+NYG_weekly_adv_rush_1
+
+
+
+
+NYG_weekly_adv_rush_2 <- t_function_test(  NYG_adv_weekly_rushing_stats$`8+D%` ,WEEKLY_ADV_RUSH_STATS$`8+D%`)
+
+NYG_weekly_adv_rush_2
+
+
+
+
+
+NYG_weekly_adv_rush_3 <- t_function_test(  NYG_adv_weekly_rushing_stats$EFF ,WEEKLY_ADV_RUSH_STATS$EFF)
+
+NYG_weekly_adv_rush_3
+
+
+
+
+
+NYG_weekly_adv_rush_4 <- t_function_test(  NYG_adv_weekly_rushing_stats$TLOS ,WEEKLY_ADV_RUSH_STATS$TLOS)
+
+NYG_weekly_adv_rush_4
+
+
+
+
+
+NYG_weekly_adv_rush_5<- t_function_test(  NYG_adv_weekly_rushing_stats$ATT ,WEEKLY_ADV_RUSH_STATS$ATT)
+
+NYG_weekly_adv_rush_5
+
+
+
+
+NYG_weekly_adv_rush_6 <- t_function_test(  NYG_adv_weekly_rushing_stats$YDS ,WEEKLY_ADV_RUSH_STATS$YDS)
+
+NYG_weekly_adv_rush_6
+
+
+
+
+NYG_weekly_adv_rush_7 <- t_function_test(  NYG_adv_weekly_rushing_stats$AVG ,WEEKLY_ADV_RUSH_STATS$AVG)
+
+NYG_weekly_adv_rush_7
+
+
+
+
+NYG_weekly_adv_rush_8 <- t_function_test(  NYG_adv_weekly_rushing_stats$TD ,WEEKLY_ADV_RUSH_STATS$TD)
+
+NYG_weekly_adv_rush_8
+
+
+
+
+
+
+library(readxl)
+
+Defense_Air_Comp <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense_Air_Comp.xlsx")
+
+
+advanced_def_rush <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/advanced_def_rush.xlsx")
+
+Advanced_Rec_stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rec_stats.xlsx")
+
+Advanced_Rushing_data <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rushing_data.xlsx")
+
+
+
+#Changing NAs to 0s
+
+Defense_Air_Comp$`Pass Coverage Cmp%`[is.na(Defense_Air_Comp$`Pass Coverage Cmp%`)] <- 0
+
+Defense_Air_Comp$`Pass Coverage Yds/Cmp`[is.na(Defense_Air_Comp$`Pass Coverage Yds/Cmp`)] <- 0
+
+Defense_Air_Comp$`Pass Coverage Yds/Tgt`[is.na(Defense_Air_Comp$`Pass Coverage Yds/Tgt`)] <- 0
+
+Defense_Air_Comp$`Pass Coverage DADOT`[is.na(Defense_Air_Comp$`Pass Coverage DADOT`)] <- 0
+
+Advanced_Rushing_data$`Rushing 1D`[is.na(Advanced_Rushing_data$`Rushing 1D`)] <- 0
+
+advanced_def_rush$`Tackles MTkl%`[is.na(advanced_def_rush$`Tackles MTkl%`)] <- 0
+#MIA subset of two datasets
+
+MIA_def_air_comp <- subset(Defense_Air_Comp, Defense_Air_Comp$Tm == "LAR")
+
+MIA_adv_def_rush <- subset(advanced_def_rush, advanced_def_rush$Tm == "LAR")
+
+MIA_adv_rush <- subset(Advanced_Rushing_data, Advanced_Rushing_data$Tm == "LAR")
+
+MIA_adv_rec <- subset(Advanced_Rec_stats, Advanced_Rec_stats$Tm == "LAR")
+
+#NYGzona subset 
+NYG_def_air_comp <- subset(Defense_Air_Comp, Defense_Air_Comp$Tm == "NYG")
+
+NYG_adv_def_rush <- subset(advanced_def_rush, advanced_def_rush$Tm == "NYG")
+
+NYG_adv_rush <- subset(Advanced_Rushing_data, Advanced_Rushing_data$Tm == "NYG")
+
+NYG_adv_rec <- subset(Advanced_Rec_stats, Advanced_Rec_stats$Tm == "NYG")
+
+
+# MIA t tests:
+
+#pass coverage int
+MIA_def_pass_1<- t_function_test(MIA_def_air_comp$`Pass Coverage Int` ,Defense_Air_Comp$`Pass Coverage Int`)
+
+MIA_def_pass_1
+
+# pass coverage target
+MIA_def_pass_2<- t_function_test(MIA_def_air_comp$`Pass Coverage Tgt` ,Defense_Air_Comp$`Pass Coverage Tgt`)
+
+MIA_def_pass_2
+
+# pass coverage completion
+MIA_def_pass_3<- t_function_test(MIA_def_air_comp$`Pass Coverage Cmp` ,Defense_Air_Comp$`Pass Coverage Cmp`)
+
+MIA_def_pass_3
+
+# comp percentage pass coverage
+MIA_def_pass_4<- t_function_test(MIA_def_air_comp$`Pass Coverage Cmp%` ,Defense_Air_Comp$`Pass Coverage Cmp%`)
+
+MIA_def_pass_4
+
+#pass coverage yards
+MIA_def_pass_5<- t_function_test(MIA_def_air_comp$`Pass Coverage Yds` ,Defense_Air_Comp$`Pass Coverage Yds`)
+
+MIA_def_pass_5
+
+
+#pass coverage yards per attempt 
+MIA_def_pass_7<- t_function_test(MIA_def_air_comp$`Pass Coverage Yds/Tgt` ,Defense_Air_Comp$`Pass Coverage Yds/Tgt`)
+
+MIA_def_pass_7
+
+# pass coverage touchdowns 
+MIA_def_pass_8<- t_function_test(MIA_def_air_comp$`Pass Coverage TD`,Defense_Air_Comp$`Pass Coverage TD`)
+
+MIA_def_pass_8
+
+# pass coverage DADOT
+MIA_def_pass_9<- t_function_test(MIA_def_air_comp$`Pass Coverage DADOT` ,Defense_Air_Comp$`Pass Coverage DADOT`)
+
+MIA_def_pass_9
+
+#coverage air yards
+MIA_def_pass_10<- t_function_test(MIA_def_air_comp$`Pass Coverage Air` ,Defense_Air_Comp$`Pass Coverage Air`)
+
+MIA_def_pass_10
+
+# yards after catch coverage 
+MIA_def_pass_11<- t_function_test(MIA_def_air_comp$`Pass Coverage YAC` ,Defense_Air_Comp$`Pass Coverage YAC`)
+
+MIA_def_pass_11
+
+
+#Rushing defense MIA:
+
+# pass rush blitzes 
+MIA_def_rush_1<- t_function_test(MIA_adv_def_rush$`Pass Rush Bltz` ,advanced_def_rush$`Pass Rush Bltz`)
+
+MIA_def_rush_1
+
+# pass rush hurry 
+MIA_def_rush_2<- t_function_test(MIA_adv_def_rush$`Pass Rush Hrry` ,advanced_def_rush$`Pass Rush Hrry`)
+
+MIA_def_rush_2
+
+# QB knockdown 
+MIA_def_rush_3<- t_function_test(MIA_adv_def_rush$`Pass Rush QBKD` ,advanced_def_rush$`Pass Rush QBKD`)
+
+MIA_def_rush_3
+
+# sacks
+MIA_def_rush_4<- t_function_test(MIA_adv_def_rush$`Pass Rush Sk` ,advanced_def_rush$`Pass Rush Sk`)
+
+MIA_def_rush_4
+
+#pressure
+MIA_def_rush_5<- t_function_test(MIA_adv_def_rush$`Pass Rush Prss` ,advanced_def_rush$`Pass Rush Prss`)
+
+MIA_def_rush_5
+
+#tackles combined
+MIA_def_rush_6<- t_function_test(MIA_adv_def_rush$`Tackles Comb` ,advanced_def_rush$`Tackles Comb`)
+
+MIA_def_rush_6
+
+# missed tackels
+MIA_def_rush_7<- t_function_test(MIA_adv_def_rush$`Tackles MTkl` ,advanced_def_rush$`Tackles MTkl`)
+
+MIA_def_rush_7
+
+#missed tackle percentage
+MIA_def_rush_8<- t_function_test(MIA_adv_def_rush$`Tackles MTkl%` ,advanced_def_rush$`Tackles MTkl%`)
+
+MIA_def_rush_8
+
+# NYG t tests:
+
+#pass coverage int
+NYG_def_pass_1<- t_function_test(NYG_def_air_comp$`Pass Coverage Int` ,Defense_Air_Comp$`Pass Coverage Int`)
+
+NYG_def_pass_1
+
+# pass coverage target
+NYG_def_pass_2<- t_function_test(NYG_def_air_comp$`Pass Coverage Tgt` ,Defense_Air_Comp$`Pass Coverage Tgt`)
+
+NYG_def_pass_2
+
+# pass coverage completion
+NYG_def_pass_3<- t_function_test(NYG_def_air_comp$`Pass Coverage Cmp` ,Defense_Air_Comp$`Pass Coverage Cmp`)
+
+NYG_def_pass_3
+
+# comp percentage pass coverage
+NYG_def_pass_4<- t_function_test(NYG_def_air_comp$`Pass Coverage Cmp%` ,Defense_Air_Comp$`Pass Coverage Cmp%`)
+
+NYG_def_pass_4
+
+#pass coverage yards
+NYG_def_pass_5<- t_function_test(NYG_def_air_comp$`Pass Coverage Yds` ,Defense_Air_Comp$`Pass Coverage Yds`)
+
+NYG_def_pass_5
+
+
+#pass coverage yards per completion 
+NYG_def_pass_6<- t_function_test(NYG_def_air_comp$`Pass Coverage Yds/Cmp` ,Defense_Air_Comp$`Pass Coverage Yds/Cmp`)
+
+NYG_def_pass_6
+
+#pass coverage yards per attempt 
+NYG_def_pass_7<- t_function_test(NYG_def_air_comp$`Pass Coverage Yds/Tgt` ,Defense_Air_Comp$`Pass Coverage Yds/Tgt`)
+
+NYG_def_pass_7
+
+# pass coverage touchdowns 
+NYG_def_pass_8<- t_function_test(NYG_def_air_comp$`Pass Coverage TD`,Defense_Air_Comp$`Pass Coverage TD`)
+
+NYG_def_pass_8
+
+# pass coverage DADOT
+NYG_def_pass_9<- t_function_test(NYG_def_air_comp$`Pass Coverage DADOT` ,Defense_Air_Comp$`Pass Coverage DADOT`)
+
+NYG_def_pass_9
+
+#coverage air yards
+NYG_def_pass_10<- t_function_test(NYG_def_air_comp$`Pass Coverage Air` ,Defense_Air_Comp$`Pass Coverage Air`)
+
+NYG_def_pass_10
+
+# yards after catch coverage 
+NYG_def_pass_11<- t_function_test(NYG_def_air_comp$`Pass Coverage YAC` ,Defense_Air_Comp$`Pass Coverage YAC`)
+
+NYG_def_pass_11
+
+
+#Rushing defense NYG:
+
+# pass rush blitzes 
+NYG_def_rush_1<- t_function_test(NYG_adv_def_rush$`Pass Rush Bltz` ,advanced_def_rush$`Pass Rush Bltz`)
+
+NYG_def_rush_1
+
+# pass rush hurry 
+NYG_def_rush_2<- t_function_test(NYG_adv_def_rush$`Pass Rush Hrry` ,advanced_def_rush$`Pass Rush Hrry`)
+
+NYG_def_rush_2
+
+# QB knockdown 
+NYG_def_rush_3<- t_function_test(NYG_adv_def_rush$`Pass Rush QBKD` ,advanced_def_rush$`Pass Rush QBKD`)
+
+NYG_def_rush_3
+
+# sacks
+NYG_def_rush_4<- t_function_test(NYG_adv_def_rush$`Pass Rush Sk` ,advanced_def_rush$`Pass Rush Sk`)
+
+NYG_def_rush_4
+
+#pressure
+NYG_def_rush_5<- t_function_test(NYG_adv_def_rush$`Pass Rush Prss` ,advanced_def_rush$`Pass Rush Prss`)
+
+NYG_def_rush_5
+
+#tackles combined
+NYG_def_rush_6<- t_function_test(NYG_adv_def_rush$`Tackles Comb` ,advanced_def_rush$`Tackles Comb`)
+
+NYG_def_rush_6
+
+# missed tackels
+NYG_def_rush_7<- t_function_test(NYG_adv_def_rush$`Tackles MTkl` ,advanced_def_rush$`Tackles MTkl`)
+
+NYG_def_rush_7
+
+#missed tackle percentage
+NYG_def_rush_8<- t_function_test(NYG_adv_def_rush$`Tackles MTkl%` ,advanced_def_rush$`Tackles MTkl%`)
+
+NYG_def_rush_8
+
+
+#Receving 
+
+#MIA
+
+# targets
+MIA_adv_pass_1<- t_function_test(MIA_adv_rec$Tgt,Advanced_Rec_stats$Tgt)
+
+MIA_adv_pass_1
+
+# Receptions
+MIA_adv_pass_2<- t_function_test(MIA_adv_rec$Rec,Advanced_Rec_stats$Rec)
+
+MIA_adv_pass_2
+
+#yards
+MIA_adv_pass_3<- t_function_test(MIA_adv_rec$Yds,Advanced_Rec_stats$Yds)
+
+MIA_adv_pass_3
+
+#1d
+MIA_adv_pass_4<- t_function_test(MIA_adv_rec$`1D`,Advanced_Rec_stats$`1D`)
+
+MIA_adv_pass_4
+
+#yards before catch
+MIA_adv_pass_5<- t_function_test(MIA_adv_rec$YBC,Advanced_Rec_stats$YBC)
+
+MIA_adv_pass_5
+
+
+#yards after catch
+MIA_adv_pass_7<- t_function_test(MIA_adv_rec$YAC,Advanced_Rec_stats$YAC)
+
+MIA_adv_pass_7
+
+# broken tackle
+MIA_adv_pass_9<- t_function_test(MIA_adv_rec$BrkTkl,Advanced_Rec_stats$BrkTkl)
+
+MIA_adv_pass_9
+
+
+# dropped passes
+MIA_adv_pass_11<- t_function_test(MIA_adv_rec$Drop,Advanced_Rec_stats$Drop)
+
+MIA_adv_pass_11
+
+# Rushing MIA 
+
+# 1st downs
+MIA_adv_rush_1<- t_function_test(MIA_adv_rush$`Rushing 1D`,Advanced_Rushing_data$`Rushing 1D`)
+
+MIA_adv_rush_1
+
+# Rushing YBC
+MIA_adv_rush_2<- t_function_test(MIA_adv_rush$`Rushing YBC`,Advanced_Rushing_data$`Rushing YBC`)
+
+MIA_adv_rush_2
+
+# YAC
+MIA_adv_rush_4<- t_function_test(MIA_adv_rush$`Rushing YAC`,Advanced_Rushing_data$`Rushing YAC`)
+
+MIA_adv_rush_4
+
+
+# broken tackles 
+MIA_adv_rush_6<- t_function_test(MIA_adv_rush$`Rushing BrkTkl`,Advanced_Rushing_data$`Rushing BrkTkl`)
+
+MIA_adv_rush_6
+
+
+#Receving 
+
+#NYG
+
+# targets
+NYG_adv_pass_1<- t_function_test(NYG_adv_rec$Tgt,Advanced_Rec_stats$Tgt)
+
+NYG_adv_pass_1
+
+# Receptions
+NYG_adv_pass_2<- t_function_test(NYG_adv_rec$Rec,Advanced_Rec_stats$Rec)
+
+NYG_adv_pass_2
+
+#yards
+NYG_adv_pass_3<- t_function_test(NYG_adv_rec$Yds,Advanced_Rec_stats$Yds)
+
+NYG_adv_pass_3
+
+#1d
+NYG_adv_pass_4<- t_function_test(NYG_adv_rec$`1D`,Advanced_Rec_stats$`1D`)
+
+NYG_adv_pass_4
+
+#yards before catch
+NYG_adv_pass_5<- t_function_test(NYG_adv_rec$YBC,Advanced_Rec_stats$YBC)
+
+NYG_adv_pass_5
+
+
+#yards after catch
+NYG_adv_pass_7<- t_function_test(NYG_adv_rec$YAC,Advanced_Rec_stats$YAC)
+
+NYG_adv_pass_7
+
+# broken tackle
+NYG_adv_pass_9<- t_function_test(NYG_adv_rec$BrkTkl,Advanced_Rec_stats$BrkTkl)
+
+NYG_adv_pass_9
+
+
+# dropped passes
+NYG_adv_pass_11<- t_function_test(NYG_adv_rec$Drop,Advanced_Rec_stats$Drop)
+
+NYG_adv_pass_11
+
+# Rushing NYG 
+
+# 1st downs
+NYG_adv_rush_1<- t_function_test(NYG_adv_rush$`Rushing 1D`,Advanced_Rushing_data$`Rushing 1D`)
+
+NYG_adv_rush_1
+
+# Rushing YBC
+NYG_adv_rush_2<- t_function_test(NYG_adv_rush$`Rushing YBC`,Advanced_Rushing_data$`Rushing YBC`)
+
+NYG_adv_rush_2
+
+# YAC
+NYG_adv_rush_4<- t_function_test(NYG_adv_rush$`Rushing YAC`,Advanced_Rushing_data$`Rushing YAC`)
+
+NYG_adv_rush_4
+
+# broken tackles 
+NYG_adv_rush_6<- t_function_test(NYG_adv_rush$`Rushing BrkTkl`,Advanced_Rushing_data$`Rushing BrkTkl`)
+
+NYG_adv_rush_6
+
+
+
+# T score percentile
+pnorm(NYG_ftp )*100 
+pnorm(NYG_ftp_1 )*100 
+pnorm(NYG_ftp_2 )*100 
+pnorm(NYG_ftp_3 )*100 
+pnorm(NYG_ftp_4 )*100 
+pnorm(NYG_ftp_5 )*100 
+pnorm(NYG_ftp_6 )*100 
+pnorm(NYG_ftp_7 )*100 
+pnorm(NYG_kick_return_1 )*100 
+pnorm(NYG_kick_return_2 )*100 
+pnorm(NYG_kick_return_3 )*100 
+pnorm(NYG_kick_return_4 )*100 
+pnorm(NYG_kick_return_5 )*100 
+pnorm(NYG_ngp )*100 
+pnorm(NYG_ngp_1 )*100 
+pnorm(NYG_ngp_10 )*100 
+pnorm(NYG_ngp_11 )*100 
+pnorm(NYG_ngp_12 )*100 
+pnorm(NYG_ngp_13 )*100 
+pnorm(NYG_ngp_14 )*100 
+pnorm(NYG_ngp_15 )*100 
+pnorm(NYG_ngp_16 )*100 
+pnorm(NYG_ngp_17 )*100 
+pnorm(NYG_ngp_18 )*100 
+pnorm(NYG_ngp_19 )*100 
+pnorm(NYG_ngp_2 )*100 
+pnorm(NYG_ngp_20 )*100 
+pnorm(NYG_ngp_21 )*100 
+pnorm(NYG_ngp_3 )*100 
+pnorm(NYG_ngp_4 )*100 
+pnorm(NYG_ngp_5 )*100 
+pnorm(NYG_ngp_6 )*100 
+pnorm(NYG_ngp_7 )*100 
+pnorm(NYG_ngp_8 )*100 
+pnorm(NYG_ngp_9 )*100 
+pnorm(NYG_percentage_1 )*100 
+pnorm(NYG_percentage_2 )*100 
+pnorm(NYG_percentage_3 )*100 
+pnorm(NYG_percentage_4 )*100 
+pnorm(NYG_percentage_5 )*100 
+pnorm(NYG_punt_return_1 )*100 
+pnorm(NYG_punt_return_2 )*100 
+pnorm(NYG_punt_return_3 )*100 
+pnorm(NYG_punt_return_4 )*100 
+pnorm(NYG_punt_return_5 )*100 
+pnorm(NYG_team_rushing_1 )*100 
+pnorm(NYG_team_rushing_2 )*100 
+pnorm(NYG_team_rushing_3 )*100 
+pnorm(NYG_team_rushing_4 )*100 
+pnorm(NYG_team_rushing_5 )*100 
+pnorm(NYG_team_rushing_6 )*100 
+pnorm(NYG_team_scoring_1 )*100 
+pnorm(NYG_team_scoring_13 )*100 
+pnorm(NYG_team_scoring_14 )*100 
+pnorm(NYG_team_scoring_15 )*100 
+pnorm(NYG_team_scoring_2 )*100 
+pnorm(NYG_team_scoring_3 )*100 
+pnorm(NYG_team_scoring_4 )*100 
+pnorm(NYG_team_scoring_5 )*100 
+pnorm(NYG_team_scoring_6 )*100 
+pnorm(NYG_team_scoring_7 )*100 
+pnorm(NYG_team_scoring_8 )*100 
+pnorm(NYG_team_scoring_9 )*100 
+pnorm(NYG_teams_ds )*100 
+pnorm(NYG_teams_ds_1 )*100 
+pnorm(NYG_teams_ds_2 )*100 
+pnorm(NYG_teams_ds_3 )*100 
+pnorm(NYG_teams_ds_4 )*100 
+pnorm(NYG_teams_ds_5 )*100 
+pnorm(NYG_teams_ds_6 )*100 
+pnorm(NYG_teams_ds_7 )*100 
+pnorm(NYG_teams_ds_8 )*100 
+pnorm(NYG_teams_ps_1 )*100 
+pnorm(NYG_teams_ps_2 )*100 
+pnorm(NYG_teams_ps_3 )*100 
+pnorm(NYG_teams_ps_4 )*100 
+pnorm(MIA_ftp )*100 
+pnorm(MIA_ftp_1 )*100 
+pnorm(MIA_ftp_2 )*100 
+pnorm(MIA_ftp_3 )*100 
+pnorm(MIA_ftp_4 )*100 
+pnorm(MIA_ftp_5 )*100 
+pnorm(MIA_ftp_6 )*100 
+pnorm(MIA_ftp_7 )*100 
+pnorm(MIA_ngp )*100 
+pnorm(MIA_ngp_1 )*100 
+pnorm(MIA_ngp_10 )*100 
+pnorm(MIA_ngp_11 )*100 
+pnorm(MIA_ngp_12 )*100 
+pnorm(MIA_ngp_13 )*100 
+pnorm(MIA_ngp_14 )*100 
+pnorm(MIA_ngp_15 )*100 
+pnorm(MIA_ngp_16 )*100 
+pnorm(MIA_ngp_17 )*100 
+pnorm(MIA_ngp_18 )*100 
+pnorm(MIA_ngp_19 )*100 
+pnorm(MIA_ngp_2 )*100 
+pnorm(MIA_ngp_20 )*100 
+pnorm(MIA_ngp_21 )*100 
+pnorm(MIA_ngp_3 )*100 
+pnorm(MIA_ngp_4 )*100 
+pnorm(MIA_ngp_5 )*100 
+pnorm(MIA_ngp_6 )*100 
+pnorm(MIA_ngp_7 )*100 
+pnorm(MIA_ngp_8 )*100 
+pnorm(MIA_ngp_9 )*100 
+pnorm(MIA_percentage_1 )*100 
+pnorm(MIA_percentage_2 )*100 
+pnorm(MIA_percentage_3 )*100 
+pnorm(MIA_percentage_4 )*100 
+pnorm(MIA_percentage_5 )*100 
+pnorm(MIA_team_rushing_1 )*100 
+pnorm(MIA_team_rushing_2 )*100 
+pnorm(MIA_team_rushing_3 )*100 
+pnorm(MIA_team_rushing_4 )*100 
+pnorm(MIA_team_rushing_5 )*100 
+pnorm(MIA_team_rushing_6 )*100 
+pnorm(MIA_team_scoring_1 )*100 
+pnorm(MIA_team_scoring_13 )*100 
+pnorm(MIA_team_scoring_14 )*100 
+pnorm(MIA_team_scoring_15 )*100 
+pnorm(MIA_team_scoring_2 )*100 
+pnorm(MIA_team_scoring_3 )*100 
+pnorm(MIA_team_scoring_4 )*100 
+pnorm(MIA_team_scoring_5 )*100 
+pnorm(MIA_team_scoring_6 )*100 
+pnorm(MIA_team_scoring_7 )*100 
+pnorm(MIA_team_scoring_8 )*100 
+pnorm(MIA_team_scoring_9 )*100 
+pnorm(MIA_teams_ds )*100 
+pnorm(MIA_teams_ds_1 )*100 
+pnorm(MIA_teams_ds_2 )*100 
+pnorm(MIA_teams_ds_3 )*100 
+pnorm(MIA_teams_ds_4 )*100 
+pnorm(MIA_teams_ds_5 )*100 
+pnorm(MIA_teams_ds_6 )*100 
+pnorm(MIA_teams_ds_7 )*100 
+pnorm(MIA_teams_ds_8 )*100 
+pnorm(MIA_teams_ps_1 )*100 
+pnorm(MIA_teams_ps_2 )*100 
+pnorm(MIA_teams_ps_3 )*100 
+pnorm(MIA_teams_ps_4 )*100 
+
+
+
+
+library(purrr)
+library(dplyr)
+options(dplyr.width = Inf)
+
+
+Alk <- list(NYG_Defense_season,
+NYG_Defense_weekly,
+NYG_espn_weekly_passing,
+NYG_fullteam_points_game,
+NYG_kickreturn_szn,
+NYG_nextgenstats_passing,
+NYG_nextgenstats_receving,
+NYG_passing_weekkly,
+NYG_punt_return,
+NYG_qb_passing,
+NYG_rec_weekly,
+NYG_rec_season,
+NYG_rushing_season,
+NYG_scoring_season,
+NYG_downs_season,
+NYG_team_passingseason,
+NYG_team_percentageplays,
+NYG_team_rushing_season,
+NYG_team_scoring_season,
+NYG_weekly_rushing_stats,
+NYG_weekly_passing_12_stats,
+NYG_def_air_comp ,
+NYG_adv_def_rush ,
+NYG_adv_rush ,
+NYG_adv_rec
+)
+Alk %>% map(summarise_if, .predicate = is.numeric, .funs = mean)
+Alk %>% map(summarise_if, .predicate = is.numeric, .funs = sd)
+Rlk <- list(MIA_def_air_comp,
+MIA_adv_def_rush,
+MIA_adv_rush,
+MIA_adv_rec,
+MIA_Defense_season,
+MIA_Defense_weekly,
+MIA_espn_weekly_passing,
+MIA_fullteam_points_game,
+MIA_kickreturn_szn,
+MIA_nextgenstats_passing,
+MIA_nextgenstats_receving,
+MIA_passing_weekkly,
+MIA_punt_return,
+MIA_qb_passing,
+MIA_rec_weekly,
+MIA_rec_season,
+MIA_rushing_season,
+MIA_scoring_season,
+MIA_downs_season,
+MIA_team_passingseason,
+MIA_team_percentageplays,
+MIA_team_rushing_season,
+MIA_team_scoring_season,
+MIA_weekly_rushing_stats,
+MIA_weekly_passing_12_stats
+)
+Rlk %>% map(summarise_if, .predicate = is.numeric, .funs = mean)
+Rlk %>% map(summarise_if, .predicate = is.numeric, .funs = sd)
+#population stats
+Plk <- list(
+Defense_Season,
+Defense_Weekly,
+ESPN_PASSING_WEEKLY,
+Full_team_Points_Game_season,
+Kick_Return_Season,
+NEXT_GEN_STATS_PASSING,
+Next_gen_stats_receving,
+Passing_Weekly,
+Punt_Return_season,
+QB_SEASON_PASSING,
+REC_WEEKLY,
+Receiving_SEASON,
+Rushing_Season,
+Scoring_Season,
+teams_downs_seasons,
+TEAMS_PASSING_SEASON,
+teams_percentage_plays_season,
+teams_rushing_season,
+teams_scoring_seasons,
+Weekly_Rushing_Stats,
+Weekly_Passing ,
+Defense_Air_Comp,
+advanced_def_rush,
+Advanced_Rec_stats,
+Advanced_Rushing_data
+)
+Plk %>% map(summarise_if, .predicate = is.numeric, .funs = mean)
+Plk %>% map(summarise_if, .predicate = is.numeric, .funs = sd)
+
+
+  WEEKLY_REC_WEEK <- na.omit(WEEKLY_REC_WEEK)
+  WEEKLY_ADV_RUSH_STATS <- na.omit(WEEKLY_ADV_RUSH_STATS)
+  MIA_weekly_adv_rec <- na.omit(MIA_weekly_adv_rec)
+  MIA_adv_weekly_rushing_stats <- na.omit(MIA_adv_weekly_rushing_stats)
+  NYG_weekly_adv_rec <- na.omit(NYG_weekly_adv_rec)
+  NYG_adv_weekly_rushing_stats <- na.omit(NYG_adv_weekly_rushing_stats)
+
+NAK <- list(
+  WEEKLY_REC_WEEK,
+  WEEKLY_ADV_RUSH_STATS,
+  MIA_weekly_adv_rec,
+  MIA_adv_weekly_rushing_stats,
+  NYG_weekly_adv_rec,
+  NYG_adv_weekly_rushing_stats
+)
+
+NAK %>% map(summarise_if, .predicate = is.numeric, .funs = mean)
+NAK %>% map(summarise_if, .predicate = is.numeric, .funs = sd)
+
+
+CVK <-  list(
+  CIN_WP,
+  CIN_WR,
+  CIN_WRUSH,
+  KC_WP,
+  KC_WR,
+  KC_WRUSH
+)
+
+CVK %>% map(summarise_if, .predicate = is.numeric, .funs = mean)
+CVK %>% map(summarise_if, .predicate = is.numeric, .funs = sd)
+
+
+
+# Graphing vNYGables 
+
+library(ggplot2)
+library(GGally)
+
+# Pairs 
+pairs(advanced_def_rush [c(-1:-3)])
+pairs(Advanced_Rec_stats [c(-1:-4)])
+pairs(Advanced_Rushing_data [c(-1:-2)])
+pairs(Defense_Air_Comp [c(-1:-3)])
+pairs(Defense_Season [c(-1:-2)])
+pairs(ADV_DEF_MOD_STATS[c(-1:-3)])
+pairs(Defense_Weekly [c(-1:-4)])
+pairs(ESPN_PASSING_WEEKLY [c(-1:-4)])
+pairs(Full_team_Points_Game_season [c(-1:-2)])
+pairs(Kick_Return_Season [c(-1:-3)])
+pairs(NEXT_GEN_STATS_PASSING [c(-1:-2)])
+pairs(Next_gen_stats_receving [c(-1:-3)])
+pairs(Passing_Weekly [c(-1:-4)])
+pairs(Punt_Return_season [c(-1:-3)])
+pairs(QB_SEASON_PASSING [c(-1:-4)])
+pairs(REC_WEEKLY [c(-1:-4)])
+pairs(Receiving_SEASON [c(-1:-2)])
+pairs(Rushing_Season [c(-1:-2)])
+pairs(Scoring_Season [c(-1:-2)])
+pairs(teams_downs_seasons [c(-1:-2)])
+pairs(TEAMS_PASSING_SEASON [c(-1:-2)])
+pairs(teams_percentage_plays_season [c(-1:-2)])
+pairs(teams_rushing_season [c(-1:-2)])
+pairs(teams_scoring_seasons [c(-1:-2)])
+pairs(Weekly_Passing [c(-1:-2)])
+pairs(Weekly_Rushing_Stats [c(-1:-4)])
+
+pairs(WEEKLY_ADV_RUSH_STATS[c(-1:-2)])
+
+WEEKLY_REC_WEEK <- WEEKLY_REC_WEEK[-14:-15]
+pairs(WEEKLY_REC_WEEK[c(-1:-3)])
+
+
+
+#  GG pairs 
+ggpairs(advanced_def_rush [c(-1:-3)])
+ggpairs(Advanced_Rec_stats [c(-1:-4)])
+ggpairs(Advanced_Rushing_data [c(-1:-2)])
+ggpairs(Defense_Air_Comp [c(-1:-3)])
+ggpairs(Defense_Season [c(-1:-2)])
+ggpairs(ADV_DEF_MOD_STATS[c(-1:-3)])
+ggpairs(Defense_Weekly [c(-1:-4)])
+ggpairs(ESPN_PASSING_WEEKLY [c(-1:-4)])
+ggpairs(Full_team_Points_Game_season [c(-1:-2)])
+ggpairs(Kick_Return_Season [c(-1:-3)])
+ggpairs(NEXT_GEN_STATS_PASSING [c(-1:-2)])
+ggpairs(Next_gen_stats_receving [c(-1:-3)])
+ggpairs(Passing_Weekly [c(-1:-4)])
+ggpairs(Punt_Return_season [c(-1:-3)])
+ggpairs(QB_SEASON_PASSING [c(-1:-4)])
+ggpairs(REC_WEEKLY [c(-1:-4)])
+ggpairs(Receiving_SEASON [c(-1:-2)])
+ggpairs(Rushing_Season [c(-1:-2)])
+ggpairs(Scoring_Season [c(-1:-2)])
+ggpairs(teams_downs_seasons [c(-1:-2)])
+ggpairs(TEAMS_PASSING_SEASON [c(-1:-2)])
+ggpairs(teams_percentage_plays_season [c(-1:-2)])
+ggpairs(teams_rushing_season [c(-1:-2)])
+ggpairs(teams_scoring_seasons [c(-1:-2)])
+ggpairs(Weekly_Passing [c(-1:-2)])
+ggpairs(Weekly_Rushing_Stats [c(-1:-4)])
+
+ggpairs(WEEKLY_ADV_RUSH_STATS[c(-1:-2)])
+ggpairs(WEEKLY_REC_WEEK[c(-1:-3)])
+```
+
+
+```
+

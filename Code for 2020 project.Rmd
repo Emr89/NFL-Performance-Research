@@ -1,0 +1,1918 @@
+---
+title: "Code for 2020 project"
+output: word_document
+---
+
+```{r, warning=FALSE, echo=TRUE}
+library(readxl)
+WEEKLY_TEAM_PERFORMANCE <- read_excel("C:/Users/ericr/Desktop/NFL STATISTICS/NFL PROJECT DATA/T test data/WEEKLY TEAM PERFORMANCE.xlsx")
+
+
+WEEKLY_TEAM_PERFORMANCE[4:34] <- lapply(WEEKLY_TEAM_PERFORMANCE[4:34], as.numeric)
+
+WEEKLY_TEAM_PERFORMANCE$TO[is.na(WEEKLY_TEAM_PERFORMANCE$TO)] = 0
+
+WEEKLY_TEAM_PERFORMANCE$DTO[is.na(WEEKLY_TEAM_PERFORMANCE$DTO)] = 0
+
+WEEKLY_TEAM_PERFORMANCE<- na.omit(WEEKLY_TEAM_PERFORMANCE)
+
+
+IWTP <- read_excel("C:/Users/ericr/Desktop/NFL STATISTICS/NFL PROJECT DATA/T test data/IWTP.xlsx")
+
+
+IWTP[3:33] <- lapply(IWTP[3:33], as.numeric)
+IWTP[35:50] <- lapply(IWTP[35:50], as.numeric)
+
+IWTP$TO[is.na(IWTP$TO)] = 0
+
+IWTP$DTO[is.na(IWTP$DTO)] = 0
+
+IWTP<- na.omit(IWTP)
+
+# prediction models
+
+Rams_SV1 <- data.frame(TT = 2.7875, CAY= 5.8608,AGG = 6.6085, AYTS = -.8908, COMP = 63.56, Week = 17, TLOS = 2.57, EFF=4.65,EM=32.01,CUSH=5.47, SEP=1.95, TAY=9.79, CTCH=65.50,YACR=5.95,AVG=4.89)
+
+ARI_SV1 <- data.frame(TT =2.22 , CAY=4.52 ,AGG =11.057 , AYTS =-4.01 , COMP =65 , Week = 17, TLOS =2.57 , EFF=3.89,EM=18.6993,CUSH=5.62, SEP=1.9688, TAY=7.475, CTCH=67.86,YACR=4.75,AVG=4.73)
+
+
+RAMS_SV2 <- data.frame(TT = 2.7875 , CAY= 5.925 ,AGG = 11.575 , AYTS =-1.21  , COMP =61.95 , Week = 17, TLOS =2.94 , EFF=4.66,EM=32.76,CUSH=6.35, SEP=3.28, TAY=8.9, CTCH=65.3,YACR=5.69,AVG=3.91)
+
+
+ARI_SV2 <- data.frame(TT = 2.683, CAY=4.9 ,AGG =13.825 , AYTS =-2.46 , COMP =64.61 , Week = 17, TLOS =2.94 , EFF=4.02,EM=18.48,CUSH=6.01, SEP=3.25, TAY=8.57, CTCH=67.45,YACR=4.714,AVG=4.53)
+
+
+
+SC_Rams_SV1 <- data.frame(TT = 2.7875, CAY= 5.8608,AGG = 6.6085, AYTS = -.8908, COMP = 63.56, Week = 17, TLOS = 2.57, EFF=4.65,EM=32.01,CUSH=5.47, SEP=1.95, TAY=9.79, CTCH=65.50,YACR=5.95,AVG=4.89)
+
+SC_ARI_SV1 <- data.frame(TT =2.22 , CAY=4.52 ,AGG =11.057 , AYTS =-4.01 , COMP =65 , Week = 17, TLOS =2.57 , EFF=3.89,EM=18.6993,CUSH=5.62, SEP=1.9688, TAY=7.475, CTCH=67.86,YACR=4.75,AVG=4.73)
+
+
+SC_RAMS_SV2 <- data.frame(TT = 2.7875 , CAY= 5.925 ,AGG = 11.575 , AYTS =-1.21  , COMP =61.95 , Week = 17, TLOS =2.94 , EFF=4.66,EM=32.76,CUSH=6.35, SEP=3.28, TAY=8.9, CTCH=65.3,YACR=5.69,AVG=3.91)
+
+
+SC_ARI_SV2 <- data.frame(TT = 2.683, CAY=4.9 ,AGG =13.825 , AYTS =-2.46 , COMP =64.61 , Week = 17, TLOS =2.94 , EFF=4.02,EM=18.48,CUSH=6.01, SEP=3.25, TAY=8.57, CTCH=67.45,YACR=4.714,AVG=4.53)
+
+
+#ARI_SV1 <- data.frame(TT = , CAY= ,AGG = , AYTS = , COMP = , Week = 17, TLOS = , EFF=,ED=,CUSH=, SEP=, TAY=, CTCH=,YACR=,AVG=)
+
+
+library(caTools)
+
+#TT
+sample_WP_TT <- sample.split(WEEKLY_TEAM_PERFORMANCE$TT,SplitRatio = 0.9)
+train_WP_TT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TT == TRUE)
+testWPTT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TT == FALSE)
+
+
+#outcome
+sample_WP_outcome <- sample.split(WEEKLY_TEAM_PERFORMANCE$outcome,SplitRatio = 0.9)
+train_WP_outcome <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_outcome == TRUE)
+testWPoutcome <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_outcome == FALSE)
+
+
+#OPPS
+sample_WP_OPPS <- sample.split(WEEKLY_TEAM_PERFORMANCE$OPPS,SplitRatio = 0.9)
+train_WP_OPPS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_OPPS == TRUE)
+testWPOPPS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_OPPS == FALSE)
+
+#TEAMS
+sample_WP_TEAMS <- sample.split(WEEKLY_TEAM_PERFORMANCE$TEAMS,SplitRatio = 0.9)
+train_WP_TEAMS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TEAMS == TRUE)
+testWPTEAMS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TEAMS == FALSE)
+
+#FD
+sample_WP_FD <- sample.split(WEEKLY_TEAM_PERFORMANCE$FD,SplitRatio = 0.9)
+train_WP_FD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_FD == TRUE)
+testWPFD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_FD == FALSE)
+
+#PY
+sample_WP_PY <- sample.split(WEEKLY_TEAM_PERFORMANCE$PY,SplitRatio = 0.9)
+train_WP_PY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_PY == TRUE)
+testWPPY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_PY == FALSE)
+
+#RY
+sample_WP_RY <- sample.split(WEEKLY_TEAM_PERFORMANCE$RY,SplitRatio = 0.9)
+train_WP_RY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_RY == TRUE)
+testWPRY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_RY == FALSE)
+
+#TO
+sample_WP_TO <- sample.split(WEEKLY_TEAM_PERFORMANCE$TO,SplitRatio = 0.9)
+train_WP_TO <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TO == TRUE)
+testWPTO <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TO == FALSE)
+
+#DFD
+sample_WP_DFD <- sample.split(WEEKLY_TEAM_PERFORMANCE$DFD,SplitRatio = 0.9)
+train_WP_DFD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DFD == TRUE)
+testWPDFD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DFD == FALSE)
+
+#DPY
+sample_WP_DPY <- sample.split(WEEKLY_TEAM_PERFORMANCE$DPY,SplitRatio = 0.9)
+train_WP_DPY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DPY == TRUE)
+testWPDPY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DPY == FALSE)
+
+#DRY
+sample_WP_DRY <- sample.split(WEEKLY_TEAM_PERFORMANCE$DRY,SplitRatio = 0.9)
+train_WP_DRY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DRY == TRUE)
+testWPDRY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DRY == FALSE)
+
+#DTO
+sample_WP_DTO <- sample.split(WEEKLY_TEAM_PERFORMANCE$DTO,SplitRatio = 0.9)
+train_WP_DTO <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DTO == TRUE)
+testWPDTO <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DTO == FALSE)
+
+#CAY
+sample_WP_CAY <- sample.split(WEEKLY_TEAM_PERFORMANCE$CAY,SplitRatio = 0.9)
+train_WP_CAY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_CAY == TRUE)
+testWPCAY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_CAY == FALSE)
+
+#AGG
+sample_WP_AGG <- sample.split(WEEKLY_TEAM_PERFORMANCE$AGG,SplitRatio = 0.9)
+train_WP_AGG <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_AGG == TRUE)
+testWPAGG <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_AGG == FALSE)
+
+#LCAD
+sample_WP_LCAD <- sample.split(WEEKLY_TEAM_PERFORMANCE$LCAD,SplitRatio = 0.9)
+train_WP_LCAD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_LCAD == TRUE)
+testWPLCAD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_LCAD == FALSE)
+
+#AYTS
+sample_WP_AYTS <- sample.split(WEEKLY_TEAM_PERFORMANCE$AYTS,SplitRatio = 0.9)
+train_WP_AYTS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_AYTS == TRUE)
+testWPAYTS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_AYTS == FALSE)
+
+#ATT
+sample_WP_ATT <- sample.split(WEEKLY_TEAM_PERFORMANCE$ATT,SplitRatio = 0.9)
+train_WP_ATT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_ATT == TRUE)
+testWPATT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_ATT == FALSE)
+
+#TD
+sample_WP_TD <- sample.split(WEEKLY_TEAM_PERFORMANCE$TD,SplitRatio = 0.9)
+train_WP_TD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TD == TRUE)
+testWPTD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TD == FALSE)
+
+#INT
+sample_WP_INT <- sample.split(WEEKLY_TEAM_PERFORMANCE$INT,SplitRatio = 0.9)
+train_WP_INT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_INT == TRUE)
+testWPINT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_INT == FALSE)
+
+#COMP
+sample_WP_COMP <- sample.split(WEEKLY_TEAM_PERFORMANCE$COMP,SplitRatio = 0.9)
+train_WP_COMP <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_COMP == TRUE)
+testWPCOMP <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_COMP == FALSE)
+
+#RUSHATT
+sample_WP_RUSHATT <- sample.split(WEEKLY_TEAM_PERFORMANCE$RUSHATT,SplitRatio = 0.9)
+train_WP_RUSHATT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_RUSHATT == TRUE)
+testWPRUSHATT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_RUSHATT == FALSE)
+
+#RUSHTD
+sample_WP_RUSHTD <- sample.split(WEEKLY_TEAM_PERFORMANCE$RUSHTD,SplitRatio = 0.9)
+train_WP_RUSHTD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_RUSHTD == TRUE)
+testWPRUSHTD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_RUSHTD == FALSE)
+
+#EFF
+sample_WP_EFF <- sample.split(WEEKLY_TEAM_PERFORMANCE$EFF,SplitRatio = 0.9)
+train_WP_EFF <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_EFF == TRUE)
+testWPEFF <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_EFF == FALSE)
+
+#EM
+sample_WP_EM <- sample.split(WEEKLY_TEAM_PERFORMANCE$EM,SplitRatio = 0.9)
+train_WP_EM <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_EM == TRUE)
+testWPEM <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_EM == FALSE)
+
+#TLOS
+sample_WP_TLOS <- sample.split(WEEKLY_TEAM_PERFORMANCE$TLOS,SplitRatio = 0.9)
+train_WP_TLOS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TLOS == TRUE)
+testWPTLOS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TLOS == FALSE)
+
+#AVG
+sample_WP_AVG <- sample.split(WEEKLY_TEAM_PERFORMANCE$AVG,SplitRatio = 0.9)
+train_WP_AVG <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_AVG == TRUE)
+testWPAVG <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_AVG == FALSE)
+
+#CUSH
+sample_WP_CUSH <- sample.split(WEEKLY_TEAM_PERFORMANCE$CUSH,SplitRatio = 0.9)
+train_WP_CUSH <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_CUSH == TRUE)
+testWPCUSH <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_CUSH == FALSE)
+
+#SEP
+sample_WP_SEP <- sample.split(WEEKLY_TEAM_PERFORMANCE$SEP,SplitRatio = 0.9)
+train_WP_SEP <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_SEP == TRUE)
+testWPSEP <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_SEP == FALSE)
+
+#TAY
+sample_WP_TAY <- sample.split(WEEKLY_TEAM_PERFORMANCE$TAY,SplitRatio = 0.9)
+train_WP_TAY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TAY == TRUE)
+testWPTAY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TAY == FALSE)
+
+#CTCH
+sample_WP_CTCH <- sample.split(WEEKLY_TEAM_PERFORMANCE$CTCH,SplitRatio = 0.9)
+train_WP_CTCH <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_CTCH == TRUE)
+testWPCTCH <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_CTCH == FALSE)
+
+#YACR
+sample_WP_YACR <- sample.split(WEEKLY_TEAM_PERFORMANCE$YACR,SplitRatio = 0.9)
+train_WP_YACR <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_YACR == TRUE)
+testWPYACR <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_YACR == FALSE)
+
+
+library(randomForest)
+
+
+#Adjust random forest models 
+library(randomForest)
+ARFM1<-randomForest(outcome~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_outcome, importance=TRUE)
+ARFM2<-randomForest(TEAMS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TEAMS, importance=TRUE)
+ARFM3<-randomForest(OPPS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_OPPS, importance=TRUE)
+ARFM4<-randomForest(FD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_FD, importance=TRUE)
+ARFM5<-randomForest(PY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_PY, importance=TRUE)
+ARFM6<-randomForest(RY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RY, importance=TRUE)
+ARFM7<-randomForest(TO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TO, importance=TRUE)
+ARFM8<-randomForest(DFD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DFD, importance=TRUE)
+ARFM9<-randomForest(DPY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DPY, importance=TRUE)
+ARFM10<-randomForest(DRY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DRY, importance=TRUE)
+ARFM11<-randomForest(DTO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DTO, importance=TRUE)
+ARFM12<-randomForest(TT~CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TT, importance=TRUE)
+ARFM13<-randomForest(CAY~TT+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_CAY, importance=TRUE)
+ARFM14<-randomForest(AGG~TT+CAY+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AGG, importance=TRUE)
+ARFM15<-randomForest(LCAD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_LCAD, importance=TRUE)
+ARFM16<-randomForest(AYTS~TT+CAY+AGG+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AYTS, importance=TRUE)
+ARFM17<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_ATT, importance=TRUE)
+ARFM18<-randomForest(TD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TD, importance=TRUE)
+ARFM19<-randomForest(INT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_INT, importance=TRUE)
+ARFM20<-randomForest(COMP~TT+CAY+AGG+AYTS+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_COMP, importance=TRUE)
+ARFM21<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RUSHATT, importance=TRUE)
+ARFM22<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RUSHTD, importance=TRUE)
+ARFM23<-randomForest(EFF~TT+CAY+AGG+AYTS+COMP+Week+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_EFF, importance=TRUE)
+ARFM24<-randomForest(EM~TT+CAY+AGG+AYTS+COMP+Week+EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_EM, importance=TRUE)
+ARFM25<-randomForest(TLOS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TLOS, importance=TRUE)
+ARFM26<-randomForest(AVG~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AVG, importance=TRUE)
+ARFM27<-randomForest(CUSH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+SEP+TAY+CTCH+YACR,data=train_WP_CUSH, importance=TRUE)
+ARFM28<-randomForest(SEP~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+TAY+CTCH+YACR,data=train_WP_SEP, importance=TRUE)
+ARFM29<-randomForest(TAY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+CTCH+YACR,data=train_WP_TAY, importance=TRUE)
+ARFM30<-randomForest(CTCH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+YACR,data=train_WP_CTCH, importance=TRUE)
+ARFM31<-randomForest(YACR~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH,data=train_WP_YACR, importance=TRUE)
+
+#TT
+sample_WP_TT <- sample.split(IWTP$TT,SplitRatio = 0.9)
+train_WP_TT <- subset(IWTP,sample_WP_TT == TRUE)
+testWPTT <- subset(IWTP, sample_WP_TT == FALSE)
+
+
+#outcome
+sample_WP_outcome <- sample.split(IWTP$outcome,SplitRatio = 0.9)
+train_WP_outcome <- subset(IWTP,sample_WP_outcome == TRUE)
+testWPoutcome <- subset(IWTP, sample_WP_outcome == FALSE)
+
+
+#OPPS
+sample_WP_OPPS <- sample.split(IWTP$OPPS,SplitRatio = 0.9)
+train_WP_OPPS <- subset(IWTP,sample_WP_OPPS == TRUE)
+testWPOPPS <- subset(IWTP, sample_WP_OPPS == FALSE)
+
+#TEAMS
+sample_WP_TEAMS <- sample.split(IWTP$TEAMS,SplitRatio = 0.9)
+train_WP_TEAMS <- subset(IWTP,sample_WP_TEAMS == TRUE)
+testWPTEAMS <- subset(IWTP, sample_WP_TEAMS == FALSE)
+
+#FD
+sample_WP_FD <- sample.split(IWTP$FD,SplitRatio = 0.9)
+train_WP_FD <- subset(IWTP,sample_WP_FD == TRUE)
+testWPFD <- subset(IWTP, sample_WP_FD == FALSE)
+
+#PY
+sample_WP_PY <- sample.split(IWTP$PY,SplitRatio = 0.9)
+train_WP_PY <- subset(IWTP,sample_WP_PY == TRUE)
+testWPPY <- subset(IWTP, sample_WP_PY == FALSE)
+
+#RY
+sample_WP_RY <- sample.split(IWTP$RY,SplitRatio = 0.9)
+train_WP_RY <- subset(IWTP,sample_WP_RY == TRUE)
+testWPRY <- subset(IWTP, sample_WP_RY == FALSE)
+
+#TO
+sample_WP_TO <- sample.split(IWTP$TO,SplitRatio = 0.9)
+train_WP_TO <- subset(IWTP,sample_WP_TO == TRUE)
+testWPTO <- subset(IWTP, sample_WP_TO == FALSE)
+
+#DFD
+sample_WP_DFD <- sample.split(IWTP$DFD,SplitRatio = 0.9)
+train_WP_DFD <- subset(IWTP,sample_WP_DFD == TRUE)
+testWPDFD <- subset(IWTP, sample_WP_DFD == FALSE)
+
+#DPY
+sample_WP_DPY <- sample.split(IWTP$DPY,SplitRatio = 0.9)
+train_WP_DPY <- subset(IWTP,sample_WP_DPY == TRUE)
+testWPDPY <- subset(IWTP, sample_WP_DPY == FALSE)
+
+#DRY
+sample_WP_DRY <- sample.split(IWTP$DRY,SplitRatio = 0.9)
+train_WP_DRY <- subset(IWTP,sample_WP_DRY == TRUE)
+testWPDRY <- subset(IWTP, sample_WP_DRY == FALSE)
+
+#DTO
+sample_WP_DTO <- sample.split(IWTP$DTO,SplitRatio = 0.9)
+train_WP_DTO <- subset(IWTP,sample_WP_DTO == TRUE)
+testWPDTO <- subset(IWTP, sample_WP_DTO == FALSE)
+
+#CAY
+sample_WP_CAY <- sample.split(IWTP$CAY,SplitRatio = 0.9)
+train_WP_CAY <- subset(IWTP,sample_WP_CAY == TRUE)
+testWPCAY <- subset(IWTP, sample_WP_CAY == FALSE)
+
+#AGG
+sample_WP_AGG <- sample.split(IWTP$AGG,SplitRatio = 0.9)
+train_WP_AGG <- subset(IWTP,sample_WP_AGG == TRUE)
+testWPAGG <- subset(IWTP, sample_WP_AGG == FALSE)
+
+#LCAD
+sample_WP_LCAD <- sample.split(IWTP$LCAD,SplitRatio = 0.9)
+train_WP_LCAD <- subset(IWTP,sample_WP_LCAD == TRUE)
+testWPLCAD <- subset(IWTP, sample_WP_LCAD == FALSE)
+
+#AYTS
+sample_WP_AYTS <- sample.split(IWTP$AYTS,SplitRatio = 0.9)
+train_WP_AYTS <- subset(IWTP,sample_WP_AYTS == TRUE)
+testWPAYTS <- subset(IWTP, sample_WP_AYTS == FALSE)
+
+#ATT
+sample_WP_ATT <- sample.split(IWTP$ATT,SplitRatio = 0.9)
+train_WP_ATT <- subset(IWTP,sample_WP_ATT == TRUE)
+testWPATT <- subset(IWTP, sample_WP_ATT == FALSE)
+
+#TD
+sample_WP_TD <- sample.split(IWTP$TD,SplitRatio = 0.9)
+train_WP_TD <- subset(IWTP,sample_WP_TD == TRUE)
+testWPTD <- subset(IWTP, sample_WP_TD == FALSE)
+
+#INT
+sample_WP_INT <- sample.split(IWTP$INT,SplitRatio = 0.9)
+train_WP_INT <- subset(IWTP,sample_WP_INT == TRUE)
+testWPINT <- subset(IWTP, sample_WP_INT == FALSE)
+
+#COMP
+sample_WP_COMP <- sample.split(IWTP$COMP,SplitRatio = 0.9)
+train_WP_COMP <- subset(IWTP,sample_WP_COMP == TRUE)
+testWPCOMP <- subset(IWTP, sample_WP_COMP == FALSE)
+
+#RUSHATT
+sample_WP_RUSHATT <- sample.split(IWTP$RUSHATT,SplitRatio = 0.9)
+train_WP_RUSHATT <- subset(IWTP,sample_WP_RUSHATT == TRUE)
+testWPRUSHATT <- subset(IWTP, sample_WP_RUSHATT == FALSE)
+
+#RUSHTD
+sample_WP_RUSHTD <- sample.split(IWTP$RUSHTD,SplitRatio = 0.9)
+train_WP_RUSHTD <- subset(IWTP,sample_WP_RUSHTD == TRUE)
+testWPRUSHTD <- subset(IWTP, sample_WP_RUSHTD == FALSE)
+
+#EFF
+sample_WP_EFF <- sample.split(IWTP$EFF,SplitRatio = 0.9)
+train_WP_EFF <- subset(IWTP,sample_WP_EFF == TRUE)
+testWPEFF <- subset(IWTP, sample_WP_EFF == FALSE)
+
+#EM
+sample_WP_EM <- sample.split(IWTP$EM,SplitRatio = 0.9)
+train_WP_EM <- subset(IWTP,sample_WP_EM == TRUE)
+testWPEM <- subset(IWTP, sample_WP_EM == FALSE)
+
+#TLOS
+sample_WP_TLOS <- sample.split(IWTP$TLOS,SplitRatio = 0.9)
+train_WP_TLOS <- subset(IWTP,sample_WP_TLOS == TRUE)
+testWPTLOS <- subset(IWTP, sample_WP_TLOS == FALSE)
+
+#AVG
+sample_WP_AVG <- sample.split(IWTP$AVG,SplitRatio = 0.9)
+train_WP_AVG <- subset(IWTP,sample_WP_AVG == TRUE)
+testWPAVG <- subset(IWTP, sample_WP_AVG == FALSE)
+
+#CUSH
+sample_WP_CUSH <- sample.split(IWTP$CUSH,SplitRatio = 0.9)
+train_WP_CUSH <- subset(IWTP,sample_WP_CUSH == TRUE)
+testWPCUSH <- subset(IWTP, sample_WP_CUSH == FALSE)
+
+#SEP
+sample_WP_SEP <- sample.split(IWTP$SEP,SplitRatio = 0.9)
+train_WP_SEP <- subset(IWTP,sample_WP_SEP == TRUE)
+testWPSEP <- subset(IWTP, sample_WP_SEP == FALSE)
+
+#TAY
+sample_WP_TAY <- sample.split(IWTP$TAY,SplitRatio = 0.9)
+train_WP_TAY <- subset(IWTP,sample_WP_TAY == TRUE)
+testWPTAY <- subset(IWTP, sample_WP_TAY == FALSE)
+
+#CTCH
+sample_WP_CTCH <- sample.split(IWTP$CTCH,SplitRatio = 0.9)
+train_WP_CTCH <- subset(IWTP,sample_WP_CTCH == TRUE)
+testWPCTCH <- subset(IWTP, sample_WP_CTCH == FALSE)
+
+#YACR
+sample_WP_YACR <- sample.split(IWTP$YACR,SplitRatio = 0.9)
+train_WP_YACR <- subset(IWTP,sample_WP_YACR == TRUE)
+testWPYACR <- subset(IWTP, sample_WP_YACR == FALSE)
+
+
+
+# new section
+
+#TT_OPP
+sample_WP_TT_OPP <- sample.split(IWTP$TT_OPP,SplitRatio = 0.9)
+train_WP_TT_OPP <- subset(IWTP,sample_WP_TT_OPP == TRUE)
+testWPTT_OPP <- subset(IWTP, sample_WP_TT_OPP == FALSE)
+
+
+#CAY_OPP
+sample_WP_CAY_OPP <- sample.split(IWTP$CAY_OPP,SplitRatio = 0.9)
+train_WP_CAY_OPP <- subset(IWTP,sample_WP_CAY_OPP == TRUE)
+testWPCAY_OPP <- subset(IWTP, sample_WP_CAY_OPP == FALSE)
+
+#AGG_OPP
+sample_WP_AGG_OPP <- sample.split(IWTP$AGG_OPP,SplitRatio = 0.9)
+train_WP_AGG_OPP <- subset(IWTP,sample_WP_AGG_OPP == TRUE)
+testWPAGG_OPP <- subset(IWTP, sample_WP_AGG_OPP == FALSE)
+
+#LCAD_OPP
+sample_WP_LCAD_OPP <- sample.split(IWTP$LCAD_OPP,SplitRatio = 0.9)
+train_WP_LCAD_OPP <- subset(IWTP,sample_WP_LCAD_OPP == TRUE)
+testWPLCAD_OPP <- subset(IWTP, sample_WP_LCAD_OPP == FALSE)
+
+#AYTS_OPP
+sample_WP_AYTS_OPP <- sample.split(IWTP$AYTS_OPP,SplitRatio = 0.9)
+train_WP_AYTS_OPP <- subset(IWTP,sample_WP_AYTS_OPP == TRUE)
+testWPAYTS_OPP <- subset(IWTP, sample_WP_AYTS_OPP == FALSE)
+
+#ATT_OPP
+sample_WP_ATT_OPP <- sample.split(IWTP$ATT_OPP,SplitRatio = 0.9)
+train_WP_ATT_OPP <- subset(IWTP,sample_WP_ATT_OPP == TRUE)
+testWPATT_OPP <- subset(IWTP, sample_WP_ATT_OPP == FALSE)
+
+#TD_OPP
+sample_WP_TD_OPP <- sample.split(IWTP$TD_OPP,SplitRatio = 0.9)
+train_WP_TD_OPP <- subset(IWTP,sample_WP_TD_OPP == TRUE)
+testWPTD_OPP <- subset(IWTP, sample_WP_TD_OPP == FALSE)
+
+#INT_OPP
+sample_WP_INT_OPP <- sample.split(IWTP$INT_OPP,SplitRatio = 0.9)
+train_WP_INT_OPP <- subset(IWTP,sample_WP_INT_OPP == TRUE)
+testWPINT_OPP <- subset(IWTP, sample_WP_INT_OPP == FALSE)
+
+#COMP_OPP
+sample_WP_COMP_OPP <- sample.split(IWTP$COMP_OPP,SplitRatio = 0.9)
+train_WP_COMP_OPP <- subset(IWTP,sample_WP_COMP_OPP == TRUE)
+testWPCOMP_OPP <- subset(IWTP, sample_WP_COMP_OPP == FALSE)
+
+#RUSHATT_OPP
+sample_WP_RUSHATT_OPP <- sample.split(IWTP$RUSHATT_OPP,SplitRatio = 0.9)
+train_WP_RUSHATT_OPP <- subset(IWTP,sample_WP_RUSHATT_OPP == TRUE)
+testWPRUSHATT_OPP <- subset(IWTP, sample_WP_RUSHATT_OPP == FALSE)
+
+#RUSHTD_OPP
+sample_WP_RUSHTD_OPP <- sample.split(IWTP$RUSHTD_OPP,SplitRatio = 0.9)
+train_WP_RUSHTD_OPP <- subset(IWTP,sample_WP_RUSHTD_OPP == TRUE)
+testWPRUSHTD_OPP <- subset(IWTP, sample_WP_RUSHTD_OPP == FALSE)
+
+#EFF_OPP
+sample_WP_EFF_OPP <- sample.split(IWTP$EFF_OPP,SplitRatio = 0.9)
+train_WP_EFF_OPP <- subset(IWTP,sample_WP_EFF_OPP == TRUE)
+testWPEFF_OPP <- subset(IWTP, sample_WP_EFF_OPP == FALSE)
+
+#EM_OPP
+sample_WP_EM_OPP <- sample.split(IWTP$EM_OPP,SplitRatio = 0.9)
+train_WP_EM_OPP <- subset(IWTP,sample_WP_EM_OPP == TRUE)
+testWPEM_OPP <- subset(IWTP, sample_WP_EM_OPP == FALSE)
+
+#TLOS_OPP
+sample_WP_TLOS_OPP <- sample.split(IWTP$TLOS_OPP,SplitRatio = 0.9)
+train_WP_TLOS_OPP <- subset(IWTP,sample_WP_TLOS_OPP == TRUE)
+testWPTLOS_OPP <- subset(IWTP, sample_WP_TLOS_OPP == FALSE)
+
+#AVG_OPP
+sample_WP_AVG_OPP <- sample.split(IWTP$AVG_OPP,SplitRatio = 0.9)
+train_WP_AVG_OPP <- subset(IWTP,sample_WP_AVG_OPP == TRUE)
+testWPAVG_OPP <- subset(IWTP, sample_WP_AVG_OPP == FALSE)
+
+#CUSH_OPP
+sample_WP_CUSH_OPP <- sample.split(IWTP$CUSH_OPP,SplitRatio = 0.9)
+train_WP_CUSH_OPP <- subset(IWTP,sample_WP_CUSH_OPP == TRUE)
+testWPCUSH_OPP <- subset(IWTP, sample_WP_CUSH_OPP == FALSE)
+
+#SEP_OPP
+sample_WP_SEP_OPP <- sample.split(IWTP$SEP_OPP,SplitRatio = 0.9)
+train_WP_SEP_OPP <- subset(IWTP,sample_WP_SEP_OPP == TRUE)
+testWPSEP_OPP <- subset(IWTP, sample_WP_SEP_OPP == FALSE)
+
+#TAY_OPP
+sample_WP_TAY_OPP <- sample.split(IWTP$TAY_OPP,SplitRatio = 0.9)
+train_WP_TAY_OPP <- subset(IWTP,sample_WP_TAY_OPP == TRUE)
+testWPTAY_OPP <- subset(IWTP, sample_WP_TAY_OPP == FALSE)
+
+#CTCH_OPP
+sample_WP_CTCH_OPP <- sample.split(IWTP$CTCH_OPP,SplitRatio = 0.9)
+train_WP_CTCH_OPP <- subset(IWTP,sample_WP_CTCH_OPP == TRUE)
+testWPCTCH_OPP <- subset(IWTP, sample_WP_CTCH_OPP == FALSE)
+
+#YACR_OPP
+sample_WP_YACR_OPP <- sample.split(IWTP$YACR_OPP,SplitRatio = 0.9)
+train_WP_YACR_OPP <- subset(IWTP,sample_WP_YACR_OPP == TRUE)
+testWPYACR_OPP <- subset(IWTP, sample_WP_YACR_OPP == FALSE)
+#IRF
+
+IRF1<-randomForest(outcome~COMP+EM+CTCH+AYTS_OPP+COMP_OPP+SEP_OPP+CTCH_OPP+YACR_OPP,data=train_WP_outcome,importance=TRUE)
+
+
+IRF2<-randomForest(TEAMS~CAY+AYTS+COMP+EFF+AVG+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AYTS_OPP+EFF_OPP+EM_OPP+TLOS_OPP+TAY_OPP+CTCH_OPP,data=train_WP_TEAMS,importance=TRUE)
+
+
+
+IRF3<-randomForest(OPPS~TT+AGG+EM+CAY_OPP+AYTS_OPP+EM_OPP+CTCH_OPP+YACR_OPP,data=train_WP_OPPS,importance=TRUE)
+
+
+
+IRF4<-randomForest(FD~AGG+AYTS+COMP+EFF+AVG+SEP+TAY+CTCH+YACR+TT_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+YACR_OPP,data=train_WP_FD,importance=TRUE)
+
+
+IRF5<-randomForest(PY~COMP+EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+YACR_OPP,data=train_WP_PY,importance=TRUE)
+
+
+IRF6<-randomForest(RY~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RY,importance=TRUE)
+IRF7<-randomForest(TO~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_TO,importance=TRUE)
+IRF8<-randomForest(DFD~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DFD,importance=TRUE)
+IRF9<-randomForest(DPY~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DPY,importance=TRUE)
+IRF10<-randomForest(DRY~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DRY,importance=TRUE)
+IRF11<-randomForest(DTO~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DTO,importance=TRUE)
+IRF12<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_ATT,importance=TRUE)
+IRF13<-randomForest(TD~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_TD,importance=TRUE)
+IRF14<-randomForest(INT~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_INT,importance=TRUE)
+IRF15<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHATT,importance=TRUE)
+IRF16<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHTD,importance=TRUE)
+IRF17<-randomForest(ATT_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_ATT_OPP,importance=TRUE)
+IRF18<-randomForest(TD_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_TD_OPP,importance=TRUE)
+IRF19<-randomForest(INT_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_INT_OPP,importance=TRUE)
+IRF20<-randomForest(RUSHATT_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHATT_OPP,importance=TRUE)
+IRF21<-randomForest(RUSHTD_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHTD_OPP,importance=TRUE)
+
+NE_SB <- data.frame(TT=2.44,
+CAY=6.1,
+AGG=22.9,
+AYTS=-0.5,
+ATT=35,
+TD=0,
+INT=1,
+COMP=60,
+EFF=2.97,
+EM=55.56,
+TLOS=2.52,
+AVG=5.2,
+CUSH=5.6,
+SEP=2.87,
+TAY=10.57,
+CTCH=70,
+YACR=7.05,
+TT_OPP=3.16,
+CAY_OPP=7.4,
+AGG_OPP=26.3,
+AYTS_OPP=1.4,
+ATT_OPP=38,
+TD_OPP=0,
+INT_OPP=1,
+COMP_OPP=50,
+EFF_OPP=4.25,
+EM_OPP=20.158,
+TLOS_OPP=2.93,
+AVG_OPP=3.5,
+CUSH_OPP=6.1,
+SEP_OPP=2.1,
+TAY_OPP=12.53,
+CTCH_OPP=51.47,
+YACR_OPP=4.07, 
+Week = 17
+)
+
+LAR_SB <- data.frame(TT=3.16,
+CAY=7.4,
+AGG=26.3,
+AYTS=1.4,
+ATT=38,
+TD=0,
+INT=1,
+COMP=50,
+EFF=4.25,
+EM=20.158,
+TLOS=2.93,
+AVG=3.5,
+CUSH=6.1,
+SEP=2.1,
+TAY=12.53,
+CTCH=51.47,
+YACR=4.07,
+TT_OPP=2.44,
+CAY_OPP=6.1,
+AGG_OPP=22.9,
+AYTS_OPP=-0.5,
+ATT_OPP=35,
+TD_OPP=0,
+INT_OPP=1,
+COMP_OPP=60,
+EFF_OPP=2.97,
+EM_OPP=55.56,
+TLOS_OPP=2.52,
+AVG_OPP=5.2,
+CUSH_OPP=5.6,
+SEP_OPP=2.87,
+TAY_OPP=10.57,
+CTCH_OPP=70,
+YACR_OPP=7.05,
+Week = 17
+)
+
+NESB_P1<-predict(IRF1,newdata=NE_SB)
+NESB_P2<-predict(IRF2,newdata=NE_SB)
+NESB_P3<-predict(IRF3,newdata=NE_SB)
+NESB_P4<-predict(IRF4,newdata=NE_SB)
+NESB_P5<-predict(IRF5,newdata=NE_SB)
+NESB_P6<-predict(IRF6,newdata=NE_SB)
+NESB_P7<-predict(IRF7,newdata=NE_SB)
+NESB_P8<-predict(IRF8,newdata=NE_SB)
+NESB_P9<-predict(IRF9,newdata=NE_SB)
+NESB_P10<-predict(IRF10,newdata=NE_SB)
+NESB_P11<-predict(IRF11,newdata=NE_SB)
+NESB_P12<-predict(IRF12,newdata=NE_SB)
+NESB_P13<-predict(IRF13,newdata=NE_SB)
+NESB_P14<-predict(IRF14,newdata=NE_SB)
+NESB_P15<-predict(IRF15,newdata=NE_SB)
+NESB_P16<-predict(IRF16,newdata=NE_SB)
+NESB_P17<-predict(IRF17,newdata=NE_SB)
+NESB_P18<-predict(IRF18,newdata=NE_SB)
+NESB_P19<-predict(IRF19,newdata=NE_SB)
+NESB_P20<-predict(IRF20,newdata=NE_SB)
+NESB_P21<-predict(IRF21,newdata=NE_SB)
+NESB_OP1<-predict(ARFM1,newdata=NE_SB)
+NESB_OP2<-predict(ARFM2,newdata=NE_SB)
+NESB_OP3<-predict(ARFM3,newdata=NE_SB)
+NESB_OP4<-predict(ARFM4,newdata=NE_SB)
+NESB_OP5<-predict(ARFM5,newdata=NE_SB)
+NESB_OP6<-predict(ARFM6,newdata=NE_SB)
+NESB_OP7<-predict(ARFM7,newdata=NE_SB)
+NESB_OP8<-predict(ARFM8,newdata=NE_SB)
+NESB_OP9<-predict(ARFM9,newdata=NE_SB)
+NESB_OP10<-predict(ARFM10,newdata=NE_SB)
+NESB_OP11<-predict(ARFM11,newdata=NE_SB)
+NESB_OP12<-predict(ARFM12,newdata=NE_SB)
+NESB_OP13<-predict(ARFM13,newdata=NE_SB)
+NESB_OP14<-predict(ARFM14,newdata=NE_SB)
+NESB_OP15<-predict(ARFM15,newdata=NE_SB)
+NESB_OP16<-predict(ARFM16,newdata=NE_SB)
+NESB_OP17<-predict(ARFM17,newdata=NE_SB)
+NESB_OP18<-predict(ARFM18,newdata=NE_SB)
+NESB_OP19<-predict(ARFM19,newdata=NE_SB)
+NESB_OP20<-predict(ARFM20,newdata=NE_SB)
+NESB_OP21<-predict(ARFM21,newdata=NE_SB)
+NESB_OP22<-predict(ARFM22,newdata=NE_SB)
+NESB_OP23<-predict(ARFM23,newdata=NE_SB)
+NESB_OP24<-predict(ARFM24,newdata=NE_SB)
+NESB_OP25<-predict(ARFM25,newdata=NE_SB)
+NESB_OP26<-predict(ARFM26,newdata=NE_SB)
+NESB_OP27<-predict(ARFM27,newdata=NE_SB)
+NESB_OP28<-predict(ARFM28,newdata=NE_SB)
+NESB_OP29<-predict(ARFM29,newdata=NE_SB)
+NESB_OP30<-predict(ARFM30,newdata=NE_SB)
+NESB_OP31<-predict(ARFM31,newdata=NE_SB)
+
+
+LARSB_P1<-predict(IRF1,newdata=LAR_SB)
+LARSB_P2<-predict(IRF2,newdata=LAR_SB)
+LARSB_P3<-predict(IRF3,newdata=LAR_SB)
+LARSB_P4<-predict(IRF4,newdata=LAR_SB)
+LARSB_P5<-predict(IRF5,newdata=LAR_SB)
+LARSB_P6<-predict(IRF6,newdata=LAR_SB)
+LARSB_P7<-predict(IRF7,newdata=LAR_SB)
+LARSB_P8<-predict(IRF8,newdata=LAR_SB)
+LARSB_P9<-predict(IRF9,newdata=LAR_SB)
+LARSB_P10<-predict(IRF10,newdata=LAR_SB)
+LARSB_P11<-predict(IRF11,newdata=LAR_SB)
+LARSB_P12<-predict(IRF12,newdata=LAR_SB)
+LARSB_P13<-predict(IRF13,newdata=LAR_SB)
+LARSB_P14<-predict(IRF14,newdata=LAR_SB)
+LARSB_P15<-predict(IRF15,newdata=LAR_SB)
+LARSB_P16<-predict(IRF16,newdata=LAR_SB)
+LARSB_P17<-predict(IRF17,newdata=LAR_SB)
+LARSB_P18<-predict(IRF18,newdata=LAR_SB)
+LARSB_P19<-predict(IRF19,newdata=LAR_SB)
+LARSB_P20<-predict(IRF20,newdata=LAR_SB)
+LARSB_P21<-predict(IRF21,newdata=LAR_SB)
+LARSB_OP1<-predict(ARFM1,newdata=LAR_SB)
+LARSB_OP2<-predict(ARFM2,newdata=LAR_SB)
+LARSB_OP3<-predict(ARFM3,newdata=LAR_SB)
+LARSB_OP4<-predict(ARFM4,newdata=LAR_SB)
+LARSB_OP5<-predict(ARFM5,newdata=LAR_SB)
+LARSB_OP6<-predict(ARFM6,newdata=LAR_SB)
+LARSB_OP7<-predict(ARFM7,newdata=LAR_SB)
+LARSB_OP8<-predict(ARFM8,newdata=LAR_SB)
+LARSB_OP9<-predict(ARFM9,newdata=LAR_SB)
+LARSB_OP10<-predict(ARFM10,newdata=LAR_SB)
+LARSB_OP11<-predict(ARFM11,newdata=LAR_SB)
+LARSB_OP12<-predict(ARFM12,newdata=LAR_SB)
+LARSB_OP13<-predict(ARFM13,newdata=LAR_SB)
+LARSB_OP14<-predict(ARFM14,newdata=LAR_SB)
+LARSB_OP15<-predict(ARFM15,newdata=LAR_SB)
+LARSB_OP16<-predict(ARFM16,newdata=LAR_SB)
+LARSB_OP17<-predict(ARFM17,newdata=LAR_SB)
+LARSB_OP18<-predict(ARFM18,newdata=LAR_SB)
+LARSB_OP19<-predict(ARFM19,newdata=LAR_SB)
+LARSB_OP20<-predict(ARFM20,newdata=LAR_SB)
+LARSB_OP21<-predict(ARFM21,newdata=LAR_SB)
+LARSB_OP22<-predict(ARFM22,newdata=LAR_SB)
+LARSB_OP23<-predict(ARFM23,newdata=LAR_SB)
+LARSB_OP24<-predict(ARFM24,newdata=LAR_SB)
+LARSB_OP25<-predict(ARFM25,newdata=LAR_SB)
+LARSB_OP26<-predict(ARFM26,newdata=LAR_SB)
+LARSB_OP27<-predict(ARFM27,newdata=LAR_SB)
+LARSB_OP28<-predict(ARFM28,newdata=LAR_SB)
+LARSB_OP29<-predict(ARFM29,newdata=LAR_SB)
+LARSB_OP30<-predict(ARFM30,newdata=LAR_SB)
+LARSB_OP31<-predict(ARFM31,newdata=LAR_SB)
+
+# NE VS LAR 2018
+
+NE_SUB <- data.frame(TT=2.62,
+CAY=5.6,
+AGG=13.9,
+AYTS=-1.1,
+ATT=36,
+TD=2,
+INT=1,
+COMP=65.8,
+EFF=3.71,
+EM=26.79,
+TLOS=2.7,
+AVG=4.5,
+CUSH=5.8,
+SEP=3.025,
+TAY=11.425,
+CTCH=63.7975,
+YACR=5.675,
+TT_OPP=2.95,
+CAY_OPP=7,
+AGG_OPP=13.2,
+AYTS_OPP=0.1,
+ATT_OPP=35,
+TD_OPP=2,
+INT_OPP=1,
+COMP_OPP=64.9,
+EFF_OPP=3.65,
+EM_OPP=7.81,
+TLOS_OPP=2.8,
+AVG_OPP=4.9,
+CUSH_OPP=6.46,
+SEP_OPP=3.22,
+TAY_OPP=10.46,
+CTCH_OPP=65.668,
+YACR_OPP=5.36,
+Week = 17
+)
+
+LAR_SUB <- data.frame(TT=2.95,
+CAY=7,
+AGG=13.2,
+AYTS=0.1,
+ATT=35,
+TD=2,
+INT=1,
+COMP=64.9,
+EFF=3.65,
+EM=7.81,
+TLOS=2.8,
+AVG=4.9,
+CUSH=6.46,
+SEP=3.22,
+TAY=10.46,
+CTCH=65.668,
+YACR=5.36,
+TT_OPP=2.62,
+CAY_OPP=5.6,
+AGG_OPP=13.9,
+AYTS_OPP=-1.1,
+ATT_OPP=36,
+TD_OPP=2,
+INT_OPP=1,
+COMP_OPP=65.8,
+EFF_OPP=3.71,
+EM_OPP=26.79,
+TLOS_OPP=2.7,
+AVG_OPP=4.5,
+CUSH_OPP=5.8,
+SEP_OPP=3.025,
+TAY_OPP=11.425,
+CTCH_OPP=63.7975,
+YACR_OPP=5.675, 
+Week=17
+)
+
+NEET_P1<-predict(IRF1,newdata=NE_SUB)
+NEET_P2<-predict(IRF2,newdata=NE_SUB)
+NEET_P3<-predict(IRF3,newdata=NE_SUB)
+NEET_P4<-predict(IRF4,newdata=NE_SUB)
+NEET_P5<-predict(IRF5,newdata=NE_SUB)
+NEET_P6<-predict(IRF6,newdata=NE_SUB)
+NEET_P7<-predict(IRF7,newdata=NE_SUB)
+NEET_P8<-predict(IRF8,newdata=NE_SUB)
+NEET_P9<-predict(IRF9,newdata=NE_SUB)
+NEET_P10<-predict(IRF10,newdata=NE_SUB)
+NEET_P11<-predict(IRF11,newdata=NE_SUB)
+NEET_P12<-predict(IRF12,newdata=NE_SUB)
+NEET_P13<-predict(IRF13,newdata=NE_SUB)
+NEET_P14<-predict(IRF14,newdata=NE_SUB)
+NEET_P15<-predict(IRF15,newdata=NE_SUB)
+NEET_P16<-predict(IRF16,newdata=NE_SUB)
+NEET_P17<-predict(IRF17,newdata=NE_SUB)
+NEET_P18<-predict(IRF18,newdata=NE_SUB)
+NEET_P19<-predict(IRF19,newdata=NE_SUB)
+NEET_P20<-predict(IRF20,newdata=NE_SUB)
+NEET_P21<-predict(IRF21,newdata=NE_SUB)
+NEET_OP1<-predict(ARFM1,newdata=NE_SUB)
+NEET_OP2<-predict(ARFM2,newdata=NE_SUB)
+NEET_OP3<-predict(ARFM3,newdata=NE_SUB)
+NEET_OP4<-predict(ARFM4,newdata=NE_SUB)
+NEET_OP5<-predict(ARFM5,newdata=NE_SUB)
+NEET_OP6<-predict(ARFM6,newdata=NE_SUB)
+NEET_OP7<-predict(ARFM7,newdata=NE_SUB)
+NEET_OP8<-predict(ARFM8,newdata=NE_SUB)
+NEET_OP9<-predict(ARFM9,newdata=NE_SUB)
+NEET_OP10<-predict(ARFM10,newdata=NE_SUB)
+NEET_OP11<-predict(ARFM11,newdata=NE_SUB)
+NEET_OP12<-predict(ARFM12,newdata=NE_SUB)
+NEET_OP13<-predict(ARFM13,newdata=NE_SUB)
+NEET_OP14<-predict(ARFM14,newdata=NE_SUB)
+NEET_OP15<-predict(ARFM15,newdata=NE_SUB)
+NEET_OP16<-predict(ARFM16,newdata=NE_SUB)
+NEET_OP17<-predict(ARFM17,newdata=NE_SUB)
+NEET_OP18<-predict(ARFM18,newdata=NE_SUB)
+NEET_OP19<-predict(ARFM19,newdata=NE_SUB)
+NEET_OP20<-predict(ARFM20,newdata=NE_SUB)
+NEET_OP21<-predict(ARFM21,newdata=NE_SUB)
+NEET_OP22<-predict(ARFM22,newdata=NE_SUB)
+NEET_OP23<-predict(ARFM23,newdata=NE_SUB)
+NEET_OP24<-predict(ARFM24,newdata=NE_SUB)
+NEET_OP25<-predict(ARFM25,newdata=NE_SUB)
+NEET_OP26<-predict(ARFM26,newdata=NE_SUB)
+NEET_OP27<-predict(ARFM27,newdata=NE_SUB)
+NEET_OP28<-predict(ARFM28,newdata=NE_SUB)
+NEET_OP29<-predict(ARFM29,newdata=NE_SUB)
+NEET_OP30<-predict(ARFM30,newdata=NE_SUB)
+NEET_OP31<-predict(ARFM31,newdata=NE_SUB)
+
+
+LARET_P1<-predict(IRF1,newdata=LAR_SUB)
+LARET_P2<-predict(IRF2,newdata=LAR_SUB)
+LARET_P3<-predict(IRF3,newdata=LAR_SUB)
+LARET_P4<-predict(IRF4,newdata=LAR_SUB)
+LARET_P5<-predict(IRF5,newdata=LAR_SUB)
+LARET_P6<-predict(IRF6,newdata=LAR_SUB)
+LARET_P7<-predict(IRF7,newdata=LAR_SUB)
+LARET_P8<-predict(IRF8,newdata=LAR_SUB)
+LARET_P9<-predict(IRF9,newdata=LAR_SUB)
+LARET_P10<-predict(IRF10,newdata=LAR_SUB)
+LARET_P11<-predict(IRF11,newdata=LAR_SUB)
+LARET_P12<-predict(IRF12,newdata=LAR_SUB)
+LARET_P13<-predict(IRF13,newdata=LAR_SUB)
+LARET_P14<-predict(IRF14,newdata=LAR_SUB)
+LARET_P15<-predict(IRF15,newdata=LAR_SUB)
+LARET_P16<-predict(IRF16,newdata=LAR_SUB)
+LARET_P17<-predict(IRF17,newdata=LAR_SUB)
+LARET_P18<-predict(IRF18,newdata=LAR_SUB)
+LARET_P19<-predict(IRF19,newdata=LAR_SUB)
+LARET_P20<-predict(IRF20,newdata=LAR_SUB)
+LARET_P21<-predict(IRF21,newdata=LAR_SUB)
+LARET_OP1<-predict(ARFM1,newdata=LAR_SUB)
+LARET_OP2<-predict(ARFM2,newdata=LAR_SUB)
+LARET_OP3<-predict(ARFM3,newdata=LAR_SUB)
+LARET_OP4<-predict(ARFM4,newdata=LAR_SUB)
+LARET_OP5<-predict(ARFM5,newdata=LAR_SUB)
+LARET_OP6<-predict(ARFM6,newdata=LAR_SUB)
+LARET_OP7<-predict(ARFM7,newdata=LAR_SUB)
+LARET_OP8<-predict(ARFM8,newdata=LAR_SUB)
+LARET_OP9<-predict(ARFM9,newdata=LAR_SUB)
+LARET_OP10<-predict(ARFM10,newdata=LAR_SUB)
+LARET_OP11<-predict(ARFM11,newdata=LAR_SUB)
+LARET_OP12<-predict(ARFM12,newdata=LAR_SUB)
+LARET_OP13<-predict(ARFM13,newdata=LAR_SUB)
+LARET_OP14<-predict(ARFM14,newdata=LAR_SUB)
+LARET_OP15<-predict(ARFM15,newdata=LAR_SUB)
+LARET_OP16<-predict(ARFM16,newdata=LAR_SUB)
+LARET_OP17<-predict(ARFM17,newdata=LAR_SUB)
+LARET_OP18<-predict(ARFM18,newdata=LAR_SUB)
+LARET_OP19<-predict(ARFM19,newdata=LAR_SUB)
+LARET_OP20<-predict(ARFM20,newdata=LAR_SUB)
+LARET_OP21<-predict(ARFM21,newdata=LAR_SUB)
+LARET_OP22<-predict(ARFM22,newdata=LAR_SUB)
+LARET_OP23<-predict(ARFM23,newdata=LAR_SUB)
+LARET_OP24<-predict(ARFM24,newdata=LAR_SUB)
+LARET_OP25<-predict(ARFM25,newdata=LAR_SUB)
+LARET_OP26<-predict(ARFM26,newdata=LAR_SUB)
+LARET_OP27<-predict(ARFM27,newdata=LAR_SUB)
+LARET_OP28<-predict(ARFM28,newdata=LAR_SUB)
+LARET_OP29<-predict(ARFM29,newdata=LAR_SUB)
+LARET_OP30<-predict(ARFM30,newdata=LAR_SUB)
+LARET_OP31<-predict(ARFM31,newdata=LAR_SUB)
+
+library(readxl)
+
+#Rushing Data set 
+RUSHNFLS <- read_excel("C:/Users/ericr/Desktop/NFL STATISTICS/NFL PROJECT DATA/T test data/RUSHNFLS.xlsx")
+
+#Passing Data set 
+PASSNFLS <- read_excel("C:/Users/ericr/Desktop/NFL STATISTICS/NFL PROJECT DATA/T test data/PASSNFLS.xlsx")
+
+#Clean up
+
+#RUSH DATA
+RUSHNFLS[1] <- lapply(RUSHNFLS[1], as.numeric)
+RUSHNFLS[4:8] <- lapply(RUSHNFLS[4:8], as.numeric)
+RUSHNFLS[10:11] <- lapply(RUSHNFLS[10:11], as.numeric)
+
+#PASS DATA
+PASSNFLS[1] <- lapply(PASSNFLS[1], as.numeric)
+PASSNFLS[4:8] <- lapply(PASSNFLS[4:8], as.numeric)
+PASSNFLS[10:11] <- lapply(PASSNFLS[10:11], as.numeric)
+PASSNFLS[13:15] <- lapply(PASSNFLS[13:15], as.numeric)
+
+#Random Forest:
+library(randomForest)
+library(caTools)
+
+#set up
+
+RUSHNFLS$Formation = factor(RUSHNFLS$Formation)
+RUSHNFLS$RushDirection = factor(RUSHNFLS$RushDirection)
+RUSHNFLS$OffenseTeam = factor(RUSHNFLS$OffenseTeam)
+RUSHNFLS$DefenseTeam = factor(RUSHNFLS$DefenseTeam)
+
+
+PASSNFLS$Formation = factor(PASSNFLS$Formation)
+PASSNFLS$PassType = factor(PASSNFLS$PassType)
+
+
+
+RUSHNFLS <- na.exclude(RUSHNFLS)
+PASSNFLS <- na.exclude(PASSNFLS)
+# RUSHING 
+
+#Touchdown
+RNS_TD <- randomForest(IsTouchdown ~ YardLine + Quarter + OffenseTeam +DefenseTeam + Down +Yards+ ToGo + Formation +RushDirection, data = RUSHNFLS, importance = TRUE)
+
+#Yards
+RNS_YDS <- randomForest(Yards ~ YardLine + Quarter + OffenseTeam +DefenseTeam + Down + ToGo + Formation +RushDirection, data = RUSHNFLS, importance = TRUE)
+
+#formation
+RNS_F <- randomForest(Formation ~ YardLine + Quarter + OffenseTeam +DefenseTeam + Down + ToGo, data = RUSHNFLS, importance = TRUE)
+
+#Rush Direction 
+RNS_RD <- randomForest(RushDirection ~ YardLine + Quarter + OffenseTeam +DefenseTeam + Down + ToGo + Formation, data = RUSHNFLS, importance = TRUE)
+
+#Fumble
+RNS_FUM <- randomForest(IsFumble ~ YardLine + Quarter + OffenseTeam +DefenseTeam + Down + ToGo + Formation + RushDirection, data = RUSHNFLS, importance = TRUE)
+
+
+#Series First 
+RNS_SFD <- randomForest( SeriesFirstDown ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + ToGo + RushDirection, data = RUSHNFLS, importance = TRUE)
+
+#Random Forest set up 
+
+NI_PASSNFLS<- PASSNFLS[ which(PASSNFLS$IsIncomplete == 0 & PASSNFLS$IsSack == 0 & 
+PASSNFLS$IsInterception == 0 & PASSNFLS$IsFumble == 0), ]
+
+
+#Passing
+
+#Yards
+PNS_YDS <- randomForest(Yards ~ OffenseTeam + DefenseTeam + Down + ToGo + Formation + PassType +YardLine + Quarter , data = NI_PASSNFLS, importance = TRUE)
+
+
+#touchdowns
+PNS_TD <- randomForest(IsTouchdown ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + ToGo + Formation + PassType, data = PASSNFLS, importance = TRUE)
+
+# Yards to Go 
+PNS_TG <- randomForest(ToGo ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + PassType, data = PASSNFLS, importance = TRUE)
+
+#Formation one 
+PNS_F1 <- randomForest(Formation ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + ToGo + PassType, data = PASSNFLS, importance = TRUE)
+
+#Formation 2 
+PNS_F2 <- randomForest(Formation ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + ToGo, data = PASSNFLS, importance = TRUE)
+
+#Pass Type 
+PNS_PT <- randomForest( PassType ~ YardLine + Quarter +OffenseTeam + DefenseTeam + Down + Formation + ToGo, data = PASSNFLS, importance = TRUE)
+
+#Is incomplete
+PNS_INCOMP <- randomForest( IsIncomplete ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + ToGo + PassType, data = PASSNFLS, importance = TRUE)
+
+
+#Is Sack
+PNS_IS <- randomForest( IsSack ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + ToGo, data = PASSNFLS, importance = TRUE)
+
+
+#Is INTerception
+PNS_INT <- randomForest( IsInterception ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + ToGo, data = PASSNFLS, importance = TRUE)
+
+#Is Fumble
+PNS_FUM <- randomForest( IsFumble ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + ToGo, data = PASSNFLS, importance = TRUE)
+
+#Series First 
+PNS_SFD <- randomForest( SeriesFirstDown ~ YardLine + Quarter + OffenseTeam + DefenseTeam + Down + Formation + ToGo + PassType, data = NI_PASSNFLS, importance = TRUE)
+
+
+#Estimate rushing yards
+
+  #NE
+      # 2nd and 6, from the 60 yardline, in the third quarter
+
+NERP385	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP997	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP1609	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP2221	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP2833	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP3445	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP4057	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP4669	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP5281	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP5893	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP6505	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP7117	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP7729	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP8341	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP8953	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP9565	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP10177	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP10789	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP11401	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP12013	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP12625	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP13237	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP13849	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP14461	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP15073	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP15685	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP16297	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+NERP16909	<- 	data.frame(	YardLine = 	60	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	3	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+
+NERP385<-rbind(RUSHNFLS[1,],NERP385)
+NERP997<-rbind(RUSHNFLS[1,],NERP997)
+NERP1609<-rbind(RUSHNFLS[1,],NERP1609)
+NERP2221<-rbind(RUSHNFLS[1,],NERP2221)
+NERP2833<-rbind(RUSHNFLS[1,],NERP2833)
+NERP3445<-rbind(RUSHNFLS[1,],NERP3445)
+NERP4057<-rbind(RUSHNFLS[1,],NERP4057)
+NERP4669<-rbind(RUSHNFLS[1,],NERP4669)
+NERP5281<-rbind(RUSHNFLS[1,],NERP5281)
+NERP5893<-rbind(RUSHNFLS[1,],NERP5893)
+NERP6505<-rbind(RUSHNFLS[1,],NERP6505)
+NERP7117<-rbind(RUSHNFLS[1,],NERP7117)
+NERP7729<-rbind(RUSHNFLS[1,],NERP7729)
+NERP8341<-rbind(RUSHNFLS[1,],NERP8341)
+NERP8953<-rbind(RUSHNFLS[1,],NERP8953)
+NERP9565<-rbind(RUSHNFLS[1,],NERP9565)
+NERP10177<-rbind(RUSHNFLS[1,],NERP10177)
+NERP10789<-rbind(RUSHNFLS[1,],NERP10789)
+NERP11401<-rbind(RUSHNFLS[1,],NERP11401)
+NERP12013<-rbind(RUSHNFLS[1,],NERP12013)
+NERP12625<-rbind(RUSHNFLS[1,],NERP12625)
+NERP13237<-rbind(RUSHNFLS[1,],NERP13237)
+NERP13849<-rbind(RUSHNFLS[1,],NERP13849)
+NERP14461<-rbind(RUSHNFLS[1,],NERP14461)
+NERP15073<-rbind(RUSHNFLS[1,],NERP15073)
+NERP15685<-rbind(RUSHNFLS[1,],NERP15685)
+NERP16297<-rbind(RUSHNFLS[1,],NERP16297)
+NERP16909<-rbind(RUSHNFLS[1,],NERP16909)
+
+NERP385<-NERP385[-1,]
+NERP997<-NERP997[-1,]
+NERP1609<-NERP1609[-1,]
+NERP2221<-NERP2221[-1,]
+NERP2833<-NERP2833[-1,]
+NERP3445<-NERP3445[-1,]
+NERP4057<-NERP4057[-1,]
+NERP4669<-NERP4669[-1,]
+NERP5281<-NERP5281[-1,]
+NERP5893<-NERP5893[-1,]
+NERP6505<-NERP6505[-1,]
+NERP7117<-NERP7117[-1,]
+NERP7729<-NERP7729[-1,]
+NERP8341<-NERP8341[-1,]
+NERP8953<-NERP8953[-1,]
+NERP9565<-NERP9565[-1,]
+NERP10177<-NERP10177[-1,]
+NERP10789<-NERP10789[-1,]
+NERP11401<-NERP11401[-1,]
+NERP12013<-NERP12013[-1,]
+NERP12625<-NERP12625[-1,]
+NERP13237<-NERP13237[-1,]
+NERP13849<-NERP13849[-1,]
+NERP14461<-NERP14461[-1,]
+NERP15073<-NERP15073[-1,]
+NERP15685<-NERP15685[-1,]
+NERP16297<-NERP16297[-1,]
+NERP16909<-NERP16909[-1,]
+
+
+DRNE_YDS17521<-predict(RNS_YDS,newdata=NERP385)
+DRNE_YDS18133<-predict(RNS_YDS,newdata=NERP997)
+DRNE_YDS18745<-predict(RNS_YDS,newdata=NERP1609)
+DRNE_YDS19357<-predict(RNS_YDS,newdata=NERP2221)
+DRNE_YDS19969<-predict(RNS_YDS,newdata=NERP2833)
+DRNE_YDS20581<-predict(RNS_YDS,newdata=NERP3445)
+DRNE_YDS21193<-predict(RNS_YDS,newdata=NERP4057)
+DRNE_YDS21805<-predict(RNS_YDS,newdata=NERP4669)
+DRNE_YDS22417<-predict(RNS_YDS,newdata=NERP5281)
+DRNE_YDS23029<-predict(RNS_YDS,newdata=NERP5893)
+DRNE_YDS23641<-predict(RNS_YDS,newdata=NERP6505)
+DRNE_YDS24253<-predict(RNS_YDS,newdata=NERP7117)
+DRNE_YDS24865<-predict(RNS_YDS,newdata=NERP7729)
+DRNE_YDS25477<-predict(RNS_YDS,newdata=NERP8341)
+DRNE_YDS26089<-predict(RNS_YDS,newdata=NERP8953)
+DRNE_YDS26701<-predict(RNS_YDS,newdata=NERP9565)
+DRNE_YDS27313<-predict(RNS_YDS,newdata=NERP10177)
+DRNE_YDS27925<-predict(RNS_YDS,newdata=NERP10789)
+DRNE_YDS28537<-predict(RNS_YDS,newdata=NERP11401)
+DRNE_YDS29149<-predict(RNS_YDS,newdata=NERP12013)
+DRNE_YDS29761<-predict(RNS_YDS,newdata=NERP12625)
+DRNE_YDS30373<-predict(RNS_YDS,newdata=NERP13237)
+DRNE_YDS30985<-predict(RNS_YDS,newdata=NERP13849)
+DRNE_YDS31597<-predict(RNS_YDS,newdata=NERP14461)
+DRNE_YDS32209<-predict(RNS_YDS,newdata=NERP15073)
+DRNE_YDS32821<-predict(RNS_YDS,newdata=NERP15685)
+DRNE_YDS33433<-predict(RNS_YDS,newdata=NERP16297)
+DRNE_YDS34045<-predict(RNS_YDS,newdata=NERP16909)
+
+DRNE_SFD17521<-predict(RNS_SFD,newdata=NERP385)
+DRNE_SFD18133<-predict(RNS_SFD,newdata=NERP997)
+DRNE_SFD18745<-predict(RNS_SFD,newdata=NERP1609)
+DRNE_SFD19357<-predict(RNS_SFD,newdata=NERP2221)
+DRNE_SFD19969<-predict(RNS_SFD,newdata=NERP2833)
+DRNE_SFD20581<-predict(RNS_SFD,newdata=NERP3445)
+DRNE_SFD21193<-predict(RNS_SFD,newdata=NERP4057)
+DRNE_SFD21805<-predict(RNS_SFD,newdata=NERP4669)
+DRNE_SFD22417<-predict(RNS_SFD,newdata=NERP5281)
+DRNE_SFD23029<-predict(RNS_SFD,newdata=NERP5893)
+DRNE_SFD23641<-predict(RNS_SFD,newdata=NERP6505)
+DRNE_SFD24253<-predict(RNS_SFD,newdata=NERP7117)
+DRNE_SFD24865<-predict(RNS_SFD,newdata=NERP7729)
+DRNE_SFD25477<-predict(RNS_SFD,newdata=NERP8341)
+DRNE_SFD26089<-predict(RNS_SFD,newdata=NERP8953)
+DRNE_SFD26701<-predict(RNS_SFD,newdata=NERP9565)
+DRNE_SFD27313<-predict(RNS_SFD,newdata=NERP10177)
+DRNE_SFD27925<-predict(RNS_SFD,newdata=NERP10789)
+DRNE_SFD28537<-predict(RNS_SFD,newdata=NERP11401)
+DRNE_SFD29149<-predict(RNS_SFD,newdata=NERP12013)
+DRNE_SFD29761<-predict(RNS_SFD,newdata=NERP12625)
+DRNE_SFD30373<-predict(RNS_SFD,newdata=NERP13237)
+DRNE_SFD30985<-predict(RNS_SFD,newdata=NERP13849)
+DRNE_SFD31597<-predict(RNS_SFD,newdata=NERP14461)
+DRNE_SFD32209<-predict(RNS_SFD,newdata=NERP15073)
+DRNE_SFD32821<-predict(RNS_SFD,newdata=NERP15685)
+DRNE_SFD33433<-predict(RNS_SFD,newdata=NERP16297)
+DRNE_SFD34045<-predict(RNS_SFD,newdata=NERP16909)
+
+DRNE_TD17521<-predict(RNS_TD,newdata=NERP385)
+DRNE_TD18133<-predict(RNS_TD,newdata=NERP997)
+DRNE_TD18745<-predict(RNS_TD,newdata=NERP1609)
+DRNE_TD19357<-predict(RNS_TD,newdata=NERP2221)
+DRNE_TD19969<-predict(RNS_TD,newdata=NERP2833)
+DRNE_TD20581<-predict(RNS_TD,newdata=NERP3445)
+DRNE_TD21193<-predict(RNS_TD,newdata=NERP4057)
+DRNE_TD21805<-predict(RNS_TD,newdata=NERP4669)
+DRNE_TD22417<-predict(RNS_TD,newdata=NERP5281)
+DRNE_TD23029<-predict(RNS_TD,newdata=NERP5893)
+DRNE_TD23641<-predict(RNS_TD,newdata=NERP6505)
+DRNE_TD24253<-predict(RNS_TD,newdata=NERP7117)
+DRNE_TD24865<-predict(RNS_TD,newdata=NERP7729)
+DRNE_TD25477<-predict(RNS_TD,newdata=NERP8341)
+DRNE_TD26089<-predict(RNS_TD,newdata=NERP8953)
+DRNE_TD26701<-predict(RNS_TD,newdata=NERP9565)
+DRNE_TD27313<-predict(RNS_TD,newdata=NERP10177)
+DRNE_TD27925<-predict(RNS_TD,newdata=NERP10789)
+DRNE_TD28537<-predict(RNS_TD,newdata=NERP11401)
+DRNE_TD29149<-predict(RNS_TD,newdata=NERP12013)
+DRNE_TD29761<-predict(RNS_TD,newdata=NERP12625)
+DRNE_TD30373<-predict(RNS_TD,newdata=NERP13237)
+DRNE_TD30985<-predict(RNS_TD,newdata=NERP13849)
+DRNE_TD31597<-predict(RNS_TD,newdata=NERP14461)
+DRNE_TD32209<-predict(RNS_TD,newdata=NERP15073)
+DRNE_TD32821<-predict(RNS_TD,newdata=NERP15685)
+DRNE_TD33433<-predict(RNS_TD,newdata=NERP16297)
+DRNE_TD34045<-predict(RNS_TD,newdata=NERP16909)
+
+
+# SF RUSH
+  # 35 yard line, 3rd and 3, Quarter 1 
+DPR142	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR754	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR1366	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR1978	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"RIGHT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR2590	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR3202	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR3814	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR4426	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"RIGHT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR5038	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR5650	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR6262	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR6874	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"CENTER"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR7486	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR8098	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR8710	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR9322	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"LEFT GUARD"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR9934	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR10546	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR11158	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR11770	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"LEFT TACKLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR12382	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR12994	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR13606	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR14218	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"LEFT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR14830	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"SHOTGUN"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR15442	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"UNDER CENTER"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR16054	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+DPR16666	<- 	data.frame(	YardLine = 	35	,	ToGo = 	3	,	Down = 	3	,	Quarter = 	1	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	RushDirection = 	"RIGHT END"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	)
+
+
+DPR142<-rbind(RUSHNFLS[1,],DPR142)
+DPR754<-rbind(RUSHNFLS[1,],DPR754)
+DPR1366<-rbind(RUSHNFLS[1,],DPR1366)
+DPR1978<-rbind(RUSHNFLS[1,],DPR1978)
+DPR2590<-rbind(RUSHNFLS[1,],DPR2590)
+DPR3202<-rbind(RUSHNFLS[1,],DPR3202)
+DPR3814<-rbind(RUSHNFLS[1,],DPR3814)
+DPR4426<-rbind(RUSHNFLS[1,],DPR4426)
+DPR5038<-rbind(RUSHNFLS[1,],DPR5038)
+DPR5650<-rbind(RUSHNFLS[1,],DPR5650)
+DPR6262<-rbind(RUSHNFLS[1,],DPR6262)
+DPR6874<-rbind(RUSHNFLS[1,],DPR6874)
+DPR7486<-rbind(RUSHNFLS[1,],DPR7486)
+DPR8098<-rbind(RUSHNFLS[1,],DPR8098)
+DPR8710<-rbind(RUSHNFLS[1,],DPR8710)
+DPR9322<-rbind(RUSHNFLS[1,],DPR9322)
+DPR9934<-rbind(RUSHNFLS[1,],DPR9934)
+DPR10546<-rbind(RUSHNFLS[1,],DPR10546)
+DPR11158<-rbind(RUSHNFLS[1,],DPR11158)
+DPR11770<-rbind(RUSHNFLS[1,],DPR11770)
+DPR12382<-rbind(RUSHNFLS[1,],DPR12382)
+DPR12994<-rbind(RUSHNFLS[1,],DPR12994)
+DPR13606<-rbind(RUSHNFLS[1,],DPR13606)
+DPR14218<-rbind(RUSHNFLS[1,],DPR14218)
+DPR14830<-rbind(RUSHNFLS[1,],DPR14830)
+DPR15442<-rbind(RUSHNFLS[1,],DPR15442)
+DPR16054<-rbind(RUSHNFLS[1,],DPR16054)
+DPR16666<-rbind(RUSHNFLS[1,],DPR16666)
+
+
+DPR142<-DPR142[-1,]
+DPR754<-DPR754[-1,]
+DPR1366<-DPR1366[-1,]
+DPR1978<-DPR1978[-1,]
+DPR2590<-DPR2590[-1,]
+DPR3202<-DPR3202[-1,]
+DPR3814<-DPR3814[-1,]
+DPR4426<-DPR4426[-1,]
+DPR5038<-DPR5038[-1,]
+DPR5650<-DPR5650[-1,]
+DPR6262<-DPR6262[-1,]
+DPR6874<-DPR6874[-1,]
+DPR7486<-DPR7486[-1,]
+DPR8098<-DPR8098[-1,]
+DPR8710<-DPR8710[-1,]
+DPR9322<-DPR9322[-1,]
+DPR9934<-DPR9934[-1,]
+DPR10546<-DPR10546[-1,]
+DPR11158<-DPR11158[-1,]
+DPR11770<-DPR11770[-1,]
+DPR12382<-DPR12382[-1,]
+DPR12994<-DPR12994[-1,]
+DPR13606<-DPR13606[-1,]
+DPR14218<-DPR14218[-1,]
+DPR14830<-DPR14830[-1,]
+DPR15442<-DPR15442[-1,]
+DPR16054<-DPR16054[-1,]
+DPR16666<-DPR16666[-1,]
+
+
+DRNE_YDS17278<-predict(RNS_YDS,newdata=DPR142)
+DRNE_YDS17890<-predict(RNS_YDS,newdata=DPR754)
+DRNE_YDS18502<-predict(RNS_YDS,newdata=DPR1366)
+DRNE_YDS19114<-predict(RNS_YDS,newdata=DPR1978)
+DRNE_YDS19726<-predict(RNS_YDS,newdata=DPR2590)
+DRNE_YDS20338<-predict(RNS_YDS,newdata=DPR3202)
+DRNE_YDS20950<-predict(RNS_YDS,newdata=DPR3814)
+DRNE_YDS21562<-predict(RNS_YDS,newdata=DPR4426)
+DRNE_YDS22174<-predict(RNS_YDS,newdata=DPR5038)
+DRNE_YDS22786<-predict(RNS_YDS,newdata=DPR5650)
+DRNE_YDS23398<-predict(RNS_YDS,newdata=DPR6262)
+DRNE_YDS24010<-predict(RNS_YDS,newdata=DPR6874)
+DRNE_YDS24622<-predict(RNS_YDS,newdata=DPR7486)
+DRNE_YDS25234<-predict(RNS_YDS,newdata=DPR8098)
+DRNE_YDS25846<-predict(RNS_YDS,newdata=DPR8710)
+DRNE_YDS26458<-predict(RNS_YDS,newdata=DPR9322)
+DRNE_YDS27070<-predict(RNS_YDS,newdata=DPR9934)
+DRNE_YDS27682<-predict(RNS_YDS,newdata=DPR10546)
+DRNE_YDS28294<-predict(RNS_YDS,newdata=DPR11158)
+DRNE_YDS28906<-predict(RNS_YDS,newdata=DPR11770)
+DRNE_YDS29518<-predict(RNS_YDS,newdata=DPR12382)
+DRNE_YDS30130<-predict(RNS_YDS,newdata=DPR12994)
+DRNE_YDS30742<-predict(RNS_YDS,newdata=DPR13606)
+DRNE_YDS31354<-predict(RNS_YDS,newdata=DPR14218)
+DRNE_YDS31966<-predict(RNS_YDS,newdata=DPR14830)
+DRNE_YDS32578<-predict(RNS_YDS,newdata=DPR15442)
+DRNE_YDS33190<-predict(RNS_YDS,newdata=DPR16054)
+DRNE_YDS33802<-predict(RNS_YDS,newdata=DPR16666)
+
+
+DRNE_SFD17278<-predict(RNS_SFD,newdata=DPR142)
+DRNE_SFD17890<-predict(RNS_SFD,newdata=DPR754)
+DRNE_SFD18502<-predict(RNS_SFD,newdata=DPR1366)
+DRNE_SFD19114<-predict(RNS_SFD,newdata=DPR1978)
+DRNE_SFD19726<-predict(RNS_SFD,newdata=DPR2590)
+DRNE_SFD20338<-predict(RNS_SFD,newdata=DPR3202)
+DRNE_SFD20950<-predict(RNS_SFD,newdata=DPR3814)
+DRNE_SFD21562<-predict(RNS_SFD,newdata=DPR4426)
+DRNE_SFD22174<-predict(RNS_SFD,newdata=DPR5038)
+DRNE_SFD22786<-predict(RNS_SFD,newdata=DPR5650)
+DRNE_SFD23398<-predict(RNS_SFD,newdata=DPR6262)
+DRNE_SFD24010<-predict(RNS_SFD,newdata=DPR6874)
+DRNE_SFD24622<-predict(RNS_SFD,newdata=DPR7486)
+DRNE_SFD25234<-predict(RNS_SFD,newdata=DPR8098)
+DRNE_SFD25846<-predict(RNS_SFD,newdata=DPR8710)
+DRNE_SFD26458<-predict(RNS_SFD,newdata=DPR9322)
+DRNE_SFD27070<-predict(RNS_SFD,newdata=DPR9934)
+DRNE_SFD27682<-predict(RNS_SFD,newdata=DPR10546)
+DRNE_SFD28294<-predict(RNS_SFD,newdata=DPR11158)
+DRNE_SFD28906<-predict(RNS_SFD,newdata=DPR11770)
+DRNE_SFD29518<-predict(RNS_SFD,newdata=DPR12382)
+DRNE_SFD30130<-predict(RNS_SFD,newdata=DPR12994)
+DRNE_SFD30742<-predict(RNS_SFD,newdata=DPR13606)
+DRNE_SFD31354<-predict(RNS_SFD,newdata=DPR14218)
+DRNE_SFD31966<-predict(RNS_SFD,newdata=DPR14830)
+DRNE_SFD32578<-predict(RNS_SFD,newdata=DPR15442)
+DRNE_SFD33190<-predict(RNS_SFD,newdata=DPR16054)
+DRNE_SFD33802<-predict(RNS_SFD,newdata=DPR16666)
+
+DRNE_TD17278<-predict(RNS_TD,newdata=DPR142)
+DRNE_TD17890<-predict(RNS_TD,newdata=DPR754)
+DRNE_TD18502<-predict(RNS_TD,newdata=DPR1366)
+DRNE_TD19114<-predict(RNS_TD,newdata=DPR1978)
+DRNE_TD19726<-predict(RNS_TD,newdata=DPR2590)
+DRNE_TD20338<-predict(RNS_TD,newdata=DPR3202)
+DRNE_TD20950<-predict(RNS_TD,newdata=DPR3814)
+DRNE_TD21562<-predict(RNS_TD,newdata=DPR4426)
+DRNE_TD22174<-predict(RNS_TD,newdata=DPR5038)
+DRNE_TD22786<-predict(RNS_TD,newdata=DPR5650)
+DRNE_TD23398<-predict(RNS_TD,newdata=DPR6262)
+DRNE_TD24010<-predict(RNS_TD,newdata=DPR6874)
+DRNE_TD24622<-predict(RNS_TD,newdata=DPR7486)
+DRNE_TD25234<-predict(RNS_TD,newdata=DPR8098)
+DRNE_TD25846<-predict(RNS_TD,newdata=DPR8710)
+DRNE_TD26458<-predict(RNS_TD,newdata=DPR9322)
+DRNE_TD27070<-predict(RNS_TD,newdata=DPR9934)
+DRNE_TD27682<-predict(RNS_TD,newdata=DPR10546)
+DRNE_TD28294<-predict(RNS_TD,newdata=DPR11158)
+DRNE_TD28906<-predict(RNS_TD,newdata=DPR11770)
+DRNE_TD29518<-predict(RNS_TD,newdata=DPR12382)
+DRNE_TD30130<-predict(RNS_TD,newdata=DPR12994)
+DRNE_TD30742<-predict(RNS_TD,newdata=DPR13606)
+DRNE_TD31354<-predict(RNS_TD,newdata=DPR14218)
+DRNE_TD31966<-predict(RNS_TD,newdata=DPR14830)
+DRNE_TD32578<-predict(RNS_TD,newdata=DPR15442)
+DRNE_TD33190<-predict(RNS_TD,newdata=DPR16054)
+DRNE_TD33802<-predict(RNS_TD,newdata=DPR16666)
+
+
+DRNE_F17278<-predict(RNS_F,newdata=DPR142)
+DRNE_F17890<-predict(RNS_F,newdata=DPR754)
+DRNE_F18502<-predict(RNS_F,newdata=DPR1366)
+DRNE_F19114<-predict(RNS_F,newdata=DPR1978)
+DRNE_F19726<-predict(RNS_F,newdata=DPR2590)
+DRNE_F20338<-predict(RNS_F,newdata=DPR3202)
+DRNE_F20950<-predict(RNS_F,newdata=DPR3814)
+DRNE_F21562<-predict(RNS_F,newdata=DPR4426)
+DRNE_F22174<-predict(RNS_F,newdata=DPR5038)
+DRNE_F22786<-predict(RNS_F,newdata=DPR5650)
+DRNE_F23398<-predict(RNS_F,newdata=DPR6262)
+DRNE_F24010<-predict(RNS_F,newdata=DPR6874)
+DRNE_F24622<-predict(RNS_F,newdata=DPR7486)
+DRNE_F25234<-predict(RNS_F,newdata=DPR8098)
+DRNE_F25846<-predict(RNS_F,newdata=DPR8710)
+DRNE_F26458<-predict(RNS_F,newdata=DPR9322)
+DRNE_F27070<-predict(RNS_F,newdata=DPR9934)
+DRNE_F27682<-predict(RNS_F,newdata=DPR10546)
+DRNE_F28294<-predict(RNS_F,newdata=DPR11158)
+DRNE_F28906<-predict(RNS_F,newdata=DPR11770)
+DRNE_F29518<-predict(RNS_F,newdata=DPR12382)
+DRNE_F30130<-predict(RNS_F,newdata=DPR12994)
+DRNE_F30742<-predict(RNS_F,newdata=DPR13606)
+DRNE_F31354<-predict(RNS_F,newdata=DPR14218)
+DRNE_F31966<-predict(RNS_F,newdata=DPR14830)
+DRNE_F32578<-predict(RNS_F,newdata=DPR15442)
+DRNE_F33190<-predict(RNS_F,newdata=DPR16054)
+DRNE_F33802<-predict(RNS_F,newdata=DPR16666)
+
+DRNE_RD17278<-predict(RNS_RD,newdata=DPR142)
+DRNE_RD17890<-predict(RNS_RD,newdata=DPR754)
+DRNE_RD18502<-predict(RNS_RD,newdata=DPR1366)
+DRNE_RD19114<-predict(RNS_RD,newdata=DPR1978)
+DRNE_RD19726<-predict(RNS_RD,newdata=DPR2590)
+DRNE_RD20338<-predict(RNS_RD,newdata=DPR3202)
+DRNE_RD20950<-predict(RNS_RD,newdata=DPR3814)
+DRNE_RD21562<-predict(RNS_RD,newdata=DPR4426)
+DRNE_RD22174<-predict(RNS_RD,newdata=DPR5038)
+DRNE_RD22786<-predict(RNS_RD,newdata=DPR5650)
+DRNE_RD23398<-predict(RNS_RD,newdata=DPR6262)
+DRNE_RD24010<-predict(RNS_RD,newdata=DPR6874)
+DRNE_RD24622<-predict(RNS_RD,newdata=DPR7486)
+DRNE_RD25234<-predict(RNS_RD,newdata=DPR8098)
+DRNE_RD25846<-predict(RNS_RD,newdata=DPR8710)
+DRNE_RD26458<-predict(RNS_RD,newdata=DPR9322)
+DRNE_RD27070<-predict(RNS_RD,newdata=DPR9934)
+DRNE_RD27682<-predict(RNS_RD,newdata=DPR10546)
+DRNE_RD28294<-predict(RNS_RD,newdata=DPR11158)
+DRNE_RD28906<-predict(RNS_RD,newdata=DPR11770)
+DRNE_RD29518<-predict(RNS_RD,newdata=DPR12382)
+DRNE_RD30130<-predict(RNS_RD,newdata=DPR12994)
+DRNE_RD30742<-predict(RNS_RD,newdata=DPR13606)
+DRNE_RD31354<-predict(RNS_RD,newdata=DPR14218)
+DRNE_RD31966<-predict(RNS_RD,newdata=DPR14830)
+DRNE_RD32578<-predict(RNS_RD,newdata=DPR15442)
+DRNE_RD33190<-predict(RNS_RD,newdata=DPR16054)
+DRNE_RD33802<-predict(RNS_RD,newdata=DPR16666)
+
+# NE PASS
+
+# 75 Yardline, 3rd and 10, 4th quarter:
+
+NEPP575	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"SHOTGUN"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP1187	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP1799	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP2411	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP3023	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"SHOTGUN"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP3635	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP4247	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP4859	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP5471	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"SHOTGUN"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP6083	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP6695	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP7307	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP7919	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"SHOTGUN"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP8531	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP9143	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP9755	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP10367	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"SHOTGUN"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP10979	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP11591	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP12203	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP12815	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"SHOTGUN"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP13427	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP14039	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+NEPP14651	<- 	data.frame(	YardLine = 	75	,	ToGo = 	10	,	Down = 	3	,	Quarter = 	4	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"NE"	,	DefenseTeam = 	"SF"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+
+
+NEPP575<-rbind(PASSNFLS[1,],NEPP575)
+NEPP1187<-rbind(PASSNFLS[1,],NEPP1187)
+NEPP1799<-rbind(PASSNFLS[1,],NEPP1799)
+NEPP2411<-rbind(PASSNFLS[1,],NEPP2411)
+NEPP3023<-rbind(PASSNFLS[1,],NEPP3023)
+NEPP3635<-rbind(PASSNFLS[1,],NEPP3635)
+NEPP4247<-rbind(PASSNFLS[1,],NEPP4247)
+NEPP4859<-rbind(PASSNFLS[1,],NEPP4859)
+NEPP5471<-rbind(PASSNFLS[1,],NEPP5471)
+NEPP6083<-rbind(PASSNFLS[1,],NEPP6083)
+NEPP6695<-rbind(PASSNFLS[1,],NEPP6695)
+NEPP7307<-rbind(PASSNFLS[1,],NEPP7307)
+NEPP7919<-rbind(PASSNFLS[1,],NEPP7919)
+NEPP8531<-rbind(PASSNFLS[1,],NEPP8531)
+NEPP9143<-rbind(PASSNFLS[1,],NEPP9143)
+NEPP9755<-rbind(PASSNFLS[1,],NEPP9755)
+NEPP10367<-rbind(PASSNFLS[1,],NEPP10367)
+NEPP10979<-rbind(PASSNFLS[1,],NEPP10979)
+NEPP11591<-rbind(PASSNFLS[1,],NEPP11591)
+NEPP12203<-rbind(PASSNFLS[1,],NEPP12203)
+NEPP12815<-rbind(PASSNFLS[1,],NEPP12815)
+NEPP13427<-rbind(PASSNFLS[1,],NEPP13427)
+NEPP14039<-rbind(PASSNFLS[1,],NEPP14039)
+NEPP14651<-rbind(PASSNFLS[1,],NEPP14651)
+
+
+NEPP575<-NEPP575[-1,]
+NEPP1187<-NEPP1187[-1,]
+NEPP1799<-NEPP1799[-1,]
+NEPP2411<-NEPP2411[-1,]
+NEPP3023<-NEPP3023[-1,]
+NEPP3635<-NEPP3635[-1,]
+NEPP4247<-NEPP4247[-1,]
+NEPP4859<-NEPP4859[-1,]
+NEPP5471<-NEPP5471[-1,]
+NEPP6083<-NEPP6083[-1,]
+NEPP6695<-NEPP6695[-1,]
+NEPP7307<-NEPP7307[-1,]
+NEPP7919<-NEPP7919[-1,]
+NEPP8531<-NEPP8531[-1,]
+NEPP9143<-NEPP9143[-1,]
+NEPP9755<-NEPP9755[-1,]
+NEPP10367<-NEPP10367[-1,]
+NEPP10979<-NEPP10979[-1,]
+NEPP11591<-NEPP11591[-1,]
+NEPP12203<-NEPP12203[-1,]
+NEPP12815<-NEPP12815[-1,]
+NEPP13427<-NEPP13427[-1,]
+NEPP14039<-NEPP14039[-1,]
+NEPP14651<-NEPP14651[-1,]
+
+DPG_YDS575<-predict(PNS_YDS,newdata=NEPP575)
+DPG_YDS1187<-predict(PNS_YDS,newdata=NEPP1187)
+DPG_YDS1799<-predict(PNS_YDS,newdata=NEPP1799)
+DPG_YDS2411<-predict(PNS_YDS,newdata=NEPP2411)
+DPG_YDS3023<-predict(PNS_YDS,newdata=NEPP3023)
+DPG_YDS3635<-predict(PNS_YDS,newdata=NEPP3635)
+DPG_YDS4247<-predict(PNS_YDS,newdata=NEPP4247)
+DPG_YDS4859<-predict(PNS_YDS,newdata=NEPP4859)
+DPG_YDS5471<-predict(PNS_YDS,newdata=NEPP5471)
+DPG_YDS6083<-predict(PNS_YDS,newdata=NEPP6083)
+DPG_YDS6695<-predict(PNS_YDS,newdata=NEPP6695)
+DPG_YDS7307<-predict(PNS_YDS,newdata=NEPP7307)
+DPG_YDS7919<-predict(PNS_YDS,newdata=NEPP7919)
+DPG_YDS8531<-predict(PNS_YDS,newdata=NEPP8531)
+DPG_YDS9143<-predict(PNS_YDS,newdata=NEPP9143)
+DPG_YDS9755<-predict(PNS_YDS,newdata=NEPP9755)
+DPG_YDS10367<-predict(PNS_YDS,newdata=NEPP10367)
+DPG_YDS10979<-predict(PNS_YDS,newdata=NEPP10979)
+DPG_YDS11591<-predict(PNS_YDS,newdata=NEPP11591)
+DPG_YDS12203<-predict(PNS_YDS,newdata=NEPP12203)
+DPG_YDS12815<-predict(PNS_YDS,newdata=NEPP12815)
+DPG_YDS13427<-predict(PNS_YDS,newdata=NEPP13427)
+DPG_YDS14039<-predict(PNS_YDS,newdata=NEPP14039)
+DPG_YDS14651<-predict(PNS_YDS,newdata=NEPP14651)
+
+DPG_TD575<-predict(PNS_TD,newdata=NEPP575)
+DPG_TD1187<-predict(PNS_TD,newdata=NEPP1187)
+DPG_TD1799<-predict(PNS_TD,newdata=NEPP1799)
+DPG_TD2411<-predict(PNS_TD,newdata=NEPP2411)
+DPG_TD3023<-predict(PNS_TD,newdata=NEPP3023)
+DPG_TD3635<-predict(PNS_TD,newdata=NEPP3635)
+DPG_TD4247<-predict(PNS_TD,newdata=NEPP4247)
+DPG_TD4859<-predict(PNS_TD,newdata=NEPP4859)
+DPG_TD5471<-predict(PNS_TD,newdata=NEPP5471)
+DPG_TD6083<-predict(PNS_TD,newdata=NEPP6083)
+DPG_TD6695<-predict(PNS_TD,newdata=NEPP6695)
+DPG_TD7307<-predict(PNS_TD,newdata=NEPP7307)
+DPG_TD7919<-predict(PNS_TD,newdata=NEPP7919)
+DPG_TD8531<-predict(PNS_TD,newdata=NEPP8531)
+DPG_TD9143<-predict(PNS_TD,newdata=NEPP9143)
+DPG_TD9755<-predict(PNS_TD,newdata=NEPP9755)
+DPG_TD10367<-predict(PNS_TD,newdata=NEPP10367)
+DPG_TD10979<-predict(PNS_TD,newdata=NEPP10979)
+DPG_TD11591<-predict(PNS_TD,newdata=NEPP11591)
+DPG_TD12203<-predict(PNS_TD,newdata=NEPP12203)
+DPG_TD12815<-predict(PNS_TD,newdata=NEPP12815)
+DPG_TD13427<-predict(PNS_TD,newdata=NEPP13427)
+DPG_TD14039<-predict(PNS_TD,newdata=NEPP14039)
+DPG_TD14651<-predict(PNS_TD,newdata=NEPP14651)
+
+
+DPG_SFD575<-predict(PNS_SFD,newdata=NEPP575)
+DPG_SFD1187<-predict(PNS_SFD,newdata=NEPP1187)
+DPG_SFD1799<-predict(PNS_SFD,newdata=NEPP1799)
+DPG_SFD2411<-predict(PNS_SFD,newdata=NEPP2411)
+DPG_SFD3023<-predict(PNS_SFD,newdata=NEPP3023)
+DPG_SFD3635<-predict(PNS_SFD,newdata=NEPP3635)
+DPG_SFD4247<-predict(PNS_SFD,newdata=NEPP4247)
+DPG_SFD4859<-predict(PNS_SFD,newdata=NEPP4859)
+DPG_SFD5471<-predict(PNS_SFD,newdata=NEPP5471)
+DPG_SFD6083<-predict(PNS_SFD,newdata=NEPP6083)
+DPG_SFD6695<-predict(PNS_SFD,newdata=NEPP6695)
+DPG_SFD7307<-predict(PNS_SFD,newdata=NEPP7307)
+DPG_SFD7919<-predict(PNS_SFD,newdata=NEPP7919)
+DPG_SFD8531<-predict(PNS_SFD,newdata=NEPP8531)
+DPG_SFD9143<-predict(PNS_SFD,newdata=NEPP9143)
+DPG_SFD9755<-predict(PNS_SFD,newdata=NEPP9755)
+DPG_SFD10367<-predict(PNS_SFD,newdata=NEPP10367)
+DPG_SFD10979<-predict(PNS_SFD,newdata=NEPP10979)
+DPG_SFD11591<-predict(PNS_SFD,newdata=NEPP11591)
+DPG_SFD12203<-predict(PNS_SFD,newdata=NEPP12203)
+DPG_SFD12815<-predict(PNS_SFD,newdata=NEPP12815)
+DPG_SFD13427<-predict(PNS_SFD,newdata=NEPP13427)
+DPG_SFD14039<-predict(PNS_SFD,newdata=NEPP14039)
+DPG_SFD14651<-predict(PNS_SFD,newdata=NEPP14651)
+
+DPG_INT575<-predict(PNS_INT,newdata=NEPP575)
+DPG_INT1187<-predict(PNS_INT,newdata=NEPP1187)
+DPG_INT1799<-predict(PNS_INT,newdata=NEPP1799)
+DPG_INT2411<-predict(PNS_INT,newdata=NEPP2411)
+DPG_INT3023<-predict(PNS_INT,newdata=NEPP3023)
+DPG_INT3635<-predict(PNS_INT,newdata=NEPP3635)
+DPG_INT4247<-predict(PNS_INT,newdata=NEPP4247)
+DPG_INT4859<-predict(PNS_INT,newdata=NEPP4859)
+DPG_INT5471<-predict(PNS_INT,newdata=NEPP5471)
+DPG_INT6083<-predict(PNS_INT,newdata=NEPP6083)
+DPG_INT6695<-predict(PNS_INT,newdata=NEPP6695)
+DPG_INT7307<-predict(PNS_INT,newdata=NEPP7307)
+DPG_INT7919<-predict(PNS_INT,newdata=NEPP7919)
+DPG_INT8531<-predict(PNS_INT,newdata=NEPP8531)
+DPG_INT9143<-predict(PNS_INT,newdata=NEPP9143)
+DPG_INT9755<-predict(PNS_INT,newdata=NEPP9755)
+DPG_INT10367<-predict(PNS_INT,newdata=NEPP10367)
+DPG_INT10979<-predict(PNS_INT,newdata=NEPP10979)
+DPG_INT11591<-predict(PNS_INT,newdata=NEPP11591)
+DPG_INT12203<-predict(PNS_INT,newdata=NEPP12203)
+DPG_INT12815<-predict(PNS_INT,newdata=NEPP12815)
+DPG_INT13427<-predict(PNS_INT,newdata=NEPP13427)
+DPG_INT14039<-predict(PNS_INT,newdata=NEPP14039)
+DPG_INT14651<-predict(PNS_INT,newdata=NEPP14651)
+
+
+DPG_IS575<-predict(PNS_IS,newdata=NEPP575)
+DPG_IS1187<-predict(PNS_IS,newdata=NEPP1187)
+DPG_IS1799<-predict(PNS_IS,newdata=NEPP1799)
+DPG_IS2411<-predict(PNS_IS,newdata=NEPP2411)
+DPG_IS3023<-predict(PNS_IS,newdata=NEPP3023)
+DPG_IS3635<-predict(PNS_IS,newdata=NEPP3635)
+DPG_IS4247<-predict(PNS_IS,newdata=NEPP4247)
+DPG_IS4859<-predict(PNS_IS,newdata=NEPP4859)
+DPG_IS5471<-predict(PNS_IS,newdata=NEPP5471)
+DPG_IS6083<-predict(PNS_IS,newdata=NEPP6083)
+DPG_IS6695<-predict(PNS_IS,newdata=NEPP6695)
+DPG_IS7307<-predict(PNS_IS,newdata=NEPP7307)
+DPG_IS7919<-predict(PNS_IS,newdata=NEPP7919)
+DPG_IS8531<-predict(PNS_IS,newdata=NEPP8531)
+DPG_IS9143<-predict(PNS_IS,newdata=NEPP9143)
+DPG_IS9755<-predict(PNS_IS,newdata=NEPP9755)
+DPG_IS10367<-predict(PNS_IS,newdata=NEPP10367)
+DPG_IS10979<-predict(PNS_IS,newdata=NEPP10979)
+DPG_IS11591<-predict(PNS_IS,newdata=NEPP11591)
+DPG_IS12203<-predict(PNS_IS,newdata=NEPP12203)
+DPG_IS12815<-predict(PNS_IS,newdata=NEPP12815)
+DPG_IS13427<-predict(PNS_IS,newdata=NEPP13427)
+DPG_IS14039<-predict(PNS_IS,newdata=NEPP14039)
+DPG_IS14651<-predict(PNS_IS,newdata=NEPP14651)
+
+
+DPG_INCOMP575<-predict(PNS_INCOMP,newdata=NEPP575)
+DPG_INCOMP1187<-predict(PNS_INCOMP,newdata=NEPP1187)
+DPG_INCOMP1799<-predict(PNS_INCOMP,newdata=NEPP1799)
+DPG_INCOMP2411<-predict(PNS_INCOMP,newdata=NEPP2411)
+DPG_INCOMP3023<-predict(PNS_INCOMP,newdata=NEPP3023)
+DPG_INCOMP3635<-predict(PNS_INCOMP,newdata=NEPP3635)
+DPG_INCOMP4247<-predict(PNS_INCOMP,newdata=NEPP4247)
+DPG_INCOMP4859<-predict(PNS_INCOMP,newdata=NEPP4859)
+DPG_INCOMP5471<-predict(PNS_INCOMP,newdata=NEPP5471)
+DPG_INCOMP6083<-predict(PNS_INCOMP,newdata=NEPP6083)
+DPG_INCOMP6695<-predict(PNS_INCOMP,newdata=NEPP6695)
+DPG_INCOMP7307<-predict(PNS_INCOMP,newdata=NEPP7307)
+DPG_INCOMP7919<-predict(PNS_INCOMP,newdata=NEPP7919)
+DPG_INCOMP8531<-predict(PNS_INCOMP,newdata=NEPP8531)
+DPG_INCOMP9143<-predict(PNS_INCOMP,newdata=NEPP9143)
+DPG_INCOMP9755<-predict(PNS_INCOMP,newdata=NEPP9755)
+DPG_INCOMP10367<-predict(PNS_INCOMP,newdata=NEPP10367)
+DPG_INCOMP10979<-predict(PNS_INCOMP,newdata=NEPP10979)
+DPG_INCOMP11591<-predict(PNS_INCOMP,newdata=NEPP11591)
+DPG_INCOMP12203<-predict(PNS_INCOMP,newdata=NEPP12203)
+DPG_INCOMP12815<-predict(PNS_INCOMP,newdata=NEPP12815)
+DPG_INCOMP13427<-predict(PNS_INCOMP,newdata=NEPP13427)
+DPG_INCOMP14039<-predict(PNS_INCOMP,newdata=NEPP14039)
+DPG_INCOMP14651<-predict(PNS_INCOMP,newdata=NEPP14651)
+
+#SF PASS
+
+  # 40 yardline, 2nd and 6, quarter 2
+
+DPP228	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"SHOTGUN"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP840	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP1452	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP2064	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"SHORT RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP2676	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"SHOTGUN"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP3288	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP3900	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP4512	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"SHORT MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP5124	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"SHOTGUN"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP5736	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP6348	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP6960	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"DEEP RIGHT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP7572	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"SHOTGUN"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP8184	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP8796	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP9408	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"DEEP MIDDLE"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP10020	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"SHOTGUN"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP10632	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP11244	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP11856	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"DEEP LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP12468	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"SHOTGUN"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP13080	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"UNDER CENTER"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP13692	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+DPP14304	<- 	data.frame(	YardLine = 	40	,	ToGo = 	6	,	Down = 	2	,	Quarter = 	2	, 	Formation = 	"NO HUDDLE SHOTGUN"	,	PassType = 	"SHORT LEFT"	,	OffenseTeam = 	"SF"	,	DefenseTeam = 	"NE"	,	SeriesFirstDown = 0	,	 IsTouchdown = 0	,	IsFumble = 0	,	Yards = 0	,	IsIncomplete = 0	,	IsSack = 0	,	IsInterception = 0	)
+
+
+DPP228<-rbind(PASSNFLS[1,],DPP228)
+DPP840<-rbind(PASSNFLS[1,],DPP840)
+DPP1452<-rbind(PASSNFLS[1,],DPP1452)
+DPP2064<-rbind(PASSNFLS[1,],DPP2064)
+DPP2676<-rbind(PASSNFLS[1,],DPP2676)
+DPP3288<-rbind(PASSNFLS[1,],DPP3288)
+DPP3900<-rbind(PASSNFLS[1,],DPP3900)
+DPP4512<-rbind(PASSNFLS[1,],DPP4512)
+DPP5124<-rbind(PASSNFLS[1,],DPP5124)
+DPP5736<-rbind(PASSNFLS[1,],DPP5736)
+DPP6348<-rbind(PASSNFLS[1,],DPP6348)
+DPP6960<-rbind(PASSNFLS[1,],DPP6960)
+DPP7572<-rbind(PASSNFLS[1,],DPP7572)
+DPP8184<-rbind(PASSNFLS[1,],DPP8184)
+DPP8796<-rbind(PASSNFLS[1,],DPP8796)
+DPP9408<-rbind(PASSNFLS[1,],DPP9408)
+DPP10020<-rbind(PASSNFLS[1,],DPP10020)
+DPP10632<-rbind(PASSNFLS[1,],DPP10632)
+DPP11244<-rbind(PASSNFLS[1,],DPP11244)
+DPP11856<-rbind(PASSNFLS[1,],DPP11856)
+DPP12468<-rbind(PASSNFLS[1,],DPP12468)
+DPP13080<-rbind(PASSNFLS[1,],DPP13080)
+DPP13692<-rbind(PASSNFLS[1,],DPP13692)
+DPP14304<-rbind(PASSNFLS[1,],DPP14304)
+
+
+DPP228<-DPP228[-1,]
+DPP840<-DPP840[-1,]
+DPP1452<-DPP1452[-1,]
+DPP2064<-DPP2064[-1,]
+DPP2676<-DPP2676[-1,]
+DPP3288<-DPP3288[-1,]
+DPP3900<-DPP3900[-1,]
+DPP4512<-DPP4512[-1,]
+DPP5124<-DPP5124[-1,]
+DPP5736<-DPP5736[-1,]
+DPP6348<-DPP6348[-1,]
+DPP6960<-DPP6960[-1,]
+DPP7572<-DPP7572[-1,]
+DPP8184<-DPP8184[-1,]
+DPP8796<-DPP8796[-1,]
+DPP9408<-DPP9408[-1,]
+DPP10020<-DPP10020[-1,]
+DPP10632<-DPP10632[-1,]
+DPP11244<-DPP11244[-1,]
+DPP11856<-DPP11856[-1,]
+DPP12468<-DPP12468[-1,]
+DPP13080<-DPP13080[-1,]
+DPP13692<-DPP13692[-1,]
+DPP14304<-DPP14304[-1,]
+
+
+DPG_YDS14916<-predict(PNS_YDS,newdata=DPP228)
+DPG_YDS15528<-predict(PNS_YDS,newdata=DPP840)
+DPG_YDS16140<-predict(PNS_YDS,newdata=DPP1452)
+DPG_YDS16752<-predict(PNS_YDS,newdata=DPP2064)
+DPG_YDS17364<-predict(PNS_YDS,newdata=DPP2676)
+DPG_YDS17976<-predict(PNS_YDS,newdata=DPP3288)
+DPG_YDS18588<-predict(PNS_YDS,newdata=DPP3900)
+DPG_YDS19200<-predict(PNS_YDS,newdata=DPP4512)
+DPG_YDS19812<-predict(PNS_YDS,newdata=DPP5124)
+DPG_YDS20424<-predict(PNS_YDS,newdata=DPP5736)
+DPG_YDS21036<-predict(PNS_YDS,newdata=DPP6348)
+DPG_YDS21648<-predict(PNS_YDS,newdata=DPP6960)
+DPG_YDS22260<-predict(PNS_YDS,newdata=DPP7572)
+DPG_YDS22872<-predict(PNS_YDS,newdata=DPP8184)
+DPG_YDS23484<-predict(PNS_YDS,newdata=DPP8796)
+DPG_YDS24096<-predict(PNS_YDS,newdata=DPP9408)
+DPG_YDS24708<-predict(PNS_YDS,newdata=DPP10020)
+DPG_YDS25320<-predict(PNS_YDS,newdata=DPP10632)
+DPG_YDS25932<-predict(PNS_YDS,newdata=DPP11244)
+DPG_YDS26544<-predict(PNS_YDS,newdata=DPP11856)
+DPG_YDS27156<-predict(PNS_YDS,newdata=DPP12468)
+DPG_YDS27768<-predict(PNS_YDS,newdata=DPP13080)
+DPG_YDS28380<-predict(PNS_YDS,newdata=DPP13692)
+DPG_YDS28992<-predict(PNS_YDS,newdata=DPP14304)
+
+
+DPG_TD14916<-predict(PNS_TD,newdata=DPP228)
+DPG_TD15528<-predict(PNS_TD,newdata=DPP840)
+DPG_TD16140<-predict(PNS_TD,newdata=DPP1452)
+DPG_TD16752<-predict(PNS_TD,newdata=DPP2064)
+DPG_TD17364<-predict(PNS_TD,newdata=DPP2676)
+DPG_TD17976<-predict(PNS_TD,newdata=DPP3288)
+DPG_TD18588<-predict(PNS_TD,newdata=DPP3900)
+DPG_TD19200<-predict(PNS_TD,newdata=DPP4512)
+DPG_TD19812<-predict(PNS_TD,newdata=DPP5124)
+DPG_TD20424<-predict(PNS_TD,newdata=DPP5736)
+DPG_TD21036<-predict(PNS_TD,newdata=DPP6348)
+DPG_TD21648<-predict(PNS_TD,newdata=DPP6960)
+DPG_TD22260<-predict(PNS_TD,newdata=DPP7572)
+DPG_TD22872<-predict(PNS_TD,newdata=DPP8184)
+DPG_TD23484<-predict(PNS_TD,newdata=DPP8796)
+DPG_TD24096<-predict(PNS_TD,newdata=DPP9408)
+DPG_TD24708<-predict(PNS_TD,newdata=DPP10020)
+DPG_TD25320<-predict(PNS_TD,newdata=DPP10632)
+DPG_TD25932<-predict(PNS_TD,newdata=DPP11244)
+DPG_TD26544<-predict(PNS_TD,newdata=DPP11856)
+DPG_TD27156<-predict(PNS_TD,newdata=DPP12468)
+DPG_TD27768<-predict(PNS_TD,newdata=DPP13080)
+DPG_TD28380<-predict(PNS_TD,newdata=DPP13692)
+DPG_TD28992<-predict(PNS_TD,newdata=DPP14304)
+
+
+DPG_SFD14916<-predict(PNS_SFD,newdata=DPP228)
+DPG_SFD15528<-predict(PNS_SFD,newdata=DPP840)
+DPG_SFD16140<-predict(PNS_SFD,newdata=DPP1452)
+DPG_SFD16752<-predict(PNS_SFD,newdata=DPP2064)
+DPG_SFD17364<-predict(PNS_SFD,newdata=DPP2676)
+DPG_SFD17976<-predict(PNS_SFD,newdata=DPP3288)
+DPG_SFD18588<-predict(PNS_SFD,newdata=DPP3900)
+DPG_SFD19200<-predict(PNS_SFD,newdata=DPP4512)
+DPG_SFD19812<-predict(PNS_SFD,newdata=DPP5124)
+DPG_SFD20424<-predict(PNS_SFD,newdata=DPP5736)
+DPG_SFD21036<-predict(PNS_SFD,newdata=DPP6348)
+DPG_SFD21648<-predict(PNS_SFD,newdata=DPP6960)
+DPG_SFD22260<-predict(PNS_SFD,newdata=DPP7572)
+DPG_SFD22872<-predict(PNS_SFD,newdata=DPP8184)
+DPG_SFD23484<-predict(PNS_SFD,newdata=DPP8796)
+DPG_SFD24096<-predict(PNS_SFD,newdata=DPP9408)
+DPG_SFD24708<-predict(PNS_SFD,newdata=DPP10020)
+DPG_SFD25320<-predict(PNS_SFD,newdata=DPP10632)
+DPG_SFD25932<-predict(PNS_SFD,newdata=DPP11244)
+DPG_SFD26544<-predict(PNS_SFD,newdata=DPP11856)
+DPG_SFD27156<-predict(PNS_SFD,newdata=DPP12468)
+DPG_SFD27768<-predict(PNS_SFD,newdata=DPP13080)
+DPG_SFD28380<-predict(PNS_SFD,newdata=DPP13692)
+DPG_SFD28992<-predict(PNS_SFD,newdata=DPP14304)
+
+
+DPG_INCOMP14916<-predict(PNS_INCOMP,newdata=DPP228)
+DPG_INCOMP15528<-predict(PNS_INCOMP,newdata=DPP840)
+DPG_INCOMP16140<-predict(PNS_INCOMP,newdata=DPP1452)
+DPG_INCOMP16752<-predict(PNS_INCOMP,newdata=DPP2064)
+DPG_INCOMP17364<-predict(PNS_INCOMP,newdata=DPP2676)
+DPG_INCOMP17976<-predict(PNS_INCOMP,newdata=DPP3288)
+DPG_INCOMP18588<-predict(PNS_INCOMP,newdata=DPP3900)
+DPG_INCOMP19200<-predict(PNS_INCOMP,newdata=DPP4512)
+DPG_INCOMP19812<-predict(PNS_INCOMP,newdata=DPP5124)
+DPG_INCOMP20424<-predict(PNS_INCOMP,newdata=DPP5736)
+DPG_INCOMP21036<-predict(PNS_INCOMP,newdata=DPP6348)
+DPG_INCOMP21648<-predict(PNS_INCOMP,newdata=DPP6960)
+DPG_INCOMP22260<-predict(PNS_INCOMP,newdata=DPP7572)
+DPG_INCOMP22872<-predict(PNS_INCOMP,newdata=DPP8184)
+DPG_INCOMP23484<-predict(PNS_INCOMP,newdata=DPP8796)
+DPG_INCOMP24096<-predict(PNS_INCOMP,newdata=DPP9408)
+DPG_INCOMP24708<-predict(PNS_INCOMP,newdata=DPP10020)
+DPG_INCOMP25320<-predict(PNS_INCOMP,newdata=DPP10632)
+DPG_INCOMP25932<-predict(PNS_INCOMP,newdata=DPP11244)
+DPG_INCOMP26544<-predict(PNS_INCOMP,newdata=DPP11856)
+DPG_INCOMP27156<-predict(PNS_INCOMP,newdata=DPP12468)
+DPG_INCOMP27768<-predict(PNS_INCOMP,newdata=DPP13080)
+DPG_INCOMP28380<-predict(PNS_INCOMP,newdata=DPP13692)
+DPG_INCOMP28992<-predict(PNS_INCOMP,newdata=DPP14304)
+
+
+
+DPG_F214916<-predict(PNS_F2,newdata=DPP228)
+DPG_F215528<-predict(PNS_F2,newdata=DPP840)
+DPG_F216140<-predict(PNS_F2,newdata=DPP1452)
+DPG_F216752<-predict(PNS_F2,newdata=DPP2064)
+DPG_F217364<-predict(PNS_F2,newdata=DPP2676)
+DPG_F217976<-predict(PNS_F2,newdata=DPP3288)
+DPG_F218588<-predict(PNS_F2,newdata=DPP3900)
+DPG_F219200<-predict(PNS_F2,newdata=DPP4512)
+DPG_F219812<-predict(PNS_F2,newdata=DPP5124)
+DPG_F220424<-predict(PNS_F2,newdata=DPP5736)
+DPG_F221036<-predict(PNS_F2,newdata=DPP6348)
+DPG_F221648<-predict(PNS_F2,newdata=DPP6960)
+DPG_F222260<-predict(PNS_F2,newdata=DPP7572)
+DPG_F222872<-predict(PNS_F2,newdata=DPP8184)
+DPG_F223484<-predict(PNS_F2,newdata=DPP8796)
+DPG_F224096<-predict(PNS_F2,newdata=DPP9408)
+DPG_F224708<-predict(PNS_F2,newdata=DPP10020)
+DPG_F225320<-predict(PNS_F2,newdata=DPP10632)
+DPG_F225932<-predict(PNS_F2,newdata=DPP11244)
+DPG_F226544<-predict(PNS_F2,newdata=DPP11856)
+DPG_F227156<-predict(PNS_F2,newdata=DPP12468)
+DPG_F227768<-predict(PNS_F2,newdata=DPP13080)
+DPG_F228380<-predict(PNS_F2,newdata=DPP13692)
+DPG_F228992<-predict(PNS_F2,newdata=DPP14304)
+
+
+
+DPG_PT14916<-predict(PNS_PT,newdata=DPP228)
+DPG_PT15528<-predict(PNS_PT,newdata=DPP840)
+DPG_PT16140<-predict(PNS_PT,newdata=DPP1452)
+DPG_PT16752<-predict(PNS_PT,newdata=DPP2064)
+DPG_PT17364<-predict(PNS_PT,newdata=DPP2676)
+DPG_PT17976<-predict(PNS_PT,newdata=DPP3288)
+DPG_PT18588<-predict(PNS_PT,newdata=DPP3900)
+DPG_PT19200<-predict(PNS_PT,newdata=DPP4512)
+DPG_PT19812<-predict(PNS_PT,newdata=DPP5124)
+DPG_PT20424<-predict(PNS_PT,newdata=DPP5736)
+DPG_PT21036<-predict(PNS_PT,newdata=DPP6348)
+DPG_PT21648<-predict(PNS_PT,newdata=DPP6960)
+DPG_PT22260<-predict(PNS_PT,newdata=DPP7572)
+DPG_PT22872<-predict(PNS_PT,newdata=DPP8184)
+DPG_PT23484<-predict(PNS_PT,newdata=DPP8796)
+DPG_PT24096<-predict(PNS_PT,newdata=DPP9408)
+DPG_PT24708<-predict(PNS_PT,newdata=DPP10020)
+DPG_PT25320<-predict(PNS_PT,newdata=DPP10632)
+DPG_PT25932<-predict(PNS_PT,newdata=DPP11244)
+DPG_PT26544<-predict(PNS_PT,newdata=DPP11856)
+DPG_PT27156<-predict(PNS_PT,newdata=DPP12468)
+DPG_PT27768<-predict(PNS_PT,newdata=DPP13080)
+DPG_PT28380<-predict(PNS_PT,newdata=DPP13692)
+DPG_PT28992<-predict(PNS_PT,newdata=DPP14304)
+
+```
+

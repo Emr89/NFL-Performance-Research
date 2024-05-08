@@ -1,0 +1,253 @@
+---
+title: "vif b2"
+output: html_document
+---
+
+```{r}
+# Under 2.5
+
+# QB Weekly
+
+MC_QB_W_TD <- lm(TD~TT	+	AYD+	`AGG%`+	LCAD+	AYTS	+YDS+	INT+	`COMP%`+	Week, data = Weekly_Passing)
+
+MC_QB_W_TT <- lm(TT~	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	INT+	`COMP%`+		Week, data = Weekly_Passing)
+
+MC_QB_W_CAY <- lm(CAY~TT+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	INT+	`COMP%`	+ Week, data = Weekly_Passing)
+
+MC_QB_W_IAY <- lm(IAY~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	INT+	`COMP%`	+ 	Week, data = Weekly_Passing)
+
+MC_QB_W_AYD <- lm(AYD~TT	+CAY+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	INT+	`COMP%`+	 Week, data = Weekly_Passing)
+
+
+MC_QB_W_AGG <- lm(`AGG%`~TT	+	AYD+	LCAD+	AYTS+YDS+	TD+	INT+	`COMP%`+		Week, data = Weekly_Passing)
+
+MC_QB_W_LCAD <- lm(LCAD~TT	+	AYD+	`AGG%`+	AYTS	+YDS+	TD+	INT+	`COMP%`+		Week, data = Weekly_Passing)
+
+MC_QB_W_AYTS <- lm(AYTS~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	TD+	INT+	`COMP%`	 +	Week, data = Weekly_Passing)
+
+MC_QB_W_ATT <- lm(ATT~TT	+	AYD+	`AGG%`+	LCAD+	AYTS	+YDS+	TD+	INT+	`COMP%`	+	Week, data = Weekly_Passing)
+
+MC_QB_W_INT <- lm(INT~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	`COMP%`	 +	Week, data = Weekly_Passing)
+
+MC_QB_W_COMP <- lm(`COMP%`~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	INT	 +	Week, data = Weekly_Passing)
+
+
+
+# QB Season
+
+MC_QB_S_TD <- lm(TD~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_TT <- lm(TT~	CAY	+	AYD+	`AGG%`+	LCAD	+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_CAY <- lm(CAY~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_IAY <- lm(IAY~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AYD <- lm(AYD~TT	+CAY+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AGG <- lm(`AGG%`~TT	+CAY+	AYD+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_LCAD <- lm(LCAD~TT	+CAY+	AYD+	`AGG%`+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AYTS <- lm(AYTS~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_ATT <- lm(ATT~TT	+CAY	+	AYD+	`AGG%`+	LCAD	+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_INT <- lm(INT~TT	+CAY	+	AYD+	`AGG%`+	LCAD+	ATT	+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_COMP <- lm(`COMP%`~TT	+CAY+	AYD+	`AGG%`+	LCAD	+	TD+	INT	, data = NEXT_GEN_STATS_PASSING)
+
+
+
+
+
+# Defense Season 
+
+MC_DEF_S_INT <- lm(`Pass Coverage Int` ~	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+
+
+
+
+```
+
+
+
+
+
+```{r}
+# here for placement 
+
+
+
+
+
+
+# VIF BELOW 5 Models 
+
+#QB Weekly 
+
+MC_QB_W_TD <- lm(TD~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	INT+	`COMP%`+	Week, data = Weekly_Passing)
+
+MC_QB_W_TT <- lm(TT~	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`+		Week, data = Weekly_Passing)
+
+MC_QB_W_CAY <- lm(CAY~TT+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	+ Week, data = Weekly_Passing)
+
+MC_QB_W_IAY <- lm(IAY~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	+ 	Week, data = Weekly_Passing)
+
+MC_QB_W_AYD <- lm(AYD~TT	+CAY+	`AGG%`+	LCAD+	AYTS+	ATT	+	TD+	INT+	`COMP%`+	 Week, data = Weekly_Passing)
+
+MC_QB_W_AGG <- lm(`AGG%`~TT	+	AYD+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`+		Week, data = Weekly_Passing)
+
+MC_QB_W_LCAD <- lm(LCAD~TT	+	AYD+	`AGG%`+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`+		Week, data = Weekly_Passing)
+
+MC_QB_W_AYTS <- lm(AYTS~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	TD+	INT+	`COMP%`	 +	Week, data = Weekly_Passing)
+
+MC_QB_W_ATT <- lm(ATT~TT	+	AYD+	`AGG%`+	LCAD+	AYTS	+YDS+	TD+	INT+	`COMP%`	+	Week, data = Weekly_Passing)
+
+MC_QB_W_INT <- lm(INT~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	`COMP%`	 +	Week, data = Weekly_Passing)
+
+MC_QB_W_COMP <- lm(`COMP%`~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT	 +	Week, data = Weekly_Passing)
+
+#QB Season 
+
+MC_QB_S_TD <- lm(TD~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_TT <- lm(TT~	CAY	+	AYD+	`AGG%`+	LCAD	+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_CAY <- lm(CAY~TT	+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_IAY <- lm(IAY~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AYD <- lm(AYD~TT	+CAY+	`AGG%`+	LCAD+	AYTS+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AGG <- lm(`AGG%`~TT	+CAY+	AYD+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_LCAD <- lm(LCAD~TT	+CAY+	AYD+	`AGG%`+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AYTS <- lm(AYTS~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_ATT <- lm(ATT~TT	+CAY	+	AYD+	`AGG%`+	LCAD	+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_INT <- lm(INT~TT	+CAY	+	AYD+	`AGG%`+	LCAD+	ATT	+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_COMP <- lm(`COMP%`~TT	+CAY+	AYD+	`AGG%`+	LCAD+	ATT	+	TD+	INT	, data = NEXT_GEN_STATS_PASSING)
+
+# WR
+
+#Weekly
+
+MC_WR_W_Yds <- lm(Yds ~Rec+		Avg+	TD+	FUM, data = REC_WEEKLY)
+
+MC_WR_W_Avg <- lm(Avg ~		Rec+	TD+	FUM, data = REC_WEEKLY)
+
+MC_WR_W_TD <- lm(TD ~	Rec+	Avg+	FUM, data = REC_WEEKLY)
+
+MC_WR_W_FUM <- lm(FUM ~	Rec+	Avg+	TD, data = REC_WEEKLY)
+
+MC_WR_W_Rec <- lm(Rec ~ Yds+	Avg+	TD+	FUM, data = REC_WEEKLY)
+
+#Season 
+
+MC_WR_S_YDS <- lm(YDS ~CUSH+	SEP+	TAY	+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_CUSH <- lm(CUSH ~	SEP+	TAY	+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_TAY <- lm(TAY ~CUSH+	SEP		+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_SEP <- lm(SEP ~CUSH+	TAY	+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_TAYP <- lm(`TAY%` ~CUSH+	SEP+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_REC <- lm(REC ~CUSH+	SEP+	TAY	+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_TAR <- lm(TAR ~CUSH+	SEP+	TAY	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_CATCHP <- lm(`CTCH%` ~CUSH+	SEP+	TAY+	+TAR+	TD+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+MC_WR_S_TD <- lm(TD ~CUSH+	SEP+	TAY	+TAR	+`CTCH%`+	`YAC/R`+	`xYAC/R`	, data = Next_gen_stats_receving)
+
+#RB
+
+#weekly
+MC_RB_W_TD <- lm(TD ~Opp	+	Att+	Yds+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_Att <- lm(Att ~Opp	+	Yds+	TD+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_Yds <- lm(Yds ~Opp	+	Att+	TD+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_Avg <- lm(Avg ~Opp	+	Att+	Yds+	TD+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_FUM <- lm(FUM ~Opp	+	Att+	Yds+	TD, data = Weekly_Rushing_Stats)
+
+
+#Season 
+
+MC_RB_S_TD <- lm(TD ~`8+D%`+	TLOS+	ATT	+	AVG	, data = NGSR)
+
+MC_RB_S_EFF <- lm(EFF ~`8+D%`+	TLOS+	ATT	+	AVG	+TD, data = NGSR)
+
+MC_RB_S_TLOS <- lm(TLOS ~EFF	+`8+D%`+	ATT	+	AVG	+TD, data = NGSR)
+
+MC_RB_S_8B <- lm(`8+D%` ~EFF+	TLOS+	ATT		+TD, data = NGSR)
+
+MC_RB_S_ATT <- lm(ATT ~`8+D%`+	TLOS	+YDS+	AVG	+TD, data = NGSR)
+
+MC_RB_S_YDS <- lm(YDS ~EFF	+`8+D%`+	TLOS+	ATT		+TD, data = NGSR)
+
+MC_RB_S_AVG <- lm(AVG ~EFF	+`8+D%`+	TLOS+TD, data = NGSR)
+
+
+
+#Defense
+
+# Weekly 
+
+MC_DEF_W_Sacks <- lm(Sacks ~Opp	+`Sack Yds`+	`QB Hits` +	Tackles+	Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_SYL <- lm(`Sack Yds` ~Opp	+Sacks+	`QB Hits` +	Tackles+	Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_QBH <- lm(`QB Hits` ~Opp	+Sacks+	`Sack Yds` +	Tackles+	Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_Tackles <- lm(Tackles ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +		Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_Assists <- lm(Assists ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +	Tackles+		`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_FF <- lm(`Fumbles Forced` ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +	Tackles+	Assists+`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_FR <- lm(`Fumbles Recovered` ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +	Tackles+	Assists+	`Fumbles Forced`, data = Defense_Weekly)
+
+# Season 
+
+MC_DEF_S_INT <- lm(`Pass Coverage Int` ~`Pass Coverage Tgt`	+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Tgt <- lm(`Pass Coverage Tgt` ~`Pass Coverage Int`	+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Cmp <- lm(`Pass Coverage Cmp` ~`Pass Coverage Int`	+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Yds <- lm(`Pass Coverage Yds` ~`Pass Coverage Int`	+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_TD <- lm(`Pass Coverage TD` ~`Pass Coverage Int`	+`Pass Coverage Yds`	+`Pass Coverage DADOT`	+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_DADOT <- lm(`Pass Coverage DADOT` ~`Pass Coverage Int`	+`Pass Coverage Yds`+	`Pass Coverage TD`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_AIR <- lm(`Pass Coverage Air` ~`Pass Coverage Int`	+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_YAC <- lm(`Pass Coverage YAC` ~`Pass Coverage Int`	+`Pass Coverage Cmp`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_BLTZ <- lm(`Pass Rush Bltz` ~`Pass Coverage Int`+`Pass Coverage Tgt`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Rush QBKD`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Hrry <- lm(`Pass Rush Hrry` ~`Pass Coverage Int`+`Pass Coverage Tgt`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`		+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_QBKD <- lm(`Pass Rush QBKD` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush Sk`	+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_SK <- lm(`Pass Rush Sk` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Prss <- lm(`Pass Rush Prss` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_TC <- lm(`Tackles Comb` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_TM <- lm(`Tackles MTkl` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`, data = ADV_DEF_MOD_STATS)
+
+```
+

@@ -1,0 +1,548 @@
+---
+title: "Scrap paper"
+output: html_document
+---
+```{r}
+# VIF Section 
+
+VIF(MC_QB_W_TD)
+
+VIF(MC_QB_W_TT)
+
+VIF(MC_QB_W_CAY)
+
+VIF(MC_QB_W_IAY)
+
+VIF(MC_QB_W_AYD)
+
+VIF(MC_QB_W_AGG)
+
+VIF(MC_QB_W_LCAD)
+
+VIF(MC_QB_W_AYTS)
+
+VIF(MC_QB_W_ATT)
+
+VIF(MC_QB_W_INT)
+
+VIF(MC_QB_W_COMP)
+
+# Qb season 
+
+VIF(MC_QB_S_TD)
+
+VIF(MC_QB_S_TT)
+
+VIF(MC_QB_S_CAY)
+
+VIF(MC_QB_S_IAY)
+
+VIF(MC_QB_S_AYD)
+
+VIF(MC_QB_S_AGG)
+
+VIF(MC_QB_S_LCAD)
+
+VIF(MC_QB_S_AYTS)
+
+VIF(MC_QB_S_ATT)
+
+VIF(MC_QB_S_INT)
+
+VIF(MC_QB_S_COMP)
+
+#WR week
+
+VIF(MC_WR_W_Yds)
+
+VIF(MC_WR_W_Avg)
+
+VIF(MC_WR_W_TD)
+
+VIF(MC_WR_W_FUM)
+
+VIF(MC_WR_W_Rec)
+
+#WR season 
+
+VIF(MC_WR_S_YDS)
+
+VIF(MC_WR_S_CUSH)
+
+VIF(MC_WR_S_TAY)
+
+VIF(MC_WR_S_SEP)
+
+VIF(MC_WR_S_TAYP)
+
+VIF(MC_WR_S_REC)
+
+VIF(MC_WR_S_TAR)
+
+VIF(MC_WR_S_CATCHP)
+
+VIF(MC_WR_S_TD)
+
+
+#Running back weekly 
+VIF(MC_RB_W_TD)
+
+VIF(MC_RB_W_Att)
+
+VIF(MC_RB_W_Yds)
+
+VIF(MC_RB_W_Avg)
+
+VIF(MC_RB_W_FUM)
+
+# Running back season 
+
+VIF(MC_RB_S_TD)
+
+VIF(MC_RB_S_EFF)
+
+VIF(MC_RB_S_TLOS)
+
+VIF(MC_RB_S_8B)
+
+VIF(MC_RB_S_ATT)
+
+VIF(MC_RB_S_YDS)
+
+VIF(MC_RB_S_AVG)
+
+# Defense  weekly 
+
+VIF(MC_DEF_W_Sacks)
+
+VIF(MC_DEF_W_SYL)
+
+VIF(MC_DEF_W_QBH)
+
+VIF(MC_DEF_W_Tackles)
+
+VIF(MC_DEF_W_Assists)
+
+VIF(MC_DEF_W_FF)
+
+VIF(MC_DEF_W_FR)
+
+# Defense season 
+
+VIF(MC_DEF_S_INT)
+
+VIF(MC_DEF_S_Tgt)
+
+VIF(MC_DEF_S_Cmp)
+
+VIF(MC_DEF_S_Yds)
+
+VIF(MC_DEF_S_TD)
+
+VIF(MC_DEF_S_DADOT)
+
+VIF(MC_DEF_S_AIR)
+
+VIF(MC_DEF_S_YAC)
+
+VIF(MC_DEF_S_BLTZ)
+
+VIF(MC_DEF_S_Hrry)
+
+VIF(MC_DEF_S_QBKD)
+
+VIF(MC_DEF_S_SK)
+
+VIF(MC_DEF_S_Prss)
+
+VIF(MC_DEF_S_TC)
+
+VIF(MC_DEF_S_TM)
+
+
+```
+
+
+
+```{r}
+MC_DEF_S_INT <- lm(`Pass Coverage Int` ~ `Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+`Pass Coverage Air`+	`Pass Rush Bltz`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data =ADV_DEF_MOD_STATS)
+
+```
+
+
+
+```{r}
+#QB Season 
+
+MC_QB_S_TD <- lm(TD~TT	+CAY	+IAY+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_TT <- lm(TT~	CAY	+IAY+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_CAY <- lm(CAY~TT	+IAY+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_IAY <- lm(IAY~TT	+CAY+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AYD <- lm(AYD~TT	+CAY	+IAY+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AGG <- lm(`AGG%`~TT	+CAY	+IAY+	AYD+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_LCAD <- lm(LCAD~TT	+CAY	+IAY+	AYD+	`AGG%`+	AYTS+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_AYTS <- lm(AYTS~TT	+CAY	+IAY+	AYD+	`AGG%`+	LCAD+	ATT	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_ATT <- lm(ATT~TT	+CAY	+IAY+	AYD+	`AGG%`+	LCAD+	AYTS	+YDS+	TD+	INT+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_INT <- lm(INT~TT	+CAY	+IAY+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	`COMP%`	, data = NEXT_GEN_STATS_PASSING)
+
+MC_QB_S_COMP <- lm(`COMP%`~TT	+CAY	+IAY+	AYD+	`AGG%`+	LCAD+	AYTS+	ATT	+YDS+	TD+	INT	, data = NEXT_GEN_STATS_PASSING)
+
+# WR
+
+#Weekly
+
+MC_WR_W_Yds <- lm(Yds ~Opp	+	Rec+		Avg+	TD+	FUM, data = REC_WEEKLY)
+
+MC_WR_W_Avg <- lm(Avg ~Opp	+	Rec+	Yds+	TD+	FUM, data = REC_WEEKLY)
+
+MC_WR_W_TD <- lm(TD ~Opp	+	Rec+	Yds+	Avg+	FUM, data = REC_WEEKLY)
+
+MC_WR_W_FUM <- lm(FUM ~Opp	+	Rec+	Yds+	Avg+	TD, data = REC_WEEKLY)
+
+MC_WR_W_Rec <- lm(Rec ~Opp	+	Yds+	Avg+	TD+	FUM, data = REC_WEEKLY)
+
+#Season 
+
+MC_WR_S_YDS <- lm(YDS ~CUSH+	SEP+	TAY+	`TAY%`+	REC	+TAR	+`CTCH%`+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_CUSH <- lm(CUSH ~	SEP+	TAY+	`TAY%`+	REC	+TAR	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_TAY <- lm(TAY ~CUSH+	SEP+	`TAY%`+	REC	+TAR	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_SEP <- lm(SEP ~CUSH+	TAY+	`TAY%`+	REC	+TAR	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_TAYP <- lm(`TAY%` ~CUSH+	SEP+	TAY+	REC	+TAR	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_REC <- lm(REC ~CUSH+	SEP+	TAY+	`TAY%`	+TAR	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_TAR <- lm(TAR ~CUSH+	SEP+	TAY+	`TAY%`+	REC	+`CTCH%`+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_CATCHP <- lm(`CTCH%` ~CUSH+	SEP+	TAY+	`TAY%`+	REC	+TAR+	YDS+	TD+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+MC_WR_S_TD <- lm(TD ~CUSH+	SEP+	TAY+	`TAY%`+	REC	+TAR	+`CTCH%`+	YDS+	`YAC/R`+	`xYAC/R`+	, data = Next_gen_stats_receving)
+
+#RB
+
+#weekly
+MC_RB_W_TD <- lm(TD ~Opp	+	Att+	Yds+	Avg+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_Att <- lm(Att ~Opp	+	Yds+	Avg+	TD+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_Yds <- lm(Yds ~Opp	+	Att+	Avg+	TD+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_Avg <- lm(Avg ~Opp	+	Att+	Yds+	TD+	FUM, data = Weekly_Rushing_Stats)
+
+MC_RB_W_FUM <- lm(FUM ~Opp	+	Att+	Yds+	Avg+	TD, data = Weekly_Rushing_Stats)
+
+
+#Season 
+
+MC_RB_S_TD <- lm(TD ~EFF	+`8+D%`+	TLOS+	ATT	+YDS+	AVG	, data = NGSR)
+
+MC_RB_S_EFF <- lm(EFF ~`8+D%`+	TLOS+	ATT	+YDS+	AVG	+TD, data = NGSR)
+
+MC_RB_S_TLOS <- lm(TLOS ~EFF	+`8+D%`+	ATT	+YDS+	AVG	+TD, data = NGSR)
+
+MC_RB_S_8B <- lm(`8+D%` ~EFF+	TLOS+	ATT	+YDS+	AVG	+TD, data = NGSR)
+
+MC_RB_S_ATT <- lm(ATT ~EFF	+`8+D%`+	TLOS	+YDS+	AVG	+TD, data = NGSR)
+
+MC_RB_S_YDS <- lm(YDS ~EFF	+`8+D%`+	TLOS+	ATT	+	AVG	+TD, data = NGSR)
+
+MC_RB_S_AVG <- lm(AVG ~EFF	+`8+D%`+	TLOS+	ATT	+YDS+TD, data = NGSR)
+
+
+
+#Defense
+
+# Weekly 
+
+MC_DEF_W_Sacks <- lm(Sacks ~Opp	+`Sack Yds`+	`QB Hits` +	Tackles+	Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_SYL <- lm(`Sack Yds` ~Opp	+Sacks+	`QB Hits` +	Tackles+	Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_QBH <- lm(`QB Hits` ~Opp	+Sacks+	`Sack Yds` +	Tackles+	Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_Tackles <- lm(Tackles ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +		Assists+	`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_Assists <- lm(Assists ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +	Tackles+		`Fumbles Forced`+	`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_FF <- lm(`Fumbles Forced` ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +	Tackles+	Assists+`Fumbles Recovered`, data = Defense_Weekly)
+
+MC_DEF_W_FR <- lm(`Fumbles Recovered` ~Opp	+Sacks+	`Sack Yds`+	`QB Hits` +	Tackles+	Assists+	`Fumbles Forced`, data = Defense_Weekly)
+
+# Season 
+
+MC_DEF_S_INT <- lm(`Pass Coverage Int` ~`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+`Pass Coverage Air`+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Tgt <- lm(`Pass Coverage Tgt` ~`Pass Coverage Int`	+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Cmp <- lm(`Pass Coverage Cmp` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Yds <- lm(`Pass Coverage Yds` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+`Pass Coverage Air`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_TD <- lm(`Pass Coverage TD` ~`Pass Coverage Int`	+`Pass Coverage Cmp`+`Pass Coverage Yds`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_DADOT <- lm(`Pass Coverage DADOT` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_AIR <- lm(`Pass Coverage Air` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_YAC <- lm(`Pass Coverage YAC` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+`Pass Coverage Air`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_BLTZ <- lm(`Pass Rush Bltz` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Hrry <- lm(`Pass Rush Hrry` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_QBKD <- lm(`Pass Rush QBKD` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_SK <- lm(`Pass Rush Sk` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`	+`Pass Rush Prss`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_Prss <- lm(`Pass Rush Prss` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`+	`Tackles Comb`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_TC <- lm(`Tackles Comb` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`	+`Tackles MTkl`, data = ADV_DEF_MOD_STATS)
+
+MC_DEF_S_TM <- lm(`Tackles MTkl` ~`Pass Coverage Int`+`Pass Coverage Tgt`	+`Pass Coverage Cmp`+`Pass Coverage Yds`+	`Pass Coverage TD`	+`Pass Coverage DADOT`	+	`Pass Coverage YAC`+	`Pass Rush Bltz`+	`Pass Rush Hrry`+	`Pass Rush QBKD`+	`Pass Rush Sk`	+`Pass Rush Prss`+	`Tackles Comb`, data = ADV_DEF_MOD_STATS)
+```
+
+
+
+```{r}
+
+
+REGS_FTT <- function(X){
+  
+  XA <- as.vector(X$model[c(1)])
+  names(XA)[1]<- "y"
+  XB <- as.data.frame(X$model[c(-1)])
+  
+  XC <- as.data.frame(cbind(XB,XA))
+  XMT <- regsubsets(y ~., data = XC)
+  print(summary(XMT))
+
+res.sum <- summary(XMT)
+
+xp <- data.frame(
+  Adj.R2 = which.max(res.sum$adjr2),
+  CP = which.min(res.sum$cp),
+  BIC = which.min(res.sum$bic)
+)
+
+print(xp)
+
+X <- model.matrix(y ~ . - 1, data=XC)
+Y <- XC$Y
+ XTT <- leaps(X,Y, method = "adjr2", nbest = 1 )
+ print(XTT)
+ 
+}
+
+
+REGS_FTT <- function(X){
+  
+  XA <- as.vector(X$model[c(1)])
+  names(XA)[1]<- "y"
+  XB <- as.data.frame(X$model[c(-1)])
+  
+  XC <- as.data.frame(cbind(XB,XA))
+  XMT <- regsubsets(y ~., data = XC)
+ 
+res.sum <- summary(XMT)
+
+xp <- data.frame(
+  Adj.R2 = which.max(res.sum$adjr2)
+)
+
+xxd <- subset(XMT,which.max(res.sum$adjr2))
+
+}
+
+```
+
+
+
+
+```{r}
+# Set up normilization
+
+# Weekly Passing 
+WP <- scale(Weekly_Passing[3:15])
+
+scaleList <- list(scale = attr(WP, "scaled:scale"),
+    center = attr(WP, "scaled:center"))
+
+WP <- as.data.frame(WP)
+
+# Next Gen Stats Passing 
+NGSP <- scale(NEXT_GEN_STATS_PASSING[3:15])
+
+scaleList <- list(scale = attr(NGSP, "scaled:scale"),
+    center = attr(NGSP, "scaled:center"))
+
+NGSP <- as.data.frame(NGSP)
+
+#Weekly Rushing 
+
+RUSHW <- scale(Weekly_Rushing_Stats[5:9])
+
+scaleList <- list(scale = attr(RUSHW, "scaled:scale"),
+    center = attr(RUSHW, "scaled:center"))
+
+RUSHW <- as.data.frame(RUSHW)
+
+# Rushing Season
+RUSHS <- scale(Rushing_Season[3:10])
+
+scaleList <- list(scale = attr(RUSHS, "scaled:scale"),
+    center = attr(RUSHS, "scaled:center"))
+
+RUSHS <- as.data.frame(RUSHS)
+
+# Advanced Rushing stats season
+ADVRUSHS <- scale(Advanced_Rushing_data[3:9])
+
+scaleList <- list(scale = attr(ADVRUSHS, "scaled:scale"),
+    center = attr(ADVRUSHS, "scaled:center"))
+
+ADVRUSHS <- as.data.frame(ADVRUSHS)
+
+
+# Wr
+#Weekly rec 
+
+WRW <- scale(REC_WEEKLY[5:9])
+
+scaleList <- list(scale = attr(WRW, "scaled:scale"),
+    center = attr(WRW, "scaled:center"))
+
+WRW <- as.data.frame(WRW)
+
+# Rushing Season
+WRS <- scale(Receiving_SEASON[3:12])
+
+scaleList <- list(scale = attr(WRS, "scaled:scale"),
+    center = attr(WRS, "scaled:center"))
+
+WRS <- as.data.frame(WRS)
+
+# Advanced Rushing stats season
+ADVWRS <- scale(Advanced_Rec_stats[4:12])
+
+scaleList <- list(scale = attr(ADVWRS, "scaled:scale"),
+    center = attr(ADVWRS, "scaled:center"))
+
+ADVWRS <- as.data.frame(ADVWRS)
+
+# Defense season 
+
+# Advanced defensiv stats season
+ADVDEF <- scale(ADV_DEF_MOD_STATS[3:17])
+
+scaleList <- list(scale = attr(ADVDEF, "scaled:scale"),
+    center = attr(ADVDEF, "scaled:center"))
+
+ADVDEF <- as.data.frame(ADVDEF)
+
+
+# DEF Weekly 
+DEF_W <- scale(Defense_Weekly[5:11])
+
+scaleList <- list(scale = attr(DEF_W, "scaled:scale"),
+    center = attr(DEF_W, "scaled:center"))
+
+DEF_W <- as.data.frame(DEF_W)
+
+```
+
+
+
+```{r}
+
+NRFM1	<-	randomForest	(	tt	~	cay+ agg_percent+ ayts+ comp_percent	,	data = 	trainwptt	, importance = TRUE	)
+NRFM2	<-	randomForest	(	cay	~	 agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM3	<-	randomForest	(	iay	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM4	<-	randomForest	(	ayd	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM5	<-	randomForest	(	agg_percent	~	cay+ ayts+ comp_percent+tt	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM6	<-	randomForest	(	lcad	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM7	<-	randomForest	(	ayts	~	cay+ agg_percent+ comp_percent+tt	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM8	<-	randomForest	(	att	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM9	<-	randomForest	(	yds	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM10	<-	randomForest	(	td	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwptd	, importance = TRUE	)
+NRFM11	<-	randomForest	(	int	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpint	, importance = TRUE	)
+NRFM12	<-	randomForest	(	comp_percent	~	cay+ agg_percent+ ayts+tt	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM13	<-	randomForest	(	tt	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwptt	, importance = TRUE	)
+NRFM14	<-	randomForest	(	cay	~	agg_percent+att+int+comp_percent	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM15	<-	randomForest	(	iay	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM16	<-	randomForest	(	ayd	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM17	<-	randomForest	(	agg_percent	~	cay+att+int+comp_percent	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM18	<-	randomForest	(	lcad	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM19	<-	randomForest	(	ayts	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM20	<-	randomForest	(	att	~	cay+agg_percent+int+comp_percent	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM21	<-	randomForest	(	yds	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM22	<-	randomForest	(	td	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwptd	, importance = TRUE	)
+NRFM23	<-	randomForest	(	int	~	cay+agg_percent+att+comp_percent	,	data = 	trainwpint	, importance = TRUE	)
+NRFM24	<-	randomForest	(	comp_percent	~	cay+agg_percent+att+int	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM25	<-	randomForest	(	tt	~	cay+agg_percent+comp_percent+att	,	data = 	trainwptt	, importance = TRUE	)
+NRFM26	<-	randomForest	(	cay	~	agg_percent+comp_percent+att+tt	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM27	<-	randomForest	(	iay	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM28	<-	randomForest	(	ayd	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM29	<-	randomForest	(	agg_percent	~	cay+comp_percent+att+tt	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM30	<-	randomForest	(	lcad	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM31	<-	randomForest	(	ayts	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM32	<-	randomForest	(	att	~	cay+agg_percent+comp_percent+tt	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM33	<-	randomForest	(	yds	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM34	<-	randomForest	(	td	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwptd	, importance = TRUE	)
+NRFM35	<-	randomForest	(	int	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpint	, importance = TRUE	)
+NRFM36	<-	randomForest	(	comp_percent	~	cay+agg_percent+att+tt	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM37	<-	randomForest	(	tt	~	att+yds+td+int+ comp_percent	,	data = 	trainwptt	, importance = TRUE	)
+NRFM38	<-	randomForest	(	cay	~	att+yds+td+int+ comp_percent	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM39	<-	randomForest	(	iay	~	att+yds+td+int+ comp_percent	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM40	<-	randomForest	(	ayd	~	att+yds+td+int+ comp_percent	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM41	<-	randomForest	(	agg_percent	~	att+yds+td+int+ comp_percent	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM42	<-	randomForest	(	lcad	~	att+yds+td+int+ comp_percent	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM43	<-	randomForest	(	ayts	~	att+yds+td+int+ comp_percent	,	data = 	trainwpayts	, importance = TRUE	)
+
+
+
+
+
+NRFM151	<-	randomForest	(	sacks	~ qb_hits+assists+tackles+fumbles_forced	,	data = 	traindfwsk	, importance = TRUE	)
+NRFM152	<-	randomForest	(	sack_yds	~	sacks+qb_hits+assists+tackles+fumbles_forced	,	data = 	traindfwsky	, importance = TRUE	)
+NRFM153	<-	randomForest	(	qb_hits	~	sacks+assists+tackles+fumbles_forced	,	data = 	traindfwQBH	, importance = TRUE	)
+NRFM154	<-	randomForest	(	tackles	~	sacks+qb_hits+assists+fumbles_forced	,	data = 	traindfwTKL	, importance = TRUE	)
+NRFM155	<-	randomForest	(	assists	~	sacks+qb_hits+tackles+fumbles_forced	,	data = 	traindfwAST	, importance = TRUE	)
+NRFM156	<-	randomForest	(	fumbles_forced	~	sacks+qb_hits+assists+tackles	,	data = 	traindfwFF	, importance = TRUE	)
+NRFM157	<-	randomForest	(	fumbles_recovered	~	sacks+qb_hits+assists+tackles+fumbles_forced	,	data = 	traindfwFR	, importance = TRUE	)
+
+
+
+
+NRFM158	<-	randomForest	(	rec	~	yds+avg+td+fum	,	data = 	trainrecwrec	, importance = TRUE	)
+NRFM159	<-	randomForest	(	yds	~	rec+avg+td+fum	,	data = 	trainrecwyds	, importance = TRUE	)
+NRFM160	<-	randomForest	(	avg	~	rec+yds+td+fum	,	data = 	trainrecwavg	, importance = TRUE	)
+NRFM161	<-	randomForest	(	td	~	rec+yds+avg+fum	,	data = 	trainrecwtd	, importance = TRUE	)
+NRFM162	<-	randomForest	(	fum	~	rec+yds+avg+td	,	data = 	trainrecwfum	, importance = TRUE	)
+
+
+NRFM163	<-	randomForest	(	att	~	yds+avg+td+fum	,	data = 	trainrushwatt	, importance = TRUE	)
+NRFM164	<-	randomForest	(	yds	~	att+avg+td+fum	,	data = 	trainrushwyds	, importance = TRUE	)
+NRFM165	<-	randomForest	(	avg	~	att+yds+td+fum	,	data = 	trainrushwavg	, importance = TRUE	)
+NRFM166	<-	randomForest	(	td	~	att+yds+avg+fum	,	data = 	trainrushwtd	, importance = TRUE	)
+NRFM167	<-	randomForest	(	fum	~	att+yds+avg+td	,	data = 	trainrushwfum	, importance = TRUE	)
+
+```
+
+
+
+```{r}
+
+```
+

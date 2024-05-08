@@ -1,0 +1,1186 @@
+---
+title: "gfd"
+output:
+  word_document: default
+  html_document: default
+---
+```{r echo=T, results='hide'}
+
+library(readxl)
+library(tidyverse)
+library(car)
+library(leaps)
+library(pedometrics)
+library(HH)
+
+WEEKLY_ADV_RUSH_STATS <- read_excel("C:/Users/ericr/OneDrive/Desktop/NFL PROJECT DATA/T test data/WEEKLY_ADV_RUSH_STATS.xlsx")
+
+WEEKLY_REC_WEEK <- read_excel("C:/Users/ericr/OneDrive/Desktop/NFL PROJECT DATA/T test data/Weekly_REC_WEEK.xlsx")
+
+
+WEEKLY_REC_WEEK[4:16] <- lapply(WEEKLY_REC_WEEK[4:16],as.numeric)
+WEEKLY_ADV_RUSH_STATS[3:10] <- lapply(WEEKLY_ADV_RUSH_STATS[3:10], as.numeric)
+
+
+WEEKLY_ADV_RUSH_STATS[is.na(WEEKLY_ADV_RUSH_STATS)] <- 0 
+
+WEEKLY_REC_WEEK[is.na(WEEKLY_REC_WEEK)] <- 0 
+# Weekly ADV REC
+WWRW <- scale(WEEKLY_REC_WEEK[4:16])
+
+
+# Weekly ADV RUSH
+ADVRWR <- scale(WEEKLY_ADV_RUSH_STATS[3:10])
+
+
+
+
+colnames(ADVRWR)[2]<-"ED"
+colnames(WWRW)[4]<-"TAYP"
+colnames(WWRW)[7]<-"CTCH"
+colnames(WWRW)[10] <- "YACR"
+colnames(WWRW)[11] <- "XYACR"
+colnames(WWRW)[12] <- "PLMUS"
+
+colnames(WEEKLY_ADV_RUSH_STATS)[4]<-"ED"
+colnames(WEEKLY_REC_WEEK)[7]<-"TAYP"
+colnames(WEEKLY_REC_WEEK)[10]<-"CTCH"
+colnames(WEEKLY_REC_WEEK)[13] <- "YACR"
+colnames(WEEKLY_REC_WEEK)[14] <- "XYACR"
+colnames(WEEKLY_REC_WEEK)[15] <- "PLMUS"
+
+
+scaleList_WWRW <- list(scale = attr(WWRW, "scaled:scale"),
+    center = attr(WWRW, "scaled:center"))
+
+
+
+scaleList_ADVRWR <- list(scale = attr(ADVRWR, "scaled:scale"),
+    center = attr(ADVRWR, "scaled:center"))
+
+
+names(scaleList_ADVRWR$center)[2]<-"ED"
+names(scaleList_WWRW$center)[4]<-"TAYP"
+names(scaleList_WWRW$center)[7]<-"CTCH"
+
+names(scaleList_WWRW$scale)[10] <- "YACR"
+names(scaleList_WWRW$scale)[11] <- "XYACR"
+names(scaleList_WWRW$scale)[12] <- "PLMUS"
+
+names(scaleList_ADVRWR$scale)[2]<-"ED"
+names(scaleList_WWRW$scale)[4]<-"TAYP"
+names(scaleList_WWRW$scale)[7]<-"CTCH"
+
+names(scaleList_WWRW$center)[10] <- "YACR"
+names(scaleList_WWRW$center)[11] <- "XYACR"
+names(scaleList_WWRW$center)[12] <- "PLMUS"
+
+
+
+WWRW <- as.data.frame(WWRW )
+
+ADVRWR<- as.data.frame(ADVRWR )
+
+# Baseline running models
+
+MC_RB_S_TD <- lm(TD ~EFF	+ED+	TLOS+	ATT	+YDS+	AVG	, data = WEEKLY_ADV_RUSH_STATS)
+
+MC_RB_S_EFF <- lm(EFF ~ED+	TLOS+	ATT	+YDS+	AVG	+TD, data = WEEKLY_ADV_RUSH_STATS)
+
+MC_RB_S_TLOS <- lm(TLOS ~EFF	+ED+	ATT	+YDS+	AVG	+TD, data = WEEKLY_ADV_RUSH_STATS)
+
+MC_RB_S_8B <- lm(ED ~EFF+	TLOS+	ATT	+YDS+	AVG	+TD, data = WEEKLY_ADV_RUSH_STATS)
+
+MC_RB_S_ATT <- lm(ATT ~EFF	+ED+	TLOS	+YDS+	AVG	+TD, data = WEEKLY_ADV_RUSH_STATS)
+
+MC_RB_S_YDS <- lm(YDS ~EFF	+ED+	TLOS+	ATT	+	AVG	+TD, data = WEEKLY_ADV_RUSH_STATS)
+
+MC_RB_S_AVG <- lm(AVG ~EFF	+ED+	TLOS+	ATT	+YDS+TD, data = WEEKLY_ADV_RUSH_STATS)
+
+
+
+
+# baseline rec models 
+
+MC_WR_S_YDS <- lm(YDS ~CUSH+	SEP+	TAY+	TAYP+	REC	+TAR	+CTCH+	TD+	YACR+	XYACR	, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_CUSH <- lm(CUSH ~	SEP+	TAY+	TAYP+	REC	+TAR	+CTCH+	YDS+	TD+	YACR+	XYACR	, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_TAY <- lm(TAY ~CUSH+	SEP+	TAYP+	REC	+TAR	+CTCH+	YDS+	TD+	YACR+	XYACR, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_SEP <- lm(SEP ~CUSH+	TAY+	TAYP+	REC	+TAR	+CTCH+	YDS+	TD+	YACR+	XYACR, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_TAYP <- lm(TAYP ~CUSH+	SEP+	TAY+	REC	+TAR	+CTCH+	YDS+	TD+	YACR+	XYACR, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_REC <- lm(REC ~CUSH+	SEP+	TAY+	TAYP	+TAR	+CTCH+	YDS+	TD+	YACR+	XYACR, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_TAR <- lm(TAR ~CUSH+	SEP+	TAY+	TAYP+	REC	+CTCH+	YDS+	TD+	YACR+	XYACR	, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_CATCHP <- lm(CTCH ~CUSH+	SEP+	TAY+	TAYP+	REC	+TAR+	YDS+	TD+	YACR+	XYACR	, data = WEEKLY_REC_WEEK)
+
+MC_WR_S_TD <- lm(TD ~CUSH+	SEP+	TAY+	TAYP+	REC	+TAR	+CTCH+	YDS+	YACR+	XYACR, data = WEEKLY_REC_WEEK)
+
+
+#
+
+STVIF_MC_WR_S_YDS <- 	stepVIF(MC_WR_S_YDS)
+	
+STVIF_MC_WR_S_CUSH <- 	stepVIF(MC_WR_S_CUSH)
+	
+STVIF_MC_WR_S_TAY <- 	stepVIF(MC_WR_S_TAY)
+	
+STVIF_MC_WR_S_SEP <- 	stepVIF(MC_WR_S_SEP)
+	
+STVIF_MC_WR_S_TAYP <- 	stepVIF(MC_WR_S_TAYP)
+	
+STVIF_MC_WR_S_REC <- 	stepVIF(MC_WR_S_REC)
+	
+STVIF_MC_WR_S_TAR <- 	stepVIF(MC_WR_S_TAR)
+	
+STVIF_MC_WR_S_CATCHP <- 	stepVIF(MC_WR_S_CATCHP)
+	
+STVIF_MC_WR_S_TD <- 	stepVIF(MC_WR_S_TD)
+
+
+#
+STVIF_MC_RB_S_TD <- 	stepVIF(MC_RB_S_TD)
+	
+STVIF_MC_RB_S_EFF <- 	stepVIF(MC_RB_S_EFF)
+	
+STVIF_MC_RB_S_TLOS <- 	stepVIF(MC_RB_S_TLOS)
+	
+STVIF_MC_RB_S_8B <- 	stepVIF(MC_RB_S_8B)
+	
+STVIF_MC_RB_S_ATT <- 	stepVIF(MC_RB_S_ATT)
+	
+STVIF_MC_RB_S_YDS <- 	stepVIF(MC_RB_S_YDS)
+	
+STVIF_MC_RB_S_AVG <- 	stepVIF(MC_RB_S_AVG)
+
+
+
+
+
+# List for function
+
+REGS_FF <- function(X){
+  
+  XA <- as.vector(X$model[c(1)])
+  names(XA)[1]<- "y"
+  XB <- as.data.frame(X$model[c(-1)])
+  
+  XC <- as.data.frame(cbind(XB,XA))
+  XMT <- regsubsets(y ~., data = XC)
+  print(summary(XMT))
+
+res.sum <- summary(XMT)
+
+xp <- data.frame(
+  Adj.R2 = which.max(res.sum$adjr2),
+  CP = which.min(res.sum$cp),
+  BIC = which.min(res.sum$bic)
+)
+
+print(xp)
+}
+
+
+STV <- list(
+STVIF_MC_WR_S_YDS,
+STVIF_MC_WR_S_CUSH,
+STVIF_MC_WR_S_TAY,
+STVIF_MC_WR_S_SEP,
+STVIF_MC_WR_S_TAYP,
+STVIF_MC_WR_S_REC,
+STVIF_MC_WR_S_TAR,
+STVIF_MC_WR_S_CATCHP,
+STVIF_MC_WR_S_TD,
+STVIF_MC_RB_S_TD,
+STVIF_MC_RB_S_EFF,
+STVIF_MC_RB_S_TLOS,
+STVIF_MC_RB_S_8B,
+STVIF_MC_RB_S_ATT,
+STVIF_MC_RB_S_YDS,
+STVIF_MC_RB_S_AVG
+)
+
+STV %>% map(REGS_FF)
+
+
+
+# Normalized DATA
+
+
+#WIDE REC
+
+ADJ_WR_S_YDS <- lm(YDS ~CUSH+	SEP+	TAY+	REC	+CTCH+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_CUSH <- lm(CUSH ~	SEP+	TAY+	REC	+CTCH+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_TAY <- lm(TAY ~CUSH+	SEP+	TAR	+CTCH+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_SEP <- lm(SEP ~CUSH+	TAY+	REC		+CTCH+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_TAYP <- lm(TAYP ~CUSH+	SEP+	TAR	+CTCH+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_REC <- lm(REC ~CUSH+	SEP+	TAY	+CTCH+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_TAR <- lm(TAR ~CUSH+	SEP+	TAY+	CTCH+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_CATCHP <- lm(CTCH ~CUSH+	SEP+	TAY+	YDS+	TD+	YACR		, data = WWRW)
+
+ADJ_WR_S_TD <- lm(TD ~CUSH+	SEP+	TAY+REC		+CTCH+	YDS+	YACR		, data = WWRW)
+
+#RUNNING BACK
+
+ADJ_RB_S_TD <- lm(TD ~EFF	+ED+	TLOS+	YDS	, data = ADVRWR)
+
+ADJ_RB_S_EFF <- lm(EFF ~ED+	TLOS+	ATT		+TD, data = ADVRWR)
+
+ADJ_RB_S_TLOS <- lm(TLOS ~EFF	+ED+YDS+TD, data = ADVRWR)
+
+ADJ_RB_S_8B <- lm(ED ~EFF+	TLOS+	ATT	+YDS	+TD, data = ADVRWR)
+
+ADJ_RB_S_ATT <- lm(ATT ~EFF	+ED+	TLOS	+YDS	+TD, data = ADVRWR)
+
+ADJ_RB_S_YDS <- lm(YDS ~EFF	+ED+	TLOS+	ATT		+TD, data = ADVRWR)
+
+ADJ_RB_S_AVG <- lm(AVG ~EFF	+ED+	TLOS+	ATT	+TD, data = ADVRWR)
+
+
+
+STVIF_NORM_WR_S_YDS<-stepVIF(ADJ_WR_S_YDS)
+
+STVIF_NORM_WR_S_CUSH<-stepVIF(ADJ_WR_S_CUSH)
+
+STVIF_NORM_WR_S_TAY<-stepVIF(ADJ_WR_S_TAY)
+
+STVIF_NORM_WR_S_SEP<-stepVIF(ADJ_WR_S_SEP)
+
+STVIF_NORM_WR_S_TAYP<-stepVIF(ADJ_WR_S_TAYP)
+
+STVIF_NORM_WR_S_REC<-stepVIF(ADJ_WR_S_REC)
+
+STVIF_NORM_WR_S_TAR<-stepVIF(ADJ_WR_S_TAR)
+
+STVIF_NORM_WR_S_CATCHP<-stepVIF(ADJ_WR_S_CATCHP)
+
+STVIF_NORM_WR_S_TD<-stepVIF(ADJ_WR_S_TD)
+
+
+STVIF_NORM_RB_S_TD<-stepVIF(ADJ_RB_S_TD)
+
+STVIF_NORM_RB_S_EFF<-stepVIF(ADJ_RB_S_EFF)
+
+STVIF_NORM_RB_S_TLOS<-stepVIF(ADJ_RB_S_TLOS)
+
+STVIF_NORM_RB_S_8B<-stepVIF(ADJ_RB_S_8B)
+
+STVIF_NORM_RB_S_ATT<-stepVIF(ADJ_RB_S_ATT)
+
+STVIF_NORM_RB_S_YDS<-stepVIF(ADJ_RB_S_YDS)
+
+STVIF_NORM_RB_S_AVG<-stepVIF(ADJ_RB_S_AVG)
+
+
+
+
+NORMTS <- list(
+
+STVIF_NORM_WR_S_YDS,
+STVIF_NORM_WR_S_CUSH,
+STVIF_NORM_WR_S_TAY,
+STVIF_NORM_WR_S_SEP,
+STVIF_NORM_WR_S_TAYP,
+STVIF_NORM_WR_S_REC,
+STVIF_NORM_WR_S_TAR,
+STVIF_NORM_WR_S_CATCHP,
+STVIF_NORM_WR_S_TD,
+STVIF_NORM_RB_S_TD,
+STVIF_NORM_RB_S_EFF,
+STVIF_NORM_RB_S_TLOS,
+STVIF_NORM_RB_S_8B,
+STVIF_NORM_RB_S_ATT,
+STVIF_NORM_RB_S_YDS,
+STVIF_NORM_RB_S_AVG
+)
+
+NORMTS %>% map(REGS_FF)
+
+t27<-formula(STVIF_NORM_WR_S_YDS)
+t28<-formula(STVIF_NORM_WR_S_CUSH)
+t29<-formula(STVIF_NORM_WR_S_TAY)
+t30<-formula(STVIF_NORM_WR_S_SEP)
+t31<-formula(STVIF_NORM_WR_S_TAYP)
+t32<-formula(STVIF_NORM_WR_S_REC)
+t33<-formula(STVIF_NORM_WR_S_TAR)
+t34<-formula(STVIF_NORM_WR_S_CATCHP)
+t35<-formula(STVIF_NORM_WR_S_TD)
+
+
+
+t41<-formula(STVIF_NORM_RB_S_TD)
+t42<-formula(STVIF_NORM_RB_S_EFF)
+t43<-formula(STVIF_NORM_RB_S_TLOS)
+t44<-formula(STVIF_NORM_RB_S_8B)
+t45<-formula(STVIF_NORM_RB_S_ATT)
+t46<-formula(STVIF_NORM_RB_S_YDS)
+t47<-formula(STVIF_NORM_RB_S_AVG)
+
+t165<-formula(STVIF_MC_WR_S_YDS)
+t166<-formula(STVIF_MC_WR_S_CUSH)
+t167<-formula(STVIF_MC_WR_S_TAY)
+t168<-formula(STVIF_MC_WR_S_SEP)
+t169<-formula(STVIF_MC_WR_S_TAYP)
+t170<-formula(STVIF_MC_WR_S_REC)
+t171<-formula(STVIF_MC_WR_S_TAR)
+t172<-formula(STVIF_MC_WR_S_CATCHP)
+t173<-formula(STVIF_MC_WR_S_TD)
+
+t179<-formula(STVIF_MC_RB_S_TD)
+t180<-formula(STVIF_MC_RB_S_EFF)
+t181<-formula(STVIF_MC_RB_S_TLOS)
+t182<-formula(STVIF_MC_RB_S_8B)
+t183<-formula(STVIF_MC_RB_S_ATT)
+t184<-formula(STVIF_MC_RB_S_YDS)
+t185<-formula(STVIF_MC_RB_S_AVG)
+
+
+d27	<-	STVIF_NORM_WR_S_YDS$call$data
+d28	<-	STVIF_NORM_WR_S_CUSH$call$data
+d29	<-	STVIF_NORM_WR_S_TAY$call$data
+d30	<-	STVIF_NORM_WR_S_SEP$call$data
+d31	<-	STVIF_NORM_WR_S_TAYP$call$data
+d32	<-	STVIF_NORM_WR_S_REC$call$data
+d33	<-	STVIF_NORM_WR_S_TAR$call$data
+d34	<-	STVIF_NORM_WR_S_CATCHP$call$data
+d35	<-	STVIF_NORM_WR_S_TD$call$data
+
+
+d41	<-	STVIF_NORM_RB_S_TD$call$data
+d42	<-	STVIF_NORM_RB_S_EFF$call$data
+d43	<-	STVIF_NORM_RB_S_TLOS$call$data
+d44	<-	STVIF_NORM_RB_S_8B$call$data
+d45	<-	STVIF_NORM_RB_S_ATT$call$data
+d46	<-	STVIF_NORM_RB_S_YDS$call$data
+d47	<-	STVIF_NORM_RB_S_AVG$call$data
+
+d165	<-	STVIF_MC_WR_S_YDS$call$data
+d166	<-	STVIF_MC_WR_S_CUSH$call$data
+d167	<-	STVIF_MC_WR_S_TAY$call$data
+d168	<-	STVIF_MC_WR_S_SEP$call$data
+d169	<-	STVIF_MC_WR_S_TAYP$call$data
+d170	<-	STVIF_MC_WR_S_REC$call$data
+d171	<-	STVIF_MC_WR_S_TAR$call$data
+d172	<-	STVIF_MC_WR_S_CATCHP$call$data
+d173	<-	STVIF_MC_WR_S_TD$call$data
+
+d179	<-	STVIF_MC_RB_S_TD$call$data
+d180	<-	STVIF_MC_RB_S_EFF$call$data
+d181	<-	STVIF_MC_RB_S_TLOS$call$data
+d182	<-	STVIF_MC_RB_S_8B$call$data
+d183	<-	STVIF_MC_RB_S_ATT$call$data
+d184	<-	STVIF_MC_RB_S_YDS$call$data
+d185	<-	STVIF_MC_RB_S_AVG$call$data
+
+
+F27<-length(STVIF_NORM_WR_S_YDS$model)-1
+F28<-length(STVIF_NORM_WR_S_CUSH$model)-1
+F29<-length(STVIF_NORM_WR_S_TAY$model)-1
+F30<-length(STVIF_NORM_WR_S_SEP$model)-1
+F31<-length(STVIF_NORM_WR_S_TAYP$model)-1
+F32<-length(STVIF_NORM_WR_S_REC$model)-1
+F33<-length(STVIF_NORM_WR_S_TAR$model)-1
+F34<-length(STVIF_NORM_WR_S_CATCHP$model)-1
+F35<-length(STVIF_NORM_WR_S_TD$model)-1
+
+
+F41<-length(STVIF_NORM_RB_S_TD$model)-1
+F42<-length(STVIF_NORM_RB_S_EFF$model)-1
+F43<-length(STVIF_NORM_RB_S_TLOS$model)-1
+F44<-length(STVIF_NORM_RB_S_8B$model)-1
+F45<-length(STVIF_NORM_RB_S_ATT$model)-1
+F46<-length(STVIF_NORM_RB_S_YDS$model)-1
+F47<-length(STVIF_NORM_RB_S_AVG$model)-1
+
+
+F165<-length(STVIF_MC_WR_S_YDS$model)-1
+F166<-length(STVIF_MC_WR_S_CUSH$model)-1
+F167<-length(STVIF_MC_WR_S_TAY$model)-1
+F168<-length(STVIF_MC_WR_S_SEP$model)-1
+F169<-length(STVIF_MC_WR_S_TAYP$model)-1
+F170<-length(STVIF_MC_WR_S_REC$model)-1
+F171<-length(STVIF_MC_WR_S_TAR$model)-1
+F172<-length(STVIF_MC_WR_S_CATCHP$model)-1
+F173<-length(STVIF_MC_WR_S_TD$model)-1
+
+F179<-length(STVIF_MC_RB_S_TD$model)-1
+F180<-length(STVIF_MC_RB_S_EFF$model)-1
+F181<-length(STVIF_MC_RB_S_TLOS$model)-1
+F182<-length(STVIF_MC_RB_S_8B$model)-1
+F183<-length(STVIF_MC_RB_S_ATT$model)-1
+F184<-length(STVIF_MC_RB_S_YDS$model)-1
+F185<-length(STVIF_MC_RB_S_AVG$model)-1
+
+RSST27	<-	regsubsets(	t27	,	data=	WWRW	,	nvmax=	F27	)
+RSST28	<-	regsubsets(	t28	,	data=	WWRW	,	nvmax=	F28	)
+RSST29	<-	regsubsets(	t29	,	data=	WWRW	,	nvmax=	F29	)
+RSST30	<-	regsubsets(	t30	,	data=	WWRW	,	nvmax=	F30	)
+RSST31	<-	regsubsets(	t31	,	data=	WWRW	,	nvmax=	F31	)
+RSST32	<-	regsubsets(	t32	,	data=	WWRW	,	nvmax=	F32	)
+RSST33	<-	regsubsets(	t33	,	data=	WWRW	,	nvmax=	F33	)
+RSST34	<-	regsubsets(	t34	,	data=	WWRW	,	nvmax=	F34	)
+RSST35	<-	regsubsets(	t35	,	data=	WWRW	,	nvmax=	F35	)
+
+RSST41	<-	regsubsets(	t41	,	data=	ADVRWR	,	nvmax=	F41	)
+RSST42	<-	regsubsets(	t42	,	data=	ADVRWR	,	nvmax=	F42	)
+RSST43	<-	regsubsets(	t43	,	data=	ADVRWR	,	nvmax=	F43	)
+RSST44	<-	regsubsets(	t44	,	data=	ADVRWR	,	nvmax=	F44	)
+RSST45	<-	regsubsets(	t45	,	data=	ADVRWR	,	nvmax=	F45	)
+RSST46	<-	regsubsets(	t46	,	data=	ADVRWR	,	nvmax=	F46	)
+RSST47	<-	regsubsets(	t47	,	data=	ADVRWR	,	nvmax=	F47	)
+
+
+RSST165	<-	regsubsets(	t165	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F165	)
+RSST166	<-	regsubsets(	t166	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F166	)
+RSST167	<-	regsubsets(	t167	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F167	)
+RSST168	<-	regsubsets(	t168	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F168	)
+RSST169	<-	regsubsets(	t169	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F169	)
+RSST170	<-	regsubsets(	t170	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F170	)
+RSST171	<-	regsubsets(	t171	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F171	)
+RSST172	<-	regsubsets(	t172	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F172	)
+RSST173	<-	regsubsets(	t173	,	data=	WEEKLY_REC_WEEK	,	nvmax=	F173	)
+
+RSST179	<-	regsubsets(	t179	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F179	)
+RSST180	<-	regsubsets(	t180	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F180	)
+RSST181	<-	regsubsets(	t181	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F181	)
+RSST182	<-	regsubsets(	t182	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F182	)
+RSST183	<-	regsubsets(	t183	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F183	)
+RSST184	<-	regsubsets(	t184	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F184	)
+RSST185	<-	regsubsets(	t185	,	data=	WEEKLY_ADV_RUSH_STATS	,	nvmax=	F185	)
+
+NDFM27	<-	as.numeric(	which.max(	summary(	RSST27	)$adjr2))
+NDFM28	<-	as.numeric(	which.max(	summary(	RSST28	)$adjr2))
+NDFM29	<-	as.numeric(	which.max(	summary(	RSST29	)$adjr2))
+NDFM30	<-	as.numeric(	which.max(	summary(	RSST30	)$adjr2))
+NDFM31	<-	as.numeric(	which.max(	summary(	RSST31	)$adjr2))
+NDFM32	<-	as.numeric(	which.max(	summary(	RSST32	)$adjr2))
+NDFM33	<-	as.numeric(	which.max(	summary(	RSST33	)$adjr2))
+NDFM34	<-	as.numeric(	which.max(	summary(	RSST34	)$adjr2))
+NDFM35	<-	as.numeric(	which.max(	summary(	RSST35	)$adjr2))
+
+NDFM41	<-	as.numeric(	which.max(	summary(	RSST41	)$adjr2))
+NDFM42	<-	as.numeric(	which.max(	summary(	RSST42	)$adjr2))
+NDFM43	<-	as.numeric(	which.max(	summary(	RSST43	)$adjr2))
+NDFM44	<-	as.numeric(	which.max(	summary(	RSST44	)$adjr2))
+NDFM45	<-	as.numeric(	which.max(	summary(	RSST45	)$adjr2))
+NDFM46	<-	as.numeric(	which.max(	summary(	RSST46	)$adjr2))
+NDFM47	<-	as.numeric(	which.max(	summary(	RSST47	)$adjr2))
+
+NDFM165	<-	as.numeric(	which.max(	summary(	RSST165	)$adjr2))
+NDFM166	<-	as.numeric(	which.max(	summary(	RSST166	)$adjr2))
+NDFM167	<-	as.numeric(	which.max(	summary(	RSST167	)$adjr2))
+NDFM168	<-	as.numeric(	which.max(	summary(	RSST168	)$adjr2))
+NDFM169	<-	as.numeric(	which.max(	summary(	RSST169	)$adjr2))
+NDFM170	<-	as.numeric(	which.max(	summary(	RSST170	)$adjr2))
+NDFM171	<-	as.numeric(	which.max(	summary(	RSST171	)$adjr2))
+NDFM172	<-	as.numeric(	which.max(	summary(	RSST172	)$adjr2))
+NDFM173	<-	as.numeric(	which.max(	summary(	RSST173	)$adjr2))
+
+NDFM179	<-	as.numeric(	which.max(	summary(	RSST179	)$adjr2))
+NDFM180	<-	as.numeric(	which.max(	summary(	RSST180	)$adjr2))
+NDFM181	<-	as.numeric(	which.max(	summary(	RSST181	)$adjr2))
+NDFM182	<-	as.numeric(	which.max(	summary(	RSST182	)$adjr2))
+NDFM183	<-	as.numeric(	which.max(	summary(	RSST183	)$adjr2))
+NDFM184	<-	as.numeric(	which.max(	summary(	RSST184	)$adjr2))
+NDFM185	<-	as.numeric(	which.max(	summary(	RSST185	)$adjr2))
+
+
+CSF27<-regsubsets(YDS~CUSH+SEP+TAY+TAYP+TAR+CTCH+TD+YACR+XYACR,data=WWRW)
+CSF28<-regsubsets(CUSH~SEP+TAY+TAYP+CTCH+YDS+TD+YACR+XYACR,data=WWRW)
+CSF29<-regsubsets(TAY~CUSH+SEP+TAYP+TAR+CTCH+TD+YACR+XYACR,data=WWRW)
+CSF30<-regsubsets(SEP~CUSH+TAY+TAYP+CTCH+YDS+TD+YACR+XYACR,data=WWRW)
+CSF31<-regsubsets(TAYP~CUSH+SEP+TAY+CTCH+YDS+TD+YACR+XYACR,data=WWRW)
+CSF32<-regsubsets(REC~CUSH+SEP+TAY+TAYP+TAR+CTCH+TD+YACR+XYACR,data=WWRW)
+CSF33<-regsubsets(TAR~CUSH+SEP+TAY+TAYP+REC+CTCH+TD+YACR+XYACR,data=WWRW)
+CSF34<-regsubsets(CTCH~CUSH+SEP+TAY+TAYP+REC+TD+YACR+XYACR,data=WWRW)
+CSF35<-regsubsets(TD~CUSH+SEP+TAY+TAYP+CTCH+YDS+YACR+XYACR,data=WWRW)
+
+CSF41<-regsubsets(TD~EFF+ED+TLOS+YDS,data=ADVRWR)
+CSF42<-regsubsets(EFF~ED+TLOS+YDS+AVG+TD,data=ADVRWR)
+CSF43<-regsubsets(TLOS~EFF+ED+YDS+AVG+TD,data=ADVRWR)
+CSF44<-regsubsets(ED~EFF+TLOS+ATT+AVG+TD,data=ADVRWR)
+CSF45<-regsubsets(ATT~EFF+ED+TLOS+YDS+AVG+TD,data=ADVRWR)
+CSF46<-regsubsets(YDS~EFF+ED+TLOS+ATT+AVG+TD,data=ADVRWR)
+CSF47<-regsubsets(AVG~EFF+ED+TLOS+YDS+TD,data=ADVRWR)
+
+CSF165<-regsubsets(YDS~CUSH+SEP+TAY+TAYP+TAR+CTCH+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF166<-regsubsets(CUSH~SEP+TAY+TAYP+CTCH+YDS+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF167<-regsubsets(TAY~CUSH+SEP+TAYP+TAR+CTCH+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF168<-regsubsets(SEP~CUSH+TAY+TAYP+CTCH+YDS+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF169<-regsubsets(TAYP~CUSH+SEP+TAY+CTCH+YDS+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF170<-regsubsets(REC~CUSH+SEP+TAY+TAYP+TAR+CTCH+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF171<-regsubsets(TAR~CUSH+SEP+TAY+TAYP+REC+CTCH+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF172<-regsubsets(CTCH~CUSH+SEP+TAY+TAYP+REC+TD+YACR+XYACR,data=WEEKLY_REC_WEEK)
+CSF173<-regsubsets(TD~CUSH+SEP+TAY+TAYP+CTCH+YDS+YACR+XYACR,data=WEEKLY_REC_WEEK)
+
+CSF179<-regsubsets(TD~EFF+ED+TLOS+YDS,data=WEEKLY_ADV_RUSH_STATS)
+CSF180<-regsubsets(EFF~ED+TLOS+YDS+AVG+TD,data=WEEKLY_ADV_RUSH_STATS)
+CSF181<-regsubsets(TLOS~EFF+ED+YDS+AVG+TD,data=WEEKLY_ADV_RUSH_STATS)
+CSF182<-regsubsets(ED~EFF+TLOS+ATT+AVG+TD,data=WEEKLY_ADV_RUSH_STATS)
+CSF183<-regsubsets(ATT~EFF+ED+TLOS+YDS+AVG+TD,data=WEEKLY_ADV_RUSH_STATS)
+CSF184<-regsubsets(YDS~EFF+ED+TLOS+ATT+AVG+TD,data=WEEKLY_ADV_RUSH_STATS)
+CSF185<-regsubsets(AVG~EFF+ED+TLOS+YDS+TD,data=WEEKLY_ADV_RUSH_STATS)
+
+
+
+
+TBGD27<-lm.regsubsets(CSF27,NDFM27)
+TBGD28<-lm.regsubsets(CSF28,NDFM28)
+TBGD29<-lm.regsubsets(CSF29,NDFM29)
+TBGD30<-lm.regsubsets(CSF30,NDFM30)
+TBGD31<-lm.regsubsets(CSF31,NDFM31)
+TBGD32<-lm.regsubsets(CSF32,NDFM32)
+TBGD33<-lm.regsubsets(CSF33,NDFM33)
+TBGD34<-lm.regsubsets(CSF34,NDFM34)
+TBGD35<-lm.regsubsets(CSF35,NDFM35)
+
+TBGD41<-lm.regsubsets(CSF41,NDFM41)
+TBGD42<-lm.regsubsets(CSF42,NDFM42)
+TBGD43<-lm.regsubsets(CSF43,NDFM43)
+TBGD44<-lm.regsubsets(CSF44,NDFM44)
+TBGD45<-lm.regsubsets(CSF45,NDFM45)
+TBGD46<-lm.regsubsets(CSF46,NDFM46)
+TBGD47<-lm.regsubsets(CSF47,NDFM47)
+
+TBGD165<-lm.regsubsets(CSF165,(NDFM165-1))
+TBGD166<-lm.regsubsets(CSF166,NDFM166)
+TBGD167<-lm.regsubsets(CSF167,NDFM167)
+TBGD168<-lm.regsubsets(CSF168,NDFM168)
+TBGD169<-lm.regsubsets(CSF169,NDFM169)
+TBGD170<-lm.regsubsets(CSF170,NDFM170)
+TBGD171<-lm.regsubsets(CSF171,NDFM171)
+TBGD172<-lm.regsubsets(CSF172,NDFM172)
+TBGD173<-lm.regsubsets(CSF173,NDFM173)
+
+TBGD179<-lm.regsubsets(CSF179,NDFM179)
+TBGD180<-lm.regsubsets(CSF180,NDFM180)
+TBGD181<-lm.regsubsets(CSF181,NDFM181)
+TBGD182<-lm.regsubsets(CSF182,NDFM182)
+TBGD183<-lm.regsubsets(CSF183,NDFM183)
+TBGD184<-lm.regsubsets(CSF184,NDFM184)
+TBGD185<-lm.regsubsets(CSF185,NDFM185)
+
+SUIN27	<-	TBGD27$call
+SUIN28	<-	TBGD28$call
+SUIN29	<-	TBGD29$call
+SUIN30	<-	TBGD30$call
+SUIN31	<-	TBGD31$call
+SUIN32	<-	TBGD32$call
+SUIN33	<-	TBGD33$call
+SUIN34	<-	TBGD34$call
+SUIN35	<-	TBGD35$call
+
+SUIN41	<-	TBGD41$call
+SUIN42	<-	TBGD42$call
+SUIN43	<-	TBGD43$call
+SUIN44	<-	TBGD44$call
+SUIN45	<-	TBGD45$call
+SUIN46	<-	TBGD46$call
+SUIN47	<-	TBGD47$call
+
+SUIN165	<-	TBGD165$call
+SUIN166	<-	TBGD166$call
+SUIN167	<-	TBGD167$call
+SUIN168	<-	TBGD168$call
+SUIN169	<-	TBGD169$call
+SUIN170	<-	TBGD170$call
+SUIN171	<-	TBGD171$call
+SUIN172	<-	TBGD172$call
+SUIN173	<-	TBGD173$call
+
+
+SUIN179	<-	TBGD179$call
+SUIN180	<-	TBGD180$call
+SUIN181	<-	TBGD181$call
+SUIN182	<-	TBGD182$call
+SUIN183	<-	TBGD183$call
+SUIN184	<-	TBGD184$call
+SUIN185	<-	TBGD185$call
+
+
+nd_nwr <- WWRW[1,]
+nd_nar <- ADVRWR[1,]
+nd_wr <- WEEKLY_REC_WEEK[1,]
+nd_ar <- WEEKLY_ADV_RUSH_STATS[1,]
+
+
+FLNM1	<-	lm(formula = YDS ~ SEP + TAY + TAYP + TAR + CTCH + TD + YACR,     data = WWRW)
+FLNM2	<-	lm(formula = CUSH ~ SEP + TAYP + XYACR, data = WWRW)
+FLNM3	<-	lm(formula = TAY ~ SEP + TAYP + TAR + CTCH + TD + YACR, data = WWRW)
+FLNM4	<-	lm(formula = SEP ~ CUSH + TAY + CTCH + YDS + YACR + XYACR, data = WWRW)
+FLNM5	<-	lm(formula = TAYP ~ CUSH + SEP + TAY + CTCH + YDS + TD + YACR,     data = WWRW)
+FLNM6	<-	lm(formula = REC ~ TAY + TAR + CTCH + TD + XYACR, data = WWRW)
+FLNM7	<-	lm(formula = TAR ~ TAY + TAYP + REC + CTCH + XYACR, data = WWRW)
+FLNM8	<-	lm(formula = CTCH ~ SEP + TAYP + REC + TD + XYACR, data = WWRW)
+FLNM9	<-	lm(formula = TD ~ YDS + YACR + XYACR, data = WWRW)
+FLNM10	<-	lm(formula = TD ~ ED + TLOS + YDS, data = ADVRWR)
+FLNM11	<-	lm(formula = EFF ~ TLOS + AVG, data = ADVRWR)
+FLNM12	<-	lm(formula = TLOS ~ EFF + AVG, data = ADVRWR)
+FLNM13	<-	lm(formula = ED ~ ATT + TD, data = ADVRWR)
+FLNM14	<-	lm(formula = ATT ~ EFF + YDS + AVG, data = ADVRWR)
+FLNM15	<-	lm(formula = YDS ~ EFF + ATT + AVG + TD, data = ADVRWR)
+FLNM16	<-	lm(formula = AVG ~ EFF + ED + TLOS + YDS, data = ADVRWR)
+FLNM17	<-	lm(formula = YDS ~ CUSH + SEP + TAY + TAYP + TAR + CTCH + TD +    YACR, data = WEEKLY_REC_WEEK)
+FLNM18	<-	lm(formula = CUSH ~ SEP + TAYP + TD + XYACR, data = WEEKLY_REC_WEEK)
+FLNM19	<-	lm(formula = TAY ~ CUSH + SEP + TAYP + TAR + CTCH + TD + YACR +     XYACR, data = WEEKLY_REC_WEEK)
+FLNM20	<-	lm(formula = SEP ~ CUSH + TAY + TAYP + CTCH + YDS + TD + YACR +     XYACR, data = WEEKLY_REC_WEEK)
+FLNM21	<-	lm(formula = TAYP ~ CUSH + SEP + TAY + CTCH + YDS + TD + YACR,     data = WEEKLY_REC_WEEK)
+FLNM22	<-	lm(formula = REC ~ CUSH + SEP + TAY + TAR + CTCH + TD + YACR +     XYACR, data = WEEKLY_REC_WEEK)
+FLNM23	<-	lm(formula = TAR ~ SEP + TAY + TAYP + REC + CTCH + XYACR, data = WEEKLY_REC_WEEK)
+FLNM24	<-	lm(formula = CTCH ~ CUSH + SEP + TAYP + REC + TD + YACR + XYACR,     data = WEEKLY_REC_WEEK)
+FLNM25	<-	lm(formula = TD ~ TAY + CTCH + YDS + YACR + XYACR, data = WEEKLY_REC_WEEK)
+FLNM26	<-	lm(formula = TD ~ ED + TLOS + YDS, data = WEEKLY_ADV_RUSH_STATS)
+FLNM27	<-	lm(formula = EFF ~ TLOS + YDS + AVG, data = WEEKLY_ADV_RUSH_STATS)
+FLNM28	<-	lm(formula = TLOS ~ EFF + YDS + AVG + TD, data = WEEKLY_ADV_RUSH_STATS)
+FLNM29	<-	lm(formula = ED ~ ATT + TD, data = WEEKLY_ADV_RUSH_STATS)
+FLNM30	<-	lm(formula = ATT ~ EFF + YDS + AVG, data = WEEKLY_ADV_RUSH_STATS)
+FLNM31	<-	lm(formula = YDS ~ EFF + ED + ATT + AVG + TD, data = WEEKLY_ADV_RUSH_STATS)
+FLNM32	<-	lm(formula = AVG ~ EFF + ED + TLOS + YDS, data = WEEKLY_ADV_RUSH_STATS)
+
+
+
+SDI1	<-	lm(formula = YDS ~( SEP + TAY + TAYP + TAR + CTCH + TD + YACR)^2 ,     data = WWRW)
+SDI2	<-	lm(formula = CUSH ~( SEP + TAYP + XYACR)^2 , data = WWRW)
+SDI3	<-	lm(formula = TAY ~( SEP + TAYP + TAR + CTCH + TD + YACR)^2 , data = WWRW)
+SDI4	<-	lm(formula = SEP ~( CUSH + TAY + CTCH + YDS + YACR + XYACR)^2 , data = WWRW)
+SDI5	<-	lm(formula = TAYP ~( CUSH + SEP + TAY + CTCH + YDS + TD + YACR)^2 ,     data = WWRW)
+SDI6	<-	lm(formula = REC ~( TAY + TAR + CTCH + TD + XYACR)^2 , data = WWRW)
+SDI7	<-	lm(formula = TAR ~( TAY + TAYP + REC + CTCH + XYACR)^2 , data = WWRW)
+SDI8	<-	lm(formula = CTCH ~( SEP + TAYP + REC + TD + XYACR)^2 , data = WWRW)
+SDI9	<-	lm(formula = TD ~( YDS + YACR + XYACR)^2 , data = WWRW)
+SDI10	<-	lm(formula = TD ~( ED + TLOS + YDS)^2 , data = ADVRWR)
+SDI11	<-	lm(formula = EFF ~( TLOS + AVG)^2 , data = ADVRWR)
+SDI12	<-	lm(formula = TLOS ~( EFF + AVG)^2 , data = ADVRWR)
+SDI13	<-	lm(formula = ED ~( ATT + TD)^2 , data = ADVRWR)
+SDI14	<-	lm(formula = ATT ~( EFF + YDS + AVG)^2 , data = ADVRWR)
+SDI15	<-	lm(formula = YDS ~( EFF + ATT + AVG + TD)^2 , data = ADVRWR)
+SDI16	<-	lm(formula = AVG ~( EFF + ED + TLOS + YDS)^2 , data = ADVRWR)
+SDI17	<-	lm(formula = YDS ~( CUSH + SEP + TAY + TAYP + TAR + CTCH + TD +    YACR)^2 , data = WEEKLY_REC_WEEK)
+SDI18	<-	lm(formula = CUSH ~( SEP + TAYP + TD + XYACR)^2 , data = WEEKLY_REC_WEEK)
+SDI19	<-	lm(formula = TAY ~( CUSH + SEP + TAYP + TAR + CTCH + TD + YACR +     XYACR)^2 , data = WEEKLY_REC_WEEK)
+SDI20	<-	lm(formula = SEP ~( CUSH + TAY + TAYP + CTCH + YDS + TD + YACR +     XYACR)^2 , data = WEEKLY_REC_WEEK)
+SDI21	<-	lm(formula = TAYP ~( CUSH + SEP + TAY + CTCH + YDS + TD + YACR)^2 ,     data = WEEKLY_REC_WEEK)
+SDI22	<-	lm(formula = REC ~( CUSH + SEP + TAY + TAR + CTCH + TD + YACR +     XYACR)^2 , data = WEEKLY_REC_WEEK)
+SDI23	<-	lm(formula = TAR ~( SEP + TAY + TAYP + REC + CTCH + XYACR)^2 , data = WEEKLY_REC_WEEK)
+SDI24	<-	lm(formula = CTCH ~( CUSH + SEP + TAYP + REC + TD + YACR + XYACR)^2 ,     data = WEEKLY_REC_WEEK)
+SDI25	<-	lm(formula = TD ~( TAY + CTCH + YDS + YACR + XYACR)^2 , data = WEEKLY_REC_WEEK)
+SDI26	<-	lm(formula = TD ~( ED + TLOS + YDS)^2, data = WEEKLY_ADV_RUSH_STATS)
+SDI27	<-	lm(formula = EFF ~( TLOS + YDS + AVG)^2, data = WEEKLY_ADV_RUSH_STATS)
+SDI28	<-	lm(formula = TLOS ~ (EFF + YDS + AVG + TD)^2, data = WEEKLY_ADV_RUSH_STATS)
+SDI29	<-	lm(formula = ED ~ (ATT + TD)^2, data = WEEKLY_ADV_RUSH_STATS)
+SDI30	<-	lm(formula = ATT ~ (EFF + YDS + AVG)^2, data = WEEKLY_ADV_RUSH_STATS)
+SDI31	<-	lm(formula = YDS ~ (EFF + ED + ATT + AVG + TD)^2, data = WEEKLY_ADV_RUSH_STATS)
+SDI32	<-	lm(formula = AVG ~( EFF + ED + TLOS + YDS)^2, data = WEEKLY_ADV_RUSH_STATS)
+
+NAI1	<-	lm(formula = YDS ~ SEP * TAY * TAYP * TAR * CTCH * TD * YACR,     data = WWRW)
+NAI2	<-	lm(formula = CUSH ~ SEP * TAYP * XYACR, data = WWRW)
+NAI3	<-	lm(formula = TAY ~ SEP * TAYP * TAR * CTCH * TD * YACR, data = WWRW)
+NAI4	<-	lm(formula = SEP ~ CUSH * TAY * CTCH * YDS * YACR * XYACR, data = WWRW)
+NAI5	<-	lm(formula = TAYP ~ CUSH * SEP * TAY * CTCH * YDS * TD * YACR,     data = WWRW)
+NAI6	<-	lm(formula = REC ~ TAY * TAR * CTCH * TD * XYACR, data = WWRW)
+NAI7	<-	lm(formula = TAR ~ TAY * TAYP * REC * CTCH * XYACR, data = WWRW)
+NAI8	<-	lm(formula = CTCH ~ SEP * TAYP * REC * TD * XYACR, data = WWRW)
+NAI9	<-	lm(formula = TD ~ YDS * YACR * XYACR, data = WWRW)
+NAI10	<-	lm(formula = TD ~ ED * TLOS * YDS, data = ADVRWR)
+NAI11	<-	lm(formula = EFF ~ TLOS * AVG, data = ADVRWR)
+NAI12	<-	lm(formula = TLOS ~ EFF * AVG, data = ADVRWR)
+NAI13	<-	lm(formula = ED ~ ATT * TD, data = ADVRWR)
+NAI14	<-	lm(formula = ATT ~ EFF * YDS * AVG, data = ADVRWR)
+NAI15	<-	lm(formula = YDS ~ EFF * ATT * AVG * TD, data = ADVRWR)
+NAI16	<-	lm(formula = AVG ~ EFF * ED * TLOS * YDS, data = ADVRWR)
+NAI17	<-	lm(formula = YDS ~ CUSH * SEP * TAY * TAYP * TAR * CTCH * TD *    YACR, data = WEEKLY_REC_WEEK)
+NAI18	<-	lm(formula = CUSH ~ SEP * TAYP * TD * XYACR, data = WEEKLY_REC_WEEK)
+NAI19	<-	lm(formula = TAY ~ CUSH * SEP * TAYP * TAR * CTCH * TD * YACR *     XYACR, data = WEEKLY_REC_WEEK)
+NAI20	<-	lm(formula = SEP ~ CUSH * TAY * TAYP * CTCH * YDS * TD * YACR *     XYACR, data = WEEKLY_REC_WEEK)
+NAI21	<-	lm(formula = TAYP ~ CUSH * SEP * TAY * CTCH * YDS * TD * YACR,     data = WEEKLY_REC_WEEK)
+NAI22	<-	lm(formula = REC ~ CUSH * SEP * TAY * TAR * CTCH * TD * YACR *     XYACR, data = WEEKLY_REC_WEEK)
+NAI23	<-	lm(formula = TAR ~ SEP * TAY * TAYP * REC * CTCH * XYACR, data = WEEKLY_REC_WEEK)
+NAI24	<-	lm(formula = CTCH ~ CUSH * SEP * TAYP * REC * TD * YACR * XYACR,     data = WEEKLY_REC_WEEK)
+NAI25	<-	lm(formula = TD ~ TAY * CTCH * YDS * YACR * XYACR, data = WEEKLY_REC_WEEK)
+NAI26	<-	lm(formula = TD ~ ED * TLOS * YDS, data = WEEKLY_ADV_RUSH_STATS)
+NAI27	<-	lm(formula = EFF ~ TLOS * YDS * AVG, data = WEEKLY_ADV_RUSH_STATS)
+NAI28	<-	lm(formula = TLOS ~ EFF * YDS * AVG * TD, data = WEEKLY_ADV_RUSH_STATS)
+NAI29	<-	lm(formula = ED ~ ATT * TD, data = WEEKLY_ADV_RUSH_STATS)
+NAI30	<-	lm(formula = ATT ~ EFF * YDS * AVG, data = WEEKLY_ADV_RUSH_STATS)
+NAI31	<-	lm(formula = YDS ~ EFF * ED * ATT * AVG * TD, data = WEEKLY_ADV_RUSH_STATS)
+NAI32	<-	lm(formula = AVG ~ EFF * ED * TLOS * YDS, data = WEEKLY_ADV_RUSH_STATS)
+
+
+ST_SDI1	<-	step(	SDI1	)
+ST_SDI2	<-	step(	SDI2	)
+ST_SDI3	<-	step(	SDI3	)
+ST_SDI4	<-	step(	SDI4	)
+ST_SDI5	<-	step(	SDI5	)
+ST_SDI6	<-	step(	SDI6	)
+ST_SDI7	<-	step(	SDI7	)
+ST_SDI8	<-	step(	SDI8	)
+ST_SDI9	<-	step(	SDI9	)
+ST_SDI10	<-	step(	SDI10	)
+ST_SDI11	<-	step(	SDI11	)
+ST_SDI12	<-	step(	SDI12	)
+ST_SDI13	<-	step(	SDI13	)
+ST_SDI14	<-	step(	SDI14	)
+ST_SDI15	<-	step(	SDI15	)
+ST_SDI16	<-	step(	SDI16	)
+ST_SDI17	<-	step(	SDI17	)
+ST_SDI18	<-	step(	SDI18	)
+ST_SDI19	<-	step(	SDI19	)
+ST_SDI20	<-	step(	SDI20	)
+ST_SDI21	<-	step(	SDI21	)
+ST_SDI22	<-	step(	SDI22	)
+ST_SDI23	<-	step(	SDI23	)
+ST_SDI24	<-	step(	SDI24	)
+ST_SDI25	<-	step(	SDI25	)
+ST_SDI26	<-	step(	SDI26	)
+ST_SDI27	<-	step(	SDI27	)
+ST_SDI28	<-	step(	SDI28	)
+ST_SDI29	<-	step(	SDI29	)
+ST_SDI30	<-	step(	SDI30	)
+ST_SDI31	<-	step(	SDI31	)
+ST_SDI32	<-	step(	SDI32	)
+
+
+ST_NAI1	<-	step(	NAI1	)
+ST_NAI2	<-	step(	NAI2	)
+ST_NAI3	<-	step(	NAI3	)
+ST_NAI4	<-	step(	NAI4	)
+ST_NAI5	<-	step(	NAI5	)
+ST_NAI6	<-	step(	NAI6	)
+ST_NAI7	<-	step(	NAI7	)
+ST_NAI8	<-	step(	NAI8	)
+ST_NAI9	<-	step(	NAI9	)
+ST_NAI10	<-	step(	NAI10	)
+ST_NAI11	<-	step(	NAI11	)
+ST_NAI12	<-	step(	NAI12	)
+ST_NAI13	<-	step(	NAI13	)
+ST_NAI14	<-	step(	NAI14	)
+ST_NAI15	<-	step(	NAI15	)
+ST_NAI16	<-	step(	NAI16	)
+ST_NAI17	<-	step(	NAI17	)
+ST_NAI18	<-	step(	NAI18	)
+ST_NAI19	<-	step(	NAI19	)
+ST_NAI20	<-	step(	NAI20	)
+ST_NAI21	<-	step(	NAI21	)
+ST_NAI22	<-	step(	NAI22	)
+ST_NAI23	<-	step(	NAI23	)
+ST_NAI24	<-	step(	NAI24	)
+ST_NAI25	<-	step(	NAI25	)
+ST_NAI26	<-	step(	NAI26	)
+ST_NAI27	<-	step(	NAI27	)
+ST_NAI28	<-	step(	NAI28	)
+ST_NAI29	<-	step(	NAI29	)
+ST_NAI30	<-	step(	NAI30	)
+ST_NAI31	<-	step(	NAI31	)
+ST_NAI32	<-	step(	NAI32	)
+
+
+#prediction
+
+PLMTO1	<-	predict(	FLNM1	,	nd_nwr	)
+PLMTO2	<-	predict(	FLNM2	,	nd_nwr	)
+PLMTO3	<-	predict(	FLNM3	,	nd_nwr	)
+PLMTO4	<-	predict(	FLNM4	,	nd_nwr	)
+PLMTO5	<-	predict(	FLNM5	,	nd_nwr	)
+PLMTO6	<-	predict(	FLNM6	,	nd_nwr	)
+PLMTO7	<-	predict(	FLNM7	,	nd_nwr	)
+PLMTO8	<-	predict(	FLNM8	,	nd_nwr	)
+PLMTO9	<-	predict(	FLNM9	,	nd_nwr	)
+PLMTO10	<-	predict(	FLNM10	,	nd_nar	)
+PLMTO11	<-	predict(	FLNM11	,	nd_nar	)
+PLMTO12	<-	predict(	FLNM12	,	nd_nar	)
+PLMTO13	<-	predict(	FLNM13	,	nd_nar	)
+PLMTO14	<-	predict(	FLNM14	,	nd_nar	)
+PLMTO15	<-	predict(	FLNM15	,	nd_nar	)
+PLMTO16	<-	predict(	FLNM16	,	nd_nar	)
+PLMTO17	<-	predict(	FLNM17	,	nd_wr	)
+PLMTO18	<-	predict(	FLNM18	,	nd_wr	)
+PLMTO19	<-	predict(	FLNM19	,	nd_wr	)
+PLMTO20	<-	predict(	FLNM20	,	nd_wr	)
+PLMTO21	<-	predict(	FLNM21	,	nd_wr	)
+PLMTO22	<-	predict(	FLNM22	,	nd_wr	)
+PLMTO23	<-	predict(	FLNM23	,	nd_wr	)
+PLMTO24	<-	predict(	FLNM24	,	nd_wr	)
+PLMTO25	<-	predict(	FLNM25	,	nd_wr	)
+PLMTO26	<-	predict(	FLNM26	,	nd_ar	)
+PLMTO27	<-	predict(	FLNM27	,	nd_ar	)
+PLMTO28	<-	predict(	FLNM28	,	nd_ar	)
+PLMTO29	<-	predict(	FLNM29	,	nd_ar	)
+PLMTO30	<-	predict(	FLNM30	,	nd_ar	)
+PLMTO31	<-	predict(	FLNM31	,	nd_ar	)
+PLMTO32	<-	predict(	FLNM32	,	nd_ar	)
+
+
+PLMTT1	<-	predict(	ST_SDI1	,	nd_nwr	)
+PLMTT2	<-	predict(	ST_SDI2	,	nd_nwr	)
+PLMTT3	<-	predict(	ST_SDI3	,	nd_nwr	)
+PLMTT4	<-	predict(	ST_SDI4	,	nd_nwr	)
+PLMTT5	<-	predict(	ST_SDI5	,	nd_nwr	)
+PLMTT6	<-	predict(	ST_SDI6	,	nd_nwr	)
+PLMTT7	<-	predict(	ST_SDI7	,	nd_nwr	)
+PLMTT8	<-	predict(	ST_SDI8	,	nd_nwr	)
+PLMTT9	<-	predict(	ST_SDI9	,	nd_nwr	)
+PLMTT10	<-	predict(	ST_SDI10	,	nd_nar	)
+PLMTT11	<-	predict(	ST_SDI11	,	nd_nar	)
+PLMTT12	<-	predict(	ST_SDI12	,	nd_nar	)
+PLMTT13	<-	predict(	ST_SDI13	,	nd_nar	)
+PLMTT14	<-	predict(	ST_SDI14	,	nd_nar	)
+PLMTT15	<-	predict(	ST_SDI15	,	nd_nar	)
+PLMTT16	<-	predict(	ST_SDI16	,	nd_nar	)
+PLMTT17	<-	predict(	ST_SDI17	,	nd_wr	)
+PLMTT18	<-	predict(	ST_SDI18	,	nd_wr	)
+PLMTT19	<-	predict(	ST_SDI19	,	nd_wr	)
+PLMTT20	<-	predict(	ST_SDI20	,	nd_wr	)
+PLMTT21	<-	predict(	ST_SDI21	,	nd_wr	)
+PLMTT22	<-	predict(	ST_SDI22	,	nd_wr	)
+PLMTT23	<-	predict(	ST_SDI23	,	nd_wr	)
+PLMTT24	<-	predict(	ST_SDI24	,	nd_wr	)
+PLMTT25	<-	predict(	ST_SDI25	,	nd_wr	)
+PLMTT26	<-	predict(	ST_SDI26	,	nd_ar	)
+PLMTT27	<-	predict(	ST_SDI27	,	nd_ar	)
+PLMTT28	<-	predict(	ST_SDI28	,	nd_ar	)
+PLMTT29	<-	predict(	ST_SDI29	,	nd_ar	)
+PLMTT30	<-	predict(	ST_SDI30	,	nd_ar	)
+PLMTT31	<-	predict(	ST_SDI31	,	nd_ar	)
+PLMTT32	<-	predict(	ST_SDI32	,	nd_ar	)
+
+
+PLMAI1	<-	predict(	ST_NAI1	,	nd_nwr	)
+PLMAI2	<-	predict(	ST_NAI2	,	nd_nwr	)
+PLMAI3	<-	predict(	ST_NAI3	,	nd_nwr	)
+PLMAI4	<-	predict(	ST_NAI4	,	nd_nwr	)
+PLMAI5	<-	predict(	ST_NAI5	,	nd_nwr	)
+PLMAI6	<-	predict(	ST_NAI6	,	nd_nwr	)
+PLMAI7	<-	predict(	ST_NAI7	,	nd_nwr	)
+PLMAI8	<-	predict(	ST_NAI8	,	nd_nwr	)
+PLMAI9	<-	predict(	ST_NAI9	,	nd_nwr	)
+PLMAI10	<-	predict(	ST_NAI10	,	nd_nar	)
+PLMAI11	<-	predict(	ST_NAI11	,	nd_nar	)
+PLMAI12	<-	predict(	ST_NAI12	,	nd_nar	)
+PLMAI13	<-	predict(	ST_NAI13	,	nd_nar	)
+PLMAI14	<-	predict(	ST_NAI14	,	nd_nar	)
+PLMAI15	<-	predict(	ST_NAI15	,	nd_nar	)
+PLMAI16	<-	predict(	ST_NAI16	,	nd_nar	)
+PLMAI17	<-	predict(	ST_NAI17	,	nd_wr	)
+PLMAI18	<-	predict(	ST_NAI18	,	nd_wr	)
+PLMAI19	<-	predict(	ST_NAI19	,	nd_wr	)
+PLMAI20	<-	predict(	ST_NAI20	,	nd_wr	)
+PLMAI21	<-	predict(	ST_NAI21	,	nd_wr	)
+PLMAI22	<-	predict(	ST_NAI22	,	nd_wr	)
+PLMAI23	<-	predict(	ST_NAI23	,	nd_wr	)
+PLMAI24	<-	predict(	ST_NAI24	,	nd_wr	)
+PLMAI25	<-	predict(	ST_NAI25	,	nd_wr	)
+PLMAI26	<-	predict(	ST_NAI26	,	nd_ar	)
+PLMAI27	<-	predict(	ST_NAI27	,	nd_ar	)
+PLMAI28	<-	predict(	ST_NAI28	,	nd_ar	)
+PLMAI29	<-	predict(	ST_NAI29	,	nd_ar	)
+PLMAI30	<-	predict(	ST_NAI30	,	nd_ar	)
+PLMAI31	<-	predict(	ST_NAI31	,	nd_ar	)
+PLMAI32	<-	predict(	ST_NAI32	,	nd_ar	)
+
+# creating unscaling function 
+
+UN_NORM <- function(x,SL,vn){
+
+# x = scaled prediction
+# SL = scale list defined earlier in project
+# vn = response variable name in quotes
+  
+usp <- x * SL$scale[vn] + SL$center[vn]
+  
+print(usp)
+}
+
+
+PLMTO1<-UN_NORM(x=PLMTO1,SL=scaleList_WWRW,vn="YDS")
+PLMTO2<-UN_NORM(x=PLMTO2,SL=scaleList_WWRW,vn="CUSH")
+PLMTO3<-UN_NORM(x=PLMTO3,SL=scaleList_WWRW,vn="TAY")
+PLMTO4<-UN_NORM(x=PLMTO4,SL=scaleList_WWRW,vn="SEP")
+PLMTO5<-UN_NORM(x=PLMTO5,SL=scaleList_WWRW,vn="TAYP")
+PLMTO6<-UN_NORM(x=PLMTO6,SL=scaleList_WWRW,vn="REC")
+PLMTO7<-UN_NORM(x=PLMTO7,SL=scaleList_WWRW,vn="TAR")
+PLMTO8<-UN_NORM(x=PLMTO8,SL=scaleList_WWRW,vn="CTCH")
+PLMTO9<-UN_NORM(x=PLMTO9,SL=scaleList_WWRW,vn="TD")
+PLMTO10<-UN_NORM(x=PLMTO10,SL=scaleList_ADVRWR,vn="TD")
+PLMTO11<-UN_NORM(x=PLMTO11,SL=scaleList_ADVRWR,vn="EFF")
+PLMTO12<-UN_NORM(x=PLMTO12,SL=scaleList_ADVRWR,vn="TLOS")
+PLMTO13<-UN_NORM(x=PLMTO13,SL=scaleList_ADVRWR,vn="ED")
+PLMTO14<-UN_NORM(x=PLMTO14,SL=scaleList_ADVRWR,vn="ATT")
+PLMTO15<-UN_NORM(x=PLMTO15,SL=scaleList_ADVRWR,vn="YDS")
+PLMTO16<-UN_NORM(x=PLMTO16,SL=scaleList_ADVRWR,vn="AVG")
+PLMTT1<-UN_NORM(x=PLMTT1,SL=scaleList_WWRW,vn="YDS")
+PLMTT2<-UN_NORM(x=PLMTT2,SL=scaleList_WWRW,vn="CUSH")
+PLMTT3<-UN_NORM(x=PLMTT3,SL=scaleList_WWRW,vn="TAY")
+PLMTT4<-UN_NORM(x=PLMTT4,SL=scaleList_WWRW,vn="SEP")
+PLMTT5<-UN_NORM(x=PLMTT5,SL=scaleList_WWRW,vn="TAYP")
+PLMTT6<-UN_NORM(x=PLMTT6,SL=scaleList_WWRW,vn="REC")
+PLMTT7<-UN_NORM(x=PLMTT7,SL=scaleList_WWRW,vn="TAR")
+PLMTT8<-UN_NORM(x=PLMTT8,SL=scaleList_WWRW,vn="CTCH")
+PLMTT9<-UN_NORM(x=PLMTT9,SL=scaleList_WWRW,vn="TD")
+PLMTT10<-UN_NORM(x=PLMTT10,SL=scaleList_ADVRWR,vn="TD")
+PLMTT11<-UN_NORM(x=PLMTT11,SL=scaleList_ADVRWR,vn="EFF")
+PLMTT12<-UN_NORM(x=PLMTT12,SL=scaleList_ADVRWR,vn="TLOS")
+PLMTT13<-UN_NORM(x=PLMTT13,SL=scaleList_ADVRWR,vn="ED")
+PLMTT14<-UN_NORM(x=PLMTT14,SL=scaleList_ADVRWR,vn="ATT")
+PLMTT15<-UN_NORM(x=PLMTT15,SL=scaleList_ADVRWR,vn="YDS")
+PLMTT16<-UN_NORM(x=PLMTT16,SL=scaleList_ADVRWR,vn="AVG")
+PLMAI1<-UN_NORM(x=PLMAI1,SL=scaleList_WWRW,vn="YDS")
+PLMAI2<-UN_NORM(x=PLMAI2,SL=scaleList_WWRW,vn="CUSH")
+PLMAI3<-UN_NORM(x=PLMAI3,SL=scaleList_WWRW,vn="TAY")
+PLMAI4<-UN_NORM(x=PLMAI4,SL=scaleList_WWRW,vn="SEP")
+PLMAI5<-UN_NORM(x=PLMAI5,SL=scaleList_WWRW,vn="TAYP")
+PLMAI6<-UN_NORM(x=PLMAI6,SL=scaleList_WWRW,vn="REC")
+PLMAI7<-UN_NORM(x=PLMAI7,SL=scaleList_WWRW,vn="TAR")
+PLMAI8<-UN_NORM(x=PLMAI8,SL=scaleList_WWRW,vn="CTCH")
+PLMAI9<-UN_NORM(x=PLMAI9,SL=scaleList_WWRW,vn="TD")
+PLMAI10<-UN_NORM(x=PLMAI10,SL=scaleList_ADVRWR,vn="TD")
+PLMAI11<-UN_NORM(x=PLMAI11,SL=scaleList_ADVRWR,vn="EFF")
+PLMAI12<-UN_NORM(x=PLMAI12,SL=scaleList_ADVRWR,vn="TLOS")
+PLMAI13<-UN_NORM(x=PLMAI13,SL=scaleList_ADVRWR,vn="ED")
+PLMAI14<-UN_NORM(x=PLMAI14,SL=scaleList_ADVRWR,vn="ATT")
+PLMAI15<-UN_NORM(x=PLMAI15,SL=scaleList_ADVRWR,vn="YDS")
+PLMAI16<-UN_NORM(x=PLMAI16,SL=scaleList_ADVRWR,vn="AVG")
+
+
+library(caTools)
+library(janitor)
+library(randomForest)
+WEEKLY_ADV_RUSH_STATS <- read_excel("C:/Users/ericr/OneDrive/Desktop/NFL PROJECT DATA/T test data/WEEKLY_ADV_RUSH_STATS.xlsx")
+
+WEEKLY_REC_WEEK <- read_excel("C:/Users/ericr/OneDrive/Desktop/NFL PROJECT DATA/T test data/Weekly_REC_WEEK.xlsx")
+
+
+WEEKLY_REC_WEEK[4:16] <- lapply(WEEKLY_REC_WEEK[4:16],as.numeric)
+WEEKLY_ADV_RUSH_STATS[3:10] <- lapply(WEEKLY_ADV_RUSH_STATS[3:10], as.numeric)
+
+
+WEEKLY_ADV_RUSH_STATS[is.na(WEEKLY_ADV_RUSH_STATS)] <- 0 
+
+WEEKLY_REC_WEEK[is.na(WEEKLY_REC_WEEK)] <- 0 
+
+
+
+
+# clean names section
+WEEKLY_REC_WEEK<- clean_names(WEEKLY_REC_WEEK)
+
+
+WEEKLY_ADV_RUSH_STATS<- clean_names(WEEKLY_ADV_RUSH_STATS)
+#ADV REC (NEXT GEN STATS REC)
+
+#cush
+sample_advrecs_cush <- sample.split(WEEKLY_REC_WEEK$cush,SplitRatio = 0.75)
+train_advrecs_cush <- subset(WEEKLY_REC_WEEK,sample_advrecs_cush == TRUE)
+testadvrecscush <- subset(WEEKLY_REC_WEEK, sample_advrecs_cush == FALSE)
+
+
+#sep
+sample_advrecs_sep <- sample.split(WEEKLY_REC_WEEK$sep,SplitRatio = 0.75)
+train_advrecs_sep <- subset(WEEKLY_REC_WEEK,sample_advrecs_sep == TRUE)
+testadvrecssep <- subset(WEEKLY_REC_WEEK, sample_advrecs_sep == FALSE)
+
+#tay
+sample_advrecs_tay <- sample.split(WEEKLY_REC_WEEK$tay,SplitRatio = 0.75)
+train_advrecs_tay <- subset(WEEKLY_REC_WEEK,sample_advrecs_tay == TRUE)
+testadvrecstay <- subset(WEEKLY_REC_WEEK, sample_advrecs_tay == FALSE)
+
+#tay perc
+sample_advrecs_tay_percent <- sample.split(WEEKLY_REC_WEEK$tay_percent,SplitRatio = 0.75)
+train_advrecs_tay_percent <- subset(WEEKLY_REC_WEEK,sample_advrecs_tay_percent == TRUE)
+testadvrecstaypercent <- subset(WEEKLY_REC_WEEK, sample_advrecs_tay_percent == FALSE)
+
+
+#rec
+sample_advrecs_rec <- sample.split(WEEKLY_REC_WEEK$rec,SplitRatio = 0.75)
+train_advrecs_rec <- subset(WEEKLY_REC_WEEK,sample_advrecs_rec == TRUE)
+testadvrecsrec <- subset(WEEKLY_REC_WEEK, sample_advrecs_rec == FALSE)
+
+#tar
+sample_advrecs_tar <- sample.split(WEEKLY_REC_WEEK$tar,SplitRatio = 0.75)
+train_advrecs_tar <- subset(WEEKLY_REC_WEEK,sample_advrecs_tar == TRUE)
+testadvrecstar <- subset(WEEKLY_REC_WEEK, sample_advrecs_tar == FALSE)
+
+#ctch perc
+sample_advrecs_ctch_percent <- sample.split(WEEKLY_REC_WEEK$ctch_percent,SplitRatio = 0.75)
+train_advrecs_ctch_percent <- subset(WEEKLY_REC_WEEK,sample_advrecs_ctch_percent == TRUE)
+testadvrecsctchpercent <- subset(WEEKLY_REC_WEEK, sample_advrecs_ctch_percent == FALSE)
+
+#yds
+sample_advrecs_yds <- sample.split(WEEKLY_REC_WEEK$yds,SplitRatio = 0.75)
+train_advrecs_yds <- subset(WEEKLY_REC_WEEK,sample_advrecs_yds == TRUE)
+testadvrecsyds <- subset(WEEKLY_REC_WEEK, sample_advrecs_yds == FALSE)
+
+
+#td
+sample_advrecs_td <- sample.split(WEEKLY_REC_WEEK$td,SplitRatio = 0.75)
+train_advrecs_td <- subset(WEEKLY_REC_WEEK,sample_advrecs_td == TRUE)
+testadvrecstd <- subset(WEEKLY_REC_WEEK, sample_advrecs_td == FALSE)
+
+#yac/r
+sample_advrecs_yac_r <- sample.split(WEEKLY_REC_WEEK$yac_r,SplitRatio = 0.75)
+train_advrecs_yac_r <- subset(WEEKLY_REC_WEEK,sample_advrecs_yac_r == TRUE)
+testadvrecsyacr <- subset(WEEKLY_REC_WEEK, sample_advrecs_yac_r == FALSE)
+
+#Adv Rush stats (WEEKLY_ADV_RUSH_STATS)
+
+#tlos
+sample_ADVRWR_tlos <- sample.split(WEEKLY_ADV_RUSH_STATS$tlos,SplitRatio = 0.75)
+train_ADVRWR_tlos <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_tlos == TRUE)
+testADVRWRtlos <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_tlos == FALSE)
+
+#x8d
+sample_ADVRWR_x8d <- sample.split(WEEKLY_ADV_RUSH_STATS$x8_d_percent,SplitRatio = 0.75)
+train_ADVRWR_x8d <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_x8d == TRUE)
+testADVRWRx8d <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_x8d == FALSE)
+
+#yds
+sample_ADVRWR_yds <- sample.split(WEEKLY_ADV_RUSH_STATS$yds,SplitRatio = 0.75)
+train_ADVRWR_yds <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_yds == TRUE)
+testADVRWRyds <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_yds == FALSE)
+
+
+#eff
+sample_ADVRWR_eff <- sample.split(WEEKLY_ADV_RUSH_STATS$eff,SplitRatio = 0.75)
+train_ADVRWR_eff <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_eff == TRUE)
+testADVRWReff <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_eff == FALSE)
+
+#att
+sample_ADVRWR_att <- sample.split(WEEKLY_ADV_RUSH_STATS$att,SplitRatio = 0.75)
+train_ADVRWR_att <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_att == TRUE)
+testADVRWRatt <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_att == FALSE)
+
+#td
+sample_ADVRWR_td <- sample.split(WEEKLY_ADV_RUSH_STATS$td,SplitRatio = 0.75)
+train_ADVRWR_td <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_td == TRUE)
+testADVRWRtd <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_td == FALSE)
+
+#avg
+sample_ADVRWR_avg <- sample.split(WEEKLY_ADV_RUSH_STATS$avg,SplitRatio = 0.75)
+train_ADVRWR_avg <- subset(WEEKLY_ADV_RUSH_STATS,sample_ADVRWR_avg == TRUE)
+testADVRWRavg <- subset(WEEKLY_ADV_RUSH_STATS, sample_ADVRWR_avg == FALSE)
+
+
+
+RFM26	<-	randomForest	(formula = yds ~ cush + sep + tay + rec + ctch_percent + td +  yac_r, data = train_advrecs_yds	, importance = TRUE)
+
+RFM27	<-	randomForest	(formula = cush ~ sep + tay + ctch_percent + yds + td + yac_r,   data = train_advrecs_cush	, importance = TRUE)
+
+RFM28	<-	randomForest	(formula = tay ~ cush + sep + tar + ctch_percent + td + yac_r,   data = train_advrecs_tay	, importance = TRUE)
+
+RFM29	<-	randomForest	(formula = sep ~ cush + tay + ctch_percent + yds + td + yac_r, data = train_advrecs_sep	, importance = TRUE)
+
+RFM30	<-	randomForest	(formula = tay_percent ~ cush + sep + tar + ctch_percent +  td + yac_r, data = train_advrecs_tay_percent	, importance = TRUE)
+
+RFM31	<-	randomForest	(formula = rec ~ cush + sep + tay + +ctch_percent + yds + td + yac_r, data = train_advrecs_rec	, importance = TRUE)
+
+RFM32	<-	randomForest	(formula = tar ~ cush + sep + tay + ctch_percent + yds + td +   yac_r, data = train_advrecs_tar	, importance = TRUE)
+
+RFM33	<-	randomForest	(formula = ctch_percent ~ cush + sep + tay + yds + td + yac_r, data = train_advrecs_ctch_percent	, importance = TRUE)
+
+RFM34	<-	randomForest	(formula = td ~ cush + sep + tay + ctch_percent + yds + yac_r,   data = train_advrecs_td	, importance = TRUE)
+
+
+
+RFM40	<-	randomForest	(formula = td ~ eff + x8_d_percent + tlos + yds, data = train_ADVRWR_td	, importance = TRUE)
+RFM41	<-	randomForest	(formula = eff ~ x8_d_percent + tlos + att + td, data = train_ADVRWR_eff	, importance = TRUE)
+RFM42	<-	randomForest	(formula = tlos ~ eff + x8_d_percent + yds + td, data = train_ADVRWR_tlos	, importance = TRUE)
+RFM43	<-	randomForest	(formula = x8_d_percent ~ eff + tlos + att + td, data = train_ADVRWR_x8d	, importance = TRUE)
+RFM44	<-	randomForest	(formula = att ~ eff + x8_d_percent + tlos + yds + td, data = train_ADVRWR_att	, importance = TRUE)
+RFM45	<-	randomForest	(formula = yds ~ eff + x8_d_percent + tlos + att + td, data = train_ADVRWR_yds	, importance = TRUE)
+RFM46	<-	randomForest	(formula = avg ~ eff + x8_d_percent + tlos + att + td, data = train_ADVRWR_avg	, importance = TRUE)
+
+PredRF26	<-	predict(	RFM26	,	newdata=	testadvrecsyds	[	-	11	])
+PredRF27	<-	predict(	RFM27	,	newdata=	testadvrecscush	[	-	4	])
+PredRF28	<-	predict(	RFM28	,	newdata=	testadvrecstay	[	-	6	])
+PredRF29	<-	predict(	RFM29	,	newdata=	testadvrecssep	[	-	5	])
+PredRF30	<-	predict(	RFM30	,	newdata=	testadvrecstaypercent	[	-	7	])
+PredRF31	<-	predict(	RFM31	,	newdata=	testadvrecsrec	[	-	8	])
+PredRF32	<-	predict(	RFM32	,	newdata=	testadvrecstar	[	-	9	])
+PredRF33	<-	predict(	RFM33	,	newdata=	testadvrecsctchpercent	[	-	10	])
+PredRF34	<-	predict(	RFM34	,	newdata=	testadvrecstd	[	-	12	])
+
+PredRF40	<-	predict(	RFM40	,	newdata=	testADVRWRtd	[	-	9	])
+PredRF41	<-	predict(	RFM41	,	newdata=	testADVRWReff	[	-	3	])
+PredRF42	<-	predict(	RFM42	,	newdata=	testADVRWRtlos	[	-	5	])
+PredRF43	<-	predict(	RFM43	,	newdata=	testADVRWRx8d	[	-	4	])
+PredRF44	<-	predict(	RFM44	,	newdata=	testADVRWRatt	[	-	6	])
+PredRF45	<-	predict(	RFM45	,	newdata=	testADVRWRyds	[	-	7	])
+PredRF46	<-	predict(	RFM46	,	newdata=	testADVRWRavg	[	-	8	])
+
+library(readxl)
+library(party)
+WEEKLY_ADV_RUSH_STATS <- read_excel("C:/Users/ericr/OneDrive/Desktop/NFL PROJECT DATA/T test data/WEEKLY_ADV_RUSH_STATS.xlsx")
+
+WEEKLY_REC_WEEK <- read_excel("C:/Users/ericr/OneDrive/Desktop/NFL PROJECT DATA/T test data/Weekly_REC_WEEK.xlsx")
+
+WEEKLY_REC_WEEK <- WEEKLY_REC_WEEK [c(-1:-3)]
+WEEKLY_ADV_RUSH_STATS<- WEEKLY_ADV_RUSH_STATS[c(-1:-2)]
+
+
+colnames(WEEKLY_ADV_RUSH_STATS)[2]<-"ED"
+colnames(WEEKLY_REC_WEEK)[4]<-"TAYP"
+colnames(WEEKLY_REC_WEEK)[7]<-"CTCH"
+colnames(WEEKLY_REC_WEEK)[10] <- "YACR"
+colnames(WEEKLY_REC_WEEK)[11] <- "XYACR"
+colnames(WEEKLY_REC_WEEK)[12] <- "PLMUS"
+
+
+
+WEEKLY_REC_WEEK <- lapply(WEEKLY_REC_WEEK, as.numeric)
+WEEKLY_ADV_RUSH_STATS <- lapply(WEEKLY_ADV_RUSH_STATS, as.numeric)
+
+WEEKLY_ADV_RUSH_STATS <- as.data.frame(WEEKLY_ADV_RUSH_STATS)
+
+WEEKLY_REC_WEEK <- as.data.frame(WEEKLY_REC_WEEK)
+WEEKLY_ADV_RUSH_STATS[is.na(WEEKLY_ADV_RUSH_STATS)] <- 0 
+
+WEEKLY_REC_WEEK[is.na(WEEKLY_REC_WEEK)] <- 0 
+
+CT40	<-	ctree	(formula = TD ~ EFF + ED + TLOS + YDS, data = WEEKLY_ADV_RUSH_STATS	)
+CT41	<-	ctree	(formula = EFF ~ ED + TLOS + ATT + TD, data = WEEKLY_ADV_RUSH_STATS	)
+CT42	<-	ctree	(formula = TLOS ~ EFF + ED + YDS + TD, data = WEEKLY_ADV_RUSH_STATS	)
+CT43	<-	ctree	(formula = ED ~ EFF + TLOS + ATT + TD, data = WEEKLY_ADV_RUSH_STATS	)
+CT44	<-	ctree	(formula = ATT ~ EFF + ED + TLOS + YDS + TD, data = WEEKLY_ADV_RUSH_STATS	)
+CT45	<-	ctree	(formula = YDS ~ EFF + ED + TLOS + ATT + TD, data = WEEKLY_ADV_RUSH_STATS	)
+CT46	<-	ctree	(formula = AVG ~ EFF + ED + TLOS + ATT + TD, data = WEEKLY_ADV_RUSH_STATS	)
+
+CT26	<-	ctree	(formula = YDS ~ CUSH + SEP + TAY + REC + CTCH + TD +  YACR, data = WEEKLY_REC_WEEK	)
+CT27	<-	ctree	(formula = CUSH ~ SEP + TAY + CTCH + YDS + TD + YACR,   data = WEEKLY_REC_WEEK	)
+CT28	<-	ctree	(formula = TAY ~ CUSH + SEP + TAR + CTCH + TD + YACR,   data = WEEKLY_REC_WEEK	)
+CT29	<-	ctree	(formula = SEP ~ CUSH + TAY + CTCH + YDS + TD + YACR, data = WEEKLY_REC_WEEK	)
+CT30	<-	ctree	(formula = TAYP ~ CUSH + SEP + TAR + CTCH +  TD + YACR, data = WEEKLY_REC_WEEK	)
+CT31	<-	ctree	(formula = REC ~ CUSH + SEP + TAY + +CTCH + YDS + TD + YACR, data = WEEKLY_REC_WEEK	)
+CT32	<-	ctree	(formula = TAR ~ CUSH + SEP + TAY + CTCH + YDS + TD +   YACR, data = WEEKLY_REC_WEEK	)
+CT33	<-	ctree	(formula = CTCH ~ CUSH + SEP + TAY + YDS + TD + YACR, data = WEEKLY_REC_WEEK	)
+CT34	<-	ctree	(formula = TD ~ CUSH + SEP + TAY + CTCH + YDS + YACR,   data = WEEKLY_REC_WEEK	)
+
+plot(	CT40	)
+plot(	CT41	)
+plot(	CT42	)
+plot(	CT43	)
+plot(	CT44	)
+plot(	CT45	)
+plot(	CT46	)
+
+plot(	CT26	)
+plot(	CT27	)
+plot(	CT28	)
+plot(	CT29	)
+plot(	CT30	)
+plot(	CT31	)
+plot(	CT32	)
+plot(	CT33	)
+plot(	CT34	)
+
+```
+

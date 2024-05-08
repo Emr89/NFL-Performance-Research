@@ -1,0 +1,2972 @@
+---
+title: "Rams RFM"
+output:
+  word_document: default
+  html_document: default
+---
+```{r warning=FALSE}
+library(readxl)
+library(tidyverse)
+library(car)
+library(leaps)
+library(pedometrics)
+library(HH)
+library(caTools)
+
+Defense_Weekly <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense Weekly.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+
+NEXT_GEN_STATS_PASSING <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NEXT GEN STATS PASSING.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+Next_gen_stats_receving <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Next gen stats receving.xlsx", 
+    col_types = c("text", "text", "text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+
+REC_WEEKLY <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/REC WEEKLY.xlsx",col_types = c("text", "text", "text","text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+
+
+Weekly_Rushing_Stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly Rushing Stats.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+Weekly_Passing <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly_Passing.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+ADV_DEF_MOD_STATS <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Adv_DEF_MOD_STATS.xlsx")
+
+Defense_Air_Comp <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense_Air_Comp.xlsx")
+
+advanced_def_rush <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/advanced_def_rush.xlsx")
+
+Advanced_Rec_stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rec_stats.xlsx")
+
+Advanced_Rushing_data <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rushing_data.xlsx")
+
+NGSR <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NGSR.xlsx")
+
+
+MODADV <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/MODADV.xlsx")
+
+# make sure to make Nas = 0 
+
+FL <- list(
+Advanced_Rec_stats ,
+Advanced_Rushing_data, 
+ADV_DEF_MOD_STATS,
+Defense_Weekly, 
+NEXT_GEN_STATS_PASSING, 
+Next_gen_stats_receving, 
+REC_WEEKLY, 
+Weekly_Passing, 
+Weekly_Rushing_Stats 
+)
+
+
+FL[is.na(FL)] <- 0 
+
+
+Advanced_Rec_stats <-na.omit(Advanced_Rec_stats)
+Advanced_Rushing_data<-na.omit( Advanced_Rushing_data)
+ADV_DEF_MOD_STATS<-na.omit(ADV_DEF_MOD_STATS)
+Defense_Weekly<-na.omit( Defense_Weekly)
+NEXT_GEN_STATS_PASSING<-na.omit( NEXT_GEN_STATS_PASSING)
+Next_gen_stats_receving<-na.omit( Next_gen_stats_receving)
+REC_WEEKLY<-na.omit( REC_WEEKLY)
+Weekly_Passing<-na.omit( Weekly_Passing)
+Weekly_Rushing_Stats <-na.omit(Weekly_Rushing_Stats)
+
+
+
+# Taking away specific variables 
+
+Weekly_Passing <- Weekly_Passing[c(-1:-2, -15:-16)]
+NEXT_GEN_STATS_PASSING <- NEXT_GEN_STATS_PASSING[c(-1:-2)]
+REC_WEEKLY <- REC_WEEKLY[c(-1:-3,-4)]
+Next_gen_stats_receving <- Next_gen_stats_receving[c(-1:-3)]
+Weekly_Rushing_Stats <- Weekly_Rushing_Stats[c(-1:-3,-4)]
+NGSR <- NGSR[c(-1:-2)]
+Defense_Weekly <- Defense_Weekly[c(-1:-3,-4)]
+ADV_DEF_MOD_STATS <- ADV_DEF_MOD_STATS[c(-1:-2)]
+MODADV<- MODADV[-1:-2]
+
+
+
+
+
+library(caTools)
+library(janitor)
+library(randomForest)
+
+
+# clean names section
+
+Weekly_Passing <- clean_names(Weekly_Passing)
+
+NEXT_GEN_STATS_PASSING <- clean_names(NEXT_GEN_STATS_PASSING)
+
+Next_gen_stats_receving<- clean_names(Next_gen_stats_receving)
+
+Weekly_Rushing_Stats <- clean_names(Weekly_Rushing_Stats)
+
+NGSR<- clean_names(NGSR)
+
+Defense_Weekly <- clean_names(Defense_Weekly)
+
+REC_WEEKLY <- clean_names(REC_WEEKLY)
+
+
+REC_WEEKLY[is.na(REC_WEEKLY)] <- 0 
+
+
+Weekly_Rushing_Stats[is.na(Weekly_Rushing_Stats)] <- 0 
+
+
+MODADV[is.na(MODADV)] <- 0 
+
+# Setting up train data 
+
+#WEEKlY passing TDs
+sample_wp_td <- sample.split(Weekly_Passing$td,SplitRatio = 0.75)
+train_wp_td <- subset(Weekly_Passing,sample_wp_td == TRUE)
+testwptd <- subset(Weekly_Passing, sample_wp_td == FALSE)
+
+#TT
+sample_wp_tt <- sample.split(Weekly_Passing$tt,SplitRatio = 0.75)
+train_wp_tt <- subset(Weekly_Passing,sample_wp_tt == TRUE)
+testwptt <- subset(Weekly_Passing, sample_wp_tt == FALSE)
+
+
+#cay
+sample_wp_cay <- sample.split(Weekly_Passing$cay,SplitRatio = 0.75)
+train_wp_cay <- subset(Weekly_Passing,sample_wp_cay == TRUE)
+testwpcay <- subset(Weekly_Passing, sample_wp_cay == FALSE)
+
+#iay
+sample_wp_iay <- sample.split(Weekly_Passing$iay,SplitRatio = 0.75)
+train_wp_iay <- subset(Weekly_Passing,sample_wp_iay == TRUE)
+testwpiay <- subset(Weekly_Passing, sample_wp_iay == FALSE)
+
+#agg percent
+sample_wp_agg_percent <- sample.split(Weekly_Passing$agg_percent,SplitRatio = 0.75)
+train_wp_agg_percent <- subset(Weekly_Passing,sample_wp_agg_percent == TRUE)
+testwpaggpercent <- subset(Weekly_Passing, sample_wp_agg_percent == FALSE)
+
+#lcad
+sample_wp_lcad <- sample.split(Weekly_Passing$lcad,SplitRatio = 0.75)
+train_wp_lcad <- subset(Weekly_Passing,sample_wp_lcad == TRUE)
+testwplcad <- subset(Weekly_Passing, sample_wp_lcad == FALSE)
+
+#ayts
+sample_wp_ayts <- sample.split(Weekly_Passing$ayts,SplitRatio = 0.75)
+train_wp_ayts <- subset(Weekly_Passing,sample_wp_ayts == TRUE)
+testwpayts <- subset(Weekly_Passing, sample_wp_ayts == FALSE)
+
+#att
+sample_wp_att <- sample.split(Weekly_Passing$att,SplitRatio = 0.75)
+train_wp_att <- subset(Weekly_Passing,sample_wp_att == TRUE)
+testwpatt <- subset(Weekly_Passing, sample_wp_att == FALSE)
+
+#yds
+sample_wp_yds <- sample.split(Weekly_Passing$yds,SplitRatio = 0.75)
+train_wp_yds <- subset(Weekly_Passing,sample_wp_yds == TRUE)
+testwpyds <- subset(Weekly_Passing, sample_wp_yds == FALSE)
+
+
+#int 
+sample_wp_int <- sample.split(Weekly_Passing$int,SplitRatio = 0.75)
+train_wp_int <- subset(Weekly_Passing,sample_wp_int == TRUE)
+testwpint <- subset(Weekly_Passing, sample_wp_int == FALSE)
+
+#comp perc
+sample_wp_comp_percent <- sample.split(Weekly_Passing$comp_percent,SplitRatio = 0.75)
+train_wp_comp_percent <- subset(Weekly_Passing,sample_wp_comp_percent == TRUE)
+testwpcomppercent <- subset(Weekly_Passing, sample_wp_comp_percent == FALSE)
+
+
+
+#Season passing TDs
+sample_NGSP_td <- sample.split(NEXT_GEN_STATS_PASSING$td,SplitRatio = 0.75)
+train_NGSP_td <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_td == TRUE)
+testNGSPtd <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_td == FALSE)
+
+#TT
+sample_NGSP_tt <- sample.split(NEXT_GEN_STATS_PASSING$tt,SplitRatio = 0.75)
+train_NGSP_tt <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_tt == TRUE)
+testNGSPtt <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_tt == FALSE)
+
+
+#cay
+sample_NGSP_cay <- sample.split(NEXT_GEN_STATS_PASSING$cay,SplitRatio = 0.75)
+train_NGSP_cay <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_cay == TRUE)
+testNGSPcay <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_cay == FALSE)
+
+#iay
+sample_NGSP_iay <- sample.split(NEXT_GEN_STATS_PASSING$iay,SplitRatio = 0.75)
+train_NGSP_iay <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_iay == TRUE)
+testNGSPiay <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_iay == FALSE)
+
+#agg percent
+sample_NGSP_agg_percent <- sample.split(NEXT_GEN_STATS_PASSING$agg_percent,SplitRatio = 0.75)
+train_NGSP_agg_percent <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_agg_percent == TRUE)
+testNGSPaggpercent <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_agg_percent == FALSE)
+
+#lcad
+sample_NGSP_lcad <- sample.split(NEXT_GEN_STATS_PASSING$lcad,SplitRatio = 0.75)
+train_NGSP_lcad <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_lcad == TRUE)
+testNGSPlcad <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_lcad == FALSE)
+
+#ayts
+sample_NGSP_ayts <- sample.split(NEXT_GEN_STATS_PASSING$ayts,SplitRatio = 0.75)
+train_NGSP_ayts <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_ayts == TRUE)
+testNGSPayts <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_ayts == FALSE)
+
+#att
+sample_NGSP_att <- sample.split(NEXT_GEN_STATS_PASSING$att,SplitRatio = 0.75)
+train_NGSP_att <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_att == TRUE)
+testNGSPatt <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_att == FALSE)
+
+#yds
+sample_NGSP_yds <- sample.split(NEXT_GEN_STATS_PASSING$yds,SplitRatio = 0.75)
+train_NGSP_yds <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_yds == TRUE)
+testNGSPyds <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_yds == FALSE)
+
+
+#int
+sample_NGSP_int <- sample.split(NEXT_GEN_STATS_PASSING$int,SplitRatio = 0.75)
+train_NGSP_int <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_int == TRUE)
+testNGSPint <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_int == FALSE)
+
+#comp perc
+sample_NGSP_comp_percent <- sample.split(NEXT_GEN_STATS_PASSING$comp_percent,SplitRatio = 0.75)
+train_NGSP_comp_percent <- subset(NEXT_GEN_STATS_PASSING,sample_NGSP_comp_percent == TRUE)
+testNGSPcomppercent <- subset(NEXT_GEN_STATS_PASSING, sample_NGSP_comp_percent == FALSE)
+
+
+# REC Weekly
+
+#TD
+sample_rec_w_td <- sample.split(REC_WEEKLY$td,SplitRatio = 0.75)
+train_rec_w_td <- subset(REC_WEEKLY,sample_rec_w_td == TRUE)
+testrecwtd <- subset(REC_WEEKLY, sample_rec_w_td == FALSE)
+
+# FUM
+sample_rec_w_fum <- sample.split(REC_WEEKLY$fum,SplitRatio = 0.75)
+train_rec_w_fum <- subset(REC_WEEKLY,sample_rec_w_fum == TRUE)
+testrecwfum <- subset(REC_WEEKLY, sample_rec_w_fum == FALSE)
+#Rec
+sample_rec_w_rec <- sample.split(REC_WEEKLY$rec,SplitRatio = 0.75)
+train_rec_w_rec <- subset(REC_WEEKLY,sample_rec_w_rec == TRUE)
+testrecwrec <- subset(REC_WEEKLY, sample_rec_w_rec == FALSE)
+
+#yds
+sample_rec_w_yds <- sample.split(REC_WEEKLY$yds,SplitRatio = 0.75)
+train_rec_w_yds <- subset(REC_WEEKLY,sample_rec_w_yds == TRUE)
+testrecwyds <- subset(REC_WEEKLY, sample_rec_w_yds == FALSE)
+
+#avg
+sample_rec_w_avg <- sample.split(REC_WEEKLY$avg,SplitRatio = 0.75)
+train_rec_w_avg <- subset(REC_WEEKLY,sample_rec_w_avg == TRUE)
+testrecwavg <- subset(REC_WEEKLY, sample_rec_w_avg == FALSE)
+
+
+# Weekly Rushing stats 
+
+#TD
+sample_rush_w_td <- sample.split(Weekly_Rushing_Stats$td,SplitRatio = 0.75)
+train_rush_w_td <- subset(Weekly_Rushing_Stats,sample_rush_w_td == TRUE)
+testrushwtd <- subset(Weekly_Rushing_Stats, sample_rush_w_td == FALSE)
+
+# FUM
+sample_rush_w_fum <- sample.split(Weekly_Rushing_Stats$fum,SplitRatio = 0.75)
+train_rush_w_fum <- subset(Weekly_Rushing_Stats,sample_rush_w_fum == TRUE)
+testrushwfum <- subset(Weekly_Rushing_Stats, sample_rush_w_fum == FALSE)
+#att
+sample_rush_w_att <- sample.split(Weekly_Rushing_Stats$att,SplitRatio = 0.75)
+train_rush_w_att<- subset(Weekly_Rushing_Stats,sample_rush_w_att == TRUE)
+testrushwatt<- subset(Weekly_Rushing_Stats, sample_rush_w_att == FALSE)
+
+#yds
+sample_rush_w_yds <- sample.split(Weekly_Rushing_Stats$yds,SplitRatio = 0.75)
+train_rush_w_yds <- subset(Weekly_Rushing_Stats,sample_rush_w_yds == TRUE)
+testrushwyds <- subset(Weekly_Rushing_Stats, sample_rush_w_yds == FALSE)
+
+#avg
+sample_rush_w_avg <- sample.split(Weekly_Rushing_Stats$avg,SplitRatio = 0.75)
+train_rush_w_avg <- subset(Weekly_Rushing_Stats,sample_rush_w_avg == TRUE)
+testrushwavg <- subset(Weekly_Rushing_Stats, sample_rush_w_avg == FALSE)
+
+
+# Def Weekly
+
+#sacks
+sample_dfw_sk <- sample.split(Defense_Weekly$sacks,SplitRatio = 0.75)
+train_dfw_sk <- subset(Defense_Weekly,sample_dfw_sk == TRUE)
+testdfwsk <- subset(Defense_Weekly, sample_dfw_sk == FALSE)
+
+
+#sky
+sample_dfw_sky <- sample.split(Defense_Weekly$sack_yds,SplitRatio = 0.75)
+train_dfw_sky <- subset(Defense_Weekly,sample_dfw_sky == TRUE)
+testdfwsky <- subset(Defense_Weekly, sample_dfw_sky == FALSE)
+
+#ff
+sample_dfw_FF <- sample.split(Defense_Weekly$fumbles_forced,SplitRatio = 0.75)
+train_dfw_FF <- subset(Defense_Weekly,sample_dfw_FF == TRUE)
+testdfwFF <- subset(Defense_Weekly, sample_dfw_FF == FALSE)
+
+
+#fumble recovered
+sample_dfw_FR <- sample.split(Defense_Weekly$fumbles_recovered,SplitRatio = 0.75)
+train_dfw_FR <- subset(Defense_Weekly,sample_dfw_FR == TRUE)
+testdfwFR <- subset(Defense_Weekly, sample_dfw_FR == FALSE)
+
+#tackle
+sample_dfw_TKL <- sample.split(Defense_Weekly$tackles,SplitRatio = 0.75)
+train_dfw_TKL <- subset(Defense_Weekly,sample_dfw_TKL == TRUE)
+testdfwTKL <- subset(Defense_Weekly, sample_dfw_TKL == FALSE)
+
+#ast
+sample_dfw_AST <- sample.split(Defense_Weekly$assists,SplitRatio = 0.75)
+train_dfw_AST <- subset(Defense_Weekly,sample_dfw_AST == TRUE)
+testdfwAST <- subset(Defense_Weekly, sample_dfw_AST == FALSE)
+
+#qbh
+sample_dfw_QBH <- sample.split(Defense_Weekly$qb_hits,SplitRatio = 0.75)
+train_dfw_QBH <- subset(Defense_Weekly,sample_dfw_QBH == TRUE)
+testdfwQBH <- subset(Defense_Weekly, sample_dfw_QBH == FALSE)
+
+
+
+#Adv Rush stats (NGSR)
+
+#tlos
+sample_advrushs_tlos <- sample.split(NGSR$tlos,SplitRatio = 0.75)
+train_advrushs_tlos <- subset(NGSR,sample_advrushs_tlos == TRUE)
+testadvrushstlos <- subset(NGSR, sample_advrushs_tlos == FALSE)
+
+#x8d
+sample_advrushs_x8d <- sample.split(NGSR$x8_d_percent,SplitRatio = 0.75)
+train_advrushs_x8d <- subset(NGSR,sample_advrushs_x8d == TRUE)
+testadvrushsx8d <- subset(NGSR, sample_advrushs_x8d == FALSE)
+
+#yds
+sample_advrushs_yds <- sample.split(NGSR$yds,SplitRatio = 0.75)
+train_advrushs_yds <- subset(NGSR,sample_advrushs_yds == TRUE)
+testadvrushsyds <- subset(NGSR, sample_advrushs_yds == FALSE)
+
+
+#eff
+sample_advrushs_eff <- sample.split(NGSR$eff,SplitRatio = 0.75)
+train_advrushs_eff <- subset(NGSR,sample_advrushs_eff == TRUE)
+testadvrushseff <- subset(NGSR, sample_advrushs_eff == FALSE)
+
+#att
+sample_advrushs_att <- sample.split(NGSR$att,SplitRatio = 0.75)
+train_advrushs_att <- subset(NGSR,sample_advrushs_att == TRUE)
+testadvrushsatt <- subset(NGSR, sample_advrushs_att == FALSE)
+
+#td
+sample_advrushs_td <- sample.split(NGSR$td,SplitRatio = 0.75)
+train_advrushs_td <- subset(NGSR,sample_advrushs_td == TRUE)
+testadvrushstd <- subset(NGSR, sample_advrushs_td == FALSE)
+
+#avg
+sample_advrushs_avg <- sample.split(NGSR$avg,SplitRatio = 0.75)
+train_advrushs_avg <- subset(NGSR,sample_advrushs_avg == TRUE)
+testadvrushsavg <- subset(NGSR, sample_advrushs_avg == FALSE)
+
+#ADV REC (NEXT GEN STATS REC)
+
+#cush
+sample_advrecs_cush <- sample.split(Next_gen_stats_receving$cush,SplitRatio = 0.75)
+train_advrecs_cush <- subset(Next_gen_stats_receving,sample_advrecs_cush == TRUE)
+testadvrecscush <- subset(Next_gen_stats_receving, sample_advrecs_cush == FALSE)
+
+
+#sep
+sample_advrecs_sep <- sample.split(Next_gen_stats_receving$sep,SplitRatio = 0.75)
+train_advrecs_sep <- subset(Next_gen_stats_receving,sample_advrecs_sep == TRUE)
+testadvrecssep <- subset(Next_gen_stats_receving, sample_advrecs_sep == FALSE)
+
+#tay
+sample_advrecs_tay <-sample.split(Next_gen_stats_receving$tay,SplitRatio = 0.75)
+train_advrecs_tay <- subset(Next_gen_stats_receving,sample_advrecs_tay == TRUE)
+testadvrecstay <- subset(Next_gen_stats_receving, sample_advrecs_tay == FALSE)
+
+#tay perc
+sample_advrecs_tay_percent <- sample.split(Next_gen_stats_receving$tay_percent,SplitRatio = 0.75)
+train_advrecs_tay_percent <- subset(Next_gen_stats_receving,sample_advrecs_tay_percent == TRUE)
+testadvrecstaypercent <- subset(Next_gen_stats_receving, sample_advrecs_tay_percent == FALSE)
+
+
+#rec
+sample_advrecs_rec <- sample.split(Next_gen_stats_receving$rec,SplitRatio = 0.75)
+train_advrecs_rec <- subset(Next_gen_stats_receving,sample_advrecs_rec == TRUE)
+testadvrecsrec <- subset(Next_gen_stats_receving, sample_advrecs_rec == FALSE)
+
+#tar
+sample_advrecs_tar <- sample.split(Next_gen_stats_receving$tar,SplitRatio = 0.75)
+train_advrecs_tar <- subset(Next_gen_stats_receving,sample_advrecs_tar == TRUE)
+testadvrecstar <- subset(Next_gen_stats_receving, sample_advrecs_tar == FALSE)
+
+#ctch perc
+sample_advrecs_ctch_percent <- sample.split(Next_gen_stats_receving$ctch_percent,SplitRatio = 0.75)
+train_advrecs_ctch_percent <- subset(Next_gen_stats_receving,sample_advrecs_ctch_percent == TRUE)
+testadvrecsctchpercent <- subset(Next_gen_stats_receving, sample_advrecs_ctch_percent == FALSE)
+
+#yds
+sample_advrecs_yds <- sample.split(Next_gen_stats_receving$yds,SplitRatio = 0.75)
+train_advrecs_yds <- subset(Next_gen_stats_receving,sample_advrecs_yds == TRUE)
+testadvrecsyds <- subset(Next_gen_stats_receving, sample_advrecs_yds == FALSE)
+
+
+#td
+sample_advrecs_td <- sample.split(Next_gen_stats_receving$td,SplitRatio = 0.75)
+train_advrecs_td <- subset(Next_gen_stats_receving,sample_advrecs_td == TRUE)
+testadvrecstd <- subset(Next_gen_stats_receving, sample_advrecs_td == FALSE)
+
+#yac/r
+sample_advrecs_yac_r <- sample.split(Next_gen_stats_receving$yac_r,SplitRatio = 0.75)
+train_advrecs_yac_r <- subset(Next_gen_stats_receving,sample_advrecs_yac_r == TRUE)
+testadvrecsyacr <- subset(Next_gen_stats_receving, sample_advrecs_yac_r == FALSE)
+
+
+#ADV DEF (MODADV)
+
+#int
+sample_advdefs_Int <- sample.split(MODADV$Int,SplitRatio = 0.75)
+train_advdefs_Int <- subset(MODADV,sample_advdefs_Int == TRUE)
+testadvdefsInt <- subset(MODADV, sample_advdefs_Int == FALSE)
+
+#tgt
+sample_advdefs_Tgt <- sample.split(MODADV$Tgt,SplitRatio = 0.75)
+train_advdefs_Tgt <- subset(MODADV,sample_advdefs_Tgt == TRUE)
+testadvdefsTgt <- subset(MODADV, sample_advdefs_Tgt == FALSE)
+
+#cmp
+sample_advdefs_Cmp <- sample.split(MODADV$Cmp,SplitRatio = 0.75)
+train_advdefs_Cmp <- subset(MODADV,sample_advdefs_Cmp == TRUE)
+testadvdefsCmp <- subset(MODADV, sample_advdefs_Cmp == FALSE)
+
+#yds
+sample_advdefs_Yds <- sample.split(MODADV$Yds,SplitRatio = 0.75)
+train_advdefs_Yds <- subset(MODADV,sample_advdefs_Yds == TRUE)
+testadvdefsYds <- subset(MODADV, sample_advdefs_Yds == FALSE)
+
+#td
+sample_advdefs_TD <- sample.split(MODADV$TD,SplitRatio = 0.75)
+train_advdefs_TD <- subset(MODADV,sample_advdefs_TD == TRUE)
+testadvdefsTD <- subset(MODADV, sample_advdefs_TD == FALSE)
+
+#dadot
+sample_advdefs_DADOT <- sample.split(MODADV$DADOT,SplitRatio = 0.75)
+train_advdefs_DADOT <- subset(MODADV,sample_advdefs_DADOT == TRUE)
+testadvdefsDADOT <- subset(MODADV, sample_advdefs_DADOT == FALSE)
+
+#air
+sample_advdefs_Air <- sample.split(MODADV$Air,SplitRatio = 0.75)
+train_advdefs_Air <- subset(MODADV,sample_advdefs_Air == TRUE)
+testadvdefsAir <- subset(MODADV, sample_advdefs_Air == FALSE)
+
+
+#bltz
+sample_advdefs_Bltz <- sample.split(MODADV$Bltz,SplitRatio = 0.75)
+train_advdefs_Bltz <- subset(MODADV,sample_advdefs_Bltz == TRUE)
+testadvdefsBltz <- subset(MODADV, sample_advdefs_Bltz == FALSE)
+
+#hrry
+sample_advdefs_Hrry <- sample.split(MODADV$Hrry,SplitRatio = 0.75)
+train_advdefs_Hrry <- subset(MODADV,sample_advdefs_Hrry == TRUE)
+testadvdefsHrry <- subset(MODADV, sample_advdefs_Hrry == FALSE)
+
+#qbkd
+sample_advdefs_QBKD <- sample.split(MODADV$QBKD,SplitRatio = 0.75)
+train_advdefs_QBKD <- subset(MODADV,sample_advdefs_QBKD == TRUE)
+testadvdefsQBKD <- subset(MODADV, sample_advdefs_QBKD == FALSE)
+
+#sk
+sample_advdefs_Sk <- sample.split(MODADV$Sk,SplitRatio = 0.75)
+train_advdefs_Sk <- subset(MODADV,sample_advdefs_Sk == TRUE)
+testadvdefsSk <- subset(MODADV, sample_advdefs_Sk == FALSE)
+
+#Prss
+sample_advdefs_Prss <- sample.split(MODADV$Prss,SplitRatio = 0.75)
+train_advdefs_Prss <- subset(MODADV,sample_advdefs_Prss == TRUE)
+testadvdefsPrss <- subset(MODADV, sample_advdefs_Prss == FALSE)
+
+#TC
+sample_advdefs_TC <- sample.split(MODADV$TC,SplitRatio = 0.75)
+train_advdefs_TC <- subset(MODADV,sample_advdefs_TC == TRUE)
+testadvdefsTC <- subset(MODADV, sample_advdefs_TC == FALSE)
+
+#TM2
+sample_advdefs_TM2 <- sample.split(MODADV$TM2,SplitRatio = 0.75)
+train_advdefs_TM2 <- subset(MODADV,sample_advdefs_TM2 == TRUE)
+testadvdefsTM2 <- subset(MODADV, sample_advdefs_TM2 == FALSE)
+
+#YAC
+sample_advdefs_YAC <- sample.split(MODADV$YAC,SplitRatio = 0.75)
+train_advdefs_YAC <- subset(MODADV,sample_advdefs_YAC == TRUE)
+testadvdefsYAC <- subset(MODADV, sample_advdefs_YAC == FALSE)
+
+
+# Random forest section
+RFM1	<-	randomForest	(formula = td ~ tt + cay + agg_percent + lcad + ayts + yds +    int + comp_percent + week, data = train_wp_td	, importance = TRUE)
+
+RFM2	<-	randomForest	(formula = tt ~ iay + agg_percent + lcad + ayts + att + td +    int + comp_percent + week, data = train_wp_tt	, importance = TRUE)
+
+RFM3	<-	randomForest	(formula = cay ~ tt + iay + agg_percent + lcad + ayts + att +     td + int + comp_percent + week, data = train_wp_cay	, importance = TRUE)
+
+RFM4	<-	randomForest	(formula = iay ~ tt + cay + agg_percent + lcad + ayts + att +   td + int + comp_percent + week, data = train_wp_iay	, importance = TRUE)
+
+RFM5	<-	randomForest	(formula = agg_percent ~ tt + cay + lcad + ayts + att + td +     int + comp_percent + week, data = train_wp_agg_percent	, importance = TRUE)
+
+RFM6	<-	randomForest	(formula = lcad ~ tt + cay + agg_percent + ayts + yds + td +  int + comp_percent + week, data = train_wp_lcad	, importance = TRUE)
+
+RFM7	<-	randomForest	(formula = ayts ~ tt + cay + agg_percent + lcad + att + td + int + comp_percent + week, data = train_wp_ayts	, importance = TRUE)
+
+RFM8	<-	randomForest	(formula = att ~ tt + cay + agg_percent + lcad + ayts + yds +  td + int + comp_percent + week, data = train_wp_att	, importance = TRUE)
+
+RFM9	<-	randomForest	(formula = int ~ tt + cay + agg_percent + lcad + ayts + att +  td + comp_percent + week, data = train_wp_int	, importance = TRUE)
+
+RFM10	<-	randomForest	(formula = comp_percent ~ tt + cay + agg_percent + lcad +   ayts + yds + td + int + week, data = train_wp_comp_percent	, importance = TRUE)
+
+RFM11	<-	randomForest	(formula = td ~ tt + cay + agg_percent + lcad + ayts + yds +   int + comp_percent, data = train_NGSP_td	, importance = TRUE)
+
+RFM12	<-	randomForest	(formula = tt ~ iay + agg_percent + lcad + att + td + int +  comp_percent, data = train_NGSP_tt	, importance = TRUE)
+
+RFM13	<-	randomForest	(formula = cay ~ tt + iay + agg_percent + lcad + att + td +   int + comp_percent, data = train_NGSP_cay	, importance = TRUE)
+
+RFM14	<-	randomForest	(formula = iay ~ tt + cay + agg_percent + lcad + ayts + att +   td + int + comp_percent, data = train_NGSP_iay	, importance = TRUE)
+
+RFM15	<-	randomForest	(formula = agg_percent ~ tt + cay + lcad + ayts + att + td +  int + comp_percent, data = train_NGSP_agg_percent	, importance = TRUE)
+
+RFM16	<-	randomForest	(formula = lcad ~ tt + cay + agg_percent + ayts + yds + td +   int + comp_percent, data = train_NGSP_lcad	, importance = TRUE)
+
+RFM17	<-	randomForest	(formula = ayts ~ tt + cay + agg_percent + lcad + att + td + int + comp_percent, data = train_NGSP_ayts	, importance = TRUE)
+
+RFM18	<-	randomForest	(formula = att ~ tt + cay + agg_percent + lcad + ayts + yds +  td + int + comp_percent, data = train_NGSP_att	, importance = TRUE)
+
+RFM19	<-	randomForest	(formula = int ~ tt + cay + agg_percent + lcad + ayts + att +  td + comp_percent, data = train_NGSP_int	, importance = TRUE)
+
+RFM20	<-	randomForest	(formula = comp_percent ~ tt + cay + agg_percent + lcad + ayts + yds + td + int, data = train_NGSP_comp_percent	, importance = TRUE)
+
+
+
+RFM21	<-	randomForest	(formula = yds ~  rec + td + fum, data = train_rec_w_yds	, importance = TRUE)
+RFM22	<-	randomForest	(formula = avg ~  rec + td + fum, data = train_rec_w_avg	, importance = TRUE)
+RFM23	<-	randomForest	(formula = td ~  yds + fum, data = train_rec_w_td	, importance = TRUE)
+RFM24	<-	randomForest	(formula = fum ~  rec + avg + td, data = train_rec_w_fum	, importance = TRUE)
+RFM25	<-	randomForest	(formula = rec ~  yds + td + fum, data = train_rec_w_rec	, importance = TRUE)
+
+
+
+RFM26	<-	randomForest	(formula = yds ~ cush + sep + tay + rec + ctch_percent + td +  yac_r, data = train_advrecs_yds	, importance = TRUE)
+
+RFM27	<-	randomForest	(formula = cush ~ sep + tay + ctch_percent + yds + td + yac_r,   data = train_advrecs_cush	, importance = TRUE)
+
+RFM28	<-	randomForest	(formula = tay ~ cush + sep + tar + ctch_percent + td + yac_r,   data = train_advrecs_tay	, importance = TRUE)
+
+RFM29	<-	randomForest	(formula = sep ~ cush + tay + ctch_percent + yds + td + yac_r, data = train_advrecs_sep	, importance = TRUE)
+
+RFM30	<-	randomForest	(formula = tay_percent ~ cush + sep + tar + ctch_percent +  td + yac_r, data = train_advrecs_tay_percent	, importance = TRUE)
+
+RFM31	<-	randomForest	(formula = rec ~ cush + sep + tay + +ctch_percent + yds + td + yac_r, data = train_advrecs_rec	, importance = TRUE)
+
+RFM32	<-	randomForest	(formula = tar ~ cush + sep + tay + ctch_percent + yds + td +   yac_r, data = train_advrecs_tar	, importance = TRUE)
+
+RFM33	<-	randomForest	(formula = ctch_percent ~ cush + sep + tay + yds + td + yac_r, data = train_advrecs_ctch_percent	, importance = TRUE)
+
+RFM34	<-	randomForest	(formula = td ~ cush + sep + tay + ctch_percent + yds + yac_r,   data = train_advrecs_td	, importance = TRUE)
+
+
+
+
+RFM35	<-	randomForest	(formula = td ~  att + yds + fum, data = train_rush_w_td	, importance = TRUE)
+RFM36	<-	randomForest	(formula = att ~  yds + td + fum, data = train_rush_w_att	, importance = TRUE)
+RFM37	<-	randomForest	(formula = yds ~  att + td + fum, data = train_rush_w_yds	, importance = TRUE)
+RFM38	<-	randomForest	(formula = avg ~  att + td + fum, data = train_rush_w_avg, importance = TRUE)
+RFM39	<-	randomForest	(formula = fum ~  att + yds + td, data = train_rush_w_fum	, importance = TRUE)
+
+
+
+RFM40	<-	randomForest	(formula = td ~ eff + x8_d_percent + tlos + yds, data = train_advrushs_td	, importance = TRUE)
+RFM41	<-	randomForest	(formula = eff ~ x8_d_percent + tlos + att + td, data = train_advrushs_eff	, importance = TRUE)
+RFM42	<-	randomForest	(formula = tlos ~ eff + x8_d_percent + yds + td, data = train_advrushs_tlos	, importance = TRUE)
+RFM43	<-	randomForest	(formula = x8_d_percent ~ eff + tlos + att + td, data = train_advrushs_x8d	, importance = TRUE)
+RFM44	<-	randomForest	(formula = att ~ eff + x8_d_percent + tlos + yds + td, data = train_advrushs_att	, importance = TRUE)
+RFM45	<-	randomForest	(formula = yds ~ eff + x8_d_percent + tlos + att + td, data = train_advrushs_yds	, importance = TRUE)
+RFM46	<-	randomForest	(formula = avg ~ eff + x8_d_percent + tlos + att + td, data = train_advrushs_avg	, importance = TRUE)
+
+
+
+RFM47	<-	randomForest	(formula = sacks ~  qb_hits + tackles + assists +   fumbles_forced + fumbles_recovered, data = train_dfw_sk	, importance = TRUE)
+RFM48	<-	randomForest	(formula = sack_yds ~ sacks + tackles + assists +  fumbles_forced + fumbles_recovered, data = train_dfw_sky	, importance = TRUE)
+RFM49	<-	randomForest	(formula = qb_hits ~ tackles + assists + fumbles_forced +   fumbles_recovered, data = train_dfw_QBH	, importance = TRUE)
+RFM50	<-	randomForest	(formula = tackles ~  sacks + sack_yds + qb_hits +  assists + fumbles_forced + fumbles_recovered,  data = train_dfw_TKL	, importance = TRUE)
+RFM51	<-	randomForest	(formula = assists ~ sacks + sack_yds + tackles +  fumbles_forced + fumbles_recovered, data = train_dfw_AST	, importance = TRUE)
+RFM52	<-	randomForest	(formula = fumbles_forced ~  sacks + sack_yds + tackles + assists, data = train_dfw_FF	, importance = TRUE)
+RFM53	<-	randomForest	(formula = fumbles_recovered ~ sacks + sack_yds +  tackles + assists, data = train_dfw_FR	, importance = TRUE)
+
+
+
+RFM54	<-	randomForest	(formula = Int ~ Tgt + TD + DADOT + Air + Bltz + Sk + Prss +  TC + TM2, data = train_advdefs_Int	, importance = TRUE)
+
+RFM55	<-	randomForest	(formula = Tgt ~ Int + Yds + TD + DADOT + YAC + Bltz + Sk +  TC + TM2, data = train_advdefs_Tgt	, importance = TRUE)
+
+RFM56	<-	randomForest	(formula = Cmp ~ Int + Yds + TD + DADOT + YAC + Bltz + QBKD + Sk + TC + TM2, data = train_advdefs_Cmp	, importance = TRUE)
+
+RFM57	<-	randomForest	(formula = Yds ~ Int + Cmp + TD + DADOT + Bltz + Sk + Prss +  TC + TM2, data = train_advdefs_Yds	, importance = TRUE)
+
+RFM58	<-	randomForest	(formula = TD ~ Int + Yds + DADOT + YAC + Bltz + Sk + TC +  TM2, data = train_advdefs_TD	, importance = TRUE)
+
+RFM59	<-	randomForest	(formula = DADOT ~ Int + Yds + TD + YAC + Bltz + Sk + TC +  TM2, data = train_advdefs_DADOT	, importance = TRUE)
+
+RFM60	<-	randomForest	(formula = Air ~ Int + Tgt + TD + DADOT + YAC + Bltz + Sk +  TC + TM2, data = train_advdefs_Air	, importance = TRUE)
+
+RFM61	<-	randomForest	(formula = YAC ~ Int + Cmp + TD + DADOT + Bltz + Hrry + QBKD +  TC + TM2, data = train_advdefs_YAC	, importance = TRUE)
+
+RFM62	<-	randomForest	(formula = Bltz ~ Int + Tgt + TD + DADOT + YAC + Sk + TC + TM2, data = train_advdefs_Bltz	, importance = TRUE)
+
+RFM63	<-	randomForest	(formula = Hrry ~ Int + Yds + TD + DADOT + YAC + Bltz + Sk + TC + TM2, data = train_advdefs_Hrry	, importance = TRUE)
+
+RFM64	<-	randomForest	(formula = QBKD ~ Int + Yds + TD + DADOT + YAC + Bltz + Prss +   TC + TM2, data = train_advdefs_QBKD	, importance = TRUE)
+
+RFM65	<-	randomForest	(formula = Sk ~ Int + Yds + TD + DADOT + YAC + Bltz + TC +  TM2, data = train_advdefs_Sk	, importance = TRUE)
+
+RFM66	<-	randomForest	(formula = Prss ~ Int + Yds + TD + DADOT + YAC + Bltz + Sk +    TC + TM2, data = train_advdefs_Prss	, importance = TRUE)
+
+RFM67	<-	randomForest	(formula = TC ~ Int + Cmp + TD + DADOT + YAC + Bltz + Sk +  TM2, data = train_advdefs_TC	, importance = TRUE)
+
+RFM68	<-	randomForest	(formula = TM2 ~ Int + Cmp + TD + DADOT + YAC + Bltz + Sk +  TC, data = train_advdefs_TM2	, importance = TRUE)
+
+
+
+RFM69<- randomForest( formula = yds ~ td + int + tt + agg_percent + comp_percent+ int, data =  train_wp_yds, importance = TRUE)
+
+RFM70<- randomForest( formula = yds ~ td + int + tt + agg_percent + comp_percent+ int, data =  train_NGSP_yds, importance = TRUE)
+
+
+# Prediction section 
+
+PredRF1	<-	predict(	RFM1	,	newdata=	testwptd	[	-	10	])
+PredRF2	<-	predict(	RFM2	,	newdata=	testwptt	[	-	1	])
+PredRF3	<-	predict(	RFM3	,	newdata=	testwpcay	[	-	2	])
+PredRF4	<-	predict(	RFM4	,	newdata=	testwpiay	[	-	3	])
+PredRF5	<-	predict(	RFM5	,	newdata=	testwpaggpercent	[	-	5	])
+PredRF6	<-	predict(	RFM6	,	newdata=	testwplcad	[	-	6	])
+PredRF7	<-	predict(	RFM7	,	newdata=	testwpayts	[	-	7	])
+PredRF8	<-	predict(	RFM8	,	newdata=	testwpatt	[	-	8	])
+PredRF9	<-	predict(	RFM9	,	newdata=	testwpint	[	-	11	])
+PredRF10	<-	predict(	RFM10	,	newdata=	testwpcomppercent	[	-	12	])
+PredRF11	<-	predict(	RFM11	,	newdata=	testNGSPtd	[	-	10	])
+PredRF12	<-	predict(	RFM12	,	newdata=	testNGSPtt	[	-	1	])
+PredRF13	<-	predict(	RFM13	,	newdata=	testNGSPcay	[	-	2	])
+PredRF14	<-	predict(	RFM14	,	newdata=	testNGSPiay	[	-	3	])
+PredRF15	<-	predict(	RFM15	,	newdata=	testNGSPaggpercent	[	-	5	])
+PredRF16	<-	predict(	RFM16	,	newdata=	testNGSPlcad	[	-	6	])
+PredRF17	<-	predict(	RFM17	,	newdata=	testNGSPayts	[	-	7	])
+PredRF18	<-	predict(	RFM18	,	newdata=	testNGSPatt	[	-	8	])
+PredRF19	<-	predict(	RFM19	,	newdata=	testNGSPint	[	-	11	])
+PredRF20	<-	predict(	RFM20	,	newdata=	testNGSPcomppercent	[	-	12	])
+PredRF21	<-	predict(	RFM21	,	newdata=	testrecwyds	[	-	2	])
+PredRF22	<-	predict(	RFM22	,	newdata=	testrecwavg	[	-	3	])
+PredRF23	<-	predict(	RFM23	,	newdata=	testrecwtd	[	-	4	])
+PredRF24	<-	predict(	RFM24	,	newdata=	testrecwfum	[	-	5	])
+PredRF25	<-	predict(	RFM25	,	newdata=	testrecwrec	[	-	1	])
+PredRF26	<-	predict(	RFM26	,	newdata=	testadvrecsyds	[	-	8	])
+PredRF27	<-	predict(	RFM27	,	newdata=	testadvrecscush	[	-	1	])
+PredRF28	<-	predict(	RFM28	,	newdata=	testadvrecstay	[	-	3	])
+PredRF29	<-	predict(	RFM29	,	newdata=	testadvrecssep	[	-	2	])
+PredRF30	<-	predict(	RFM30	,	newdata=	testadvrecstaypercent	[	-	4	])
+PredRF31	<-	predict(	RFM31	,	newdata=	testadvrecsrec	[	-	5	])
+PredRF32	<-	predict(	RFM32	,	newdata=	testadvrecstar	[	-	6	])
+PredRF33	<-	predict(	RFM33	,	newdata=	testadvrecsctchpercent	[	-	7	])
+PredRF34	<-	predict(	RFM34	,	newdata=	testadvrecstd	[	-	9	])
+PredRF35	<-	predict(	RFM35	,	newdata=	testrushwtd	[	-	4	])
+PredRF36	<-	predict(	RFM36	,	newdata=	testrushwatt	[	-	1	])
+PredRF37	<-	predict(	RFM37	,	newdata=	testrushwyds	[	-	2	])
+PredRF38	<-	predict(	RFM38	,	newdata=	testrushwavg	[	-	3	])
+PredRF39	<-	predict(	RFM39	,	newdata=	testrushwfum	[	-	5	])
+PredRF40	<-	predict(	RFM40	,	newdata=	testadvrushstd	[	-	7	])
+PredRF41	<-	predict(	RFM41	,	newdata=	testadvrushseff	[	-	1	])
+PredRF42	<-	predict(	RFM42	,	newdata=	testadvrushstlos	[	-	3	])
+PredRF43	<-	predict(	RFM43	,	newdata=	testadvrushsx8d	[	-	2	])
+PredRF44	<-	predict(	RFM44	,	newdata=	testadvrushsatt	[	-	4	])
+PredRF45	<-	predict(	RFM45	,	newdata=	testadvrushsyds	[	-	5	])
+PredRF46	<-	predict(	RFM46	,	newdata=	testadvrushsavg	[	-	6	])
+PredRF47	<-	predict(	RFM47	,	newdata=	testdfwsk	[	-	1	])
+PredRF48	<-	predict(	RFM48	,	newdata=	testdfwsky	[	-	2	])
+PredRF49	<-	predict(	RFM49	,	newdata=	testdfwQBH	[	-	3	])
+PredRF50	<-	predict(	RFM50	,	newdata=	testdfwTKL	[	-	4	])
+PredRF51	<-	predict(	RFM51	,	newdata=	testdfwAST	[	-	5	])
+PredRF52	<-	predict(	RFM52	,	newdata=	testdfwFF	[	-	6	])
+PredRF53	<-	predict(	RFM53	,	newdata=	testdfwFR	[	-	7	])
+PredRF54	<-	predict(	RFM54	,	newdata=	testadvdefsInt	[	-	1	])
+PredRF55	<-	predict(	RFM55	,	newdata=	testadvdefsTgt	[	-	2	])
+PredRF56	<-	predict(	RFM56	,	newdata=	testadvdefsCmp	[	-	3	])
+PredRF57	<-	predict(	RFM57	,	newdata=	testadvdefsYds	[	-	4	])
+PredRF58	<-	predict(	RFM58	,	newdata=	testadvdefsTD	[	-	5	])
+PredRF59	<-	predict(	RFM59	,	newdata=	testadvdefsDADOT	[	-	6	])
+PredRF60	<-	predict(	RFM60	,	newdata=	testadvdefsAir	[	-	7	])
+PredRF61	<-	predict(	RFM61	,	newdata=	testadvdefsYAC	[	-	8	])
+PredRF62	<-	predict(	RFM62	,	newdata=	testadvdefsBltz	[	-	9	])
+PredRF63	<-	predict(	RFM63	,	newdata=	testadvdefsHrry	[	-	10	])
+PredRF64	<-	predict(	RFM64	,	newdata=	testadvdefsQBKD	[	-	11	])
+PredRF65	<-	predict(	RFM65	,	newdata=	testadvdefsSk	[	-	12	])
+PredRF66	<-	predict(	RFM66	,	newdata=	testadvdefsPrss	[	-	13	])
+PredRF67	<-	predict(	RFM67	,	newdata=	testadvdefsTC	[	-	14	])
+PredRF68	<-	predict(	RFM68	,	newdata=	testadvdefsTM2	[	-	15	])
+PredRF69	<-	predict(	RFM69	,	newdata=	testwpyds	[	-	9	])
+PredRF70	<-	predict(	RFM70	,	newdata=	testNGSPyds	[	-	9	])
+
+
+#readjusted models
+RFM71	<-	randomForest	( formula = 	td	~	.	,	data=	train_wp_td	, importance = TRUE)
+RFM72	<-	randomForest	( formula = 	tt	~	.	,	data=	train_wp_tt	, importance = TRUE)
+RFM73	<-	randomForest	( formula = 	cay	~	.	,	data=	train_wp_cay	, importance = TRUE)
+RFM74	<-	randomForest	( formula = 	iay	~	.	,	data=	train_wp_iay	, importance = TRUE)
+RFM75	<-	randomForest	( formula = 	agg_percent	~	.	,	data=	train_wp_agg_percent	, importance = TRUE)
+RFM76	<-	randomForest	( formula = 	lcad	~	.	,	data=	train_wp_lcad	, importance = TRUE)
+RFM77	<-	randomForest	( formula = 	ayts	~	.	,	data=	train_wp_ayts	, importance = TRUE)
+RFM78	<-	randomForest	( formula = 	att	~	.	,	data=	train_wp_att	, importance = TRUE)
+RFM79	<-	randomForest	( formula = 	int	~	.	,	data=	train_wp_int	, importance = TRUE)
+RFM80	<-	randomForest	( formula = 	comp_percent	~	.	,	data=	train_wp_comp_percent,importance = TRUE)
+RFM81	<-	randomForest	( formula = 	td	~	.	,	data=	train_NGSP_td	, importance = TRUE)
+RFM82	<-	randomForest	( formula = 	tt	~	.	,	data=	train_NGSP_tt	, importance = TRUE)
+RFM83	<-	randomForest	( formula = 	cay	~	.	,	data=	train_NGSP_cay	, importance = TRUE)
+RFM84	<-	randomForest	( formula = 	iay	~	.	,	data=	train_NGSP_iay	, importance = TRUE)
+RFM85	<-	randomForest	( formula = 	agg_percent	~	.	,	data=train_NGSP_agg_percent	, importance = TRUE)
+RFM86	<-	randomForest	( formula = 	lcad	~	.	,	data=	train_NGSP_lcad	, importance = TRUE)
+RFM87	<-	randomForest	( formula = 	ayts	~	.	,	data=	train_NGSP_ayts	, importance = TRUE)
+RFM88	<-	randomForest	( formula = 	att	~	.	,	data=	train_NGSP_att	, importance = TRUE)
+RFM89	<-	randomForest	( formula = 	int	~	.	,	data=	train_NGSP_int	, importance = TRUE)
+RFM90	<-	randomForest	( formula = 	comp_percent	~	.	,	data=	train_NGSP_comp_percent, importance = TRUE)
+RFM91	<-	randomForest	( formula = 	yds	~	.	,	data=	train_rec_w_yds	, importance = TRUE)
+RFM92	<-	randomForest	( formula = 	avg	~	.	,	data=	train_rec_w_avg	, importance = TRUE)
+RFM93	<-	randomForest	( formula = 	td	~	.	,	data=	train_rec_w_td	, importance = TRUE)
+RFM94	<-	randomForest	( formula = 	fum	~	.	,	data=	train_rec_w_fum	, importance = TRUE)
+RFM95	<-	randomForest	( formula = 	rec	~	.	,	data=	train_rec_w_rec	, importance = TRUE)
+RFM96	<-	randomForest	( formula = 	yds	~	.	,	data=	train_advrecs_yds	, importance = TRUE)
+RFM97	<-	randomForest	( formula = 	cush	~	.	,	data=	train_advrecs_cush	, importance = TRUE)
+RFM98	<-	randomForest	( formula = 	tay	~	.	,	data=	train_advrecs_tay	, importance = TRUE)
+RFM99	<-	randomForest	( formula = 	sep	~	.	,	data=	train_advrecs_sep	, importance = TRUE)
+RFM100	<-	randomForest	( formula = 	tay_percent	~	.	,	data=	train_advrecs_tay_percent	, importance = TRUE)
+RFM101	<-	randomForest	( formula = 	rec	~	.	,	data=	train_advrecs_rec	, importance = TRUE)
+RFM102	<-	randomForest	( formula = 	tar	~	.	,	data=	train_advrecs_tar	, importance = TRUE)
+RFM103	<-	randomForest	( formula = 	ctch_percent	~	.	,	data=	train_advrecs_ctch_percent	, importance = TRUE)
+RFM104	<-	randomForest	( formula = 	td	~	.	,	data=	train_advrecs_td	, importance = TRUE)
+RFM105	<-	randomForest	( formula = 	td	~	.	,	data=	train_rush_w_td	, importance = TRUE)
+RFM106	<-	randomForest	( formula = 	att	~	.	,	data=	train_rush_w_att	, importance = TRUE)
+RFM107	<-	randomForest	( formula = 	yds	~	.	,	data=	train_rush_w_yds	, importance = TRUE)
+RFM108	<-	randomForest	( formula = 	avg	~	.	,	data=	train_rush_w_avg	, importance = TRUE)
+RFM109	<-	randomForest	( formula = 	fum	~	.	,	data=	train_rush_w_fum	, importance = TRUE)
+RFM110	<-	randomForest	( formula = 	td	~	.	,	data=	train_advrushs_td	, importance = TRUE)
+RFM111	<-	randomForest	( formula = 	eff	~	.	,	data=	train_advrushs_eff	, importance = TRUE)
+RFM112	<-	randomForest	( formula = 	tlos	~	.	,	data=	train_advrushs_tlos	, importance = TRUE)
+RFM113	<-	randomForest	( formula = 	x8_d_percent	~	.	,	data=	train_advrushs_x8d	, importance = TRUE)
+RFM114	<-	randomForest	( formula = 	att	~	.	,	data=	train_advrushs_att	, importance = TRUE)
+RFM115	<-	randomForest	( formula = 	yds	~	.	,	data=	train_advrushs_yds	, importance = TRUE)
+RFM116	<-	randomForest	( formula = 	avg	~	.	,	data=	train_advrushs_avg	, importance = TRUE)
+RFM117	<-	randomForest	( formula = 	sacks	~	.	,	data=	train_dfw_sk	, importance = TRUE)
+RFM118	<-	randomForest	( formula = 	sack_yds	~	.	,	data=	train_dfw_sky	, importance = TRUE)
+RFM119	<-	randomForest	( formula = 	qb_hits	~	.	,	data=	train_dfw_QBH	, importance = TRUE)
+RFM120	<-	randomForest	( formula = 	tackles	~	.	,	data=	train_dfw_TKL	, importance = TRUE)
+RFM121	<-	randomForest	( formula = 	assists	~	.	,	data=	train_dfw_AST	, importance = TRUE)
+RFM122	<-	randomForest	( formula = 	fumbles_forced	~	.	,	data=	train_dfw_FF	, importance = TRUE)
+RFM123	<-	randomForest	( formula = 	fumbles_recovered	~	.	,	data=	train_dfw_FR	, importance = TRUE)
+RFM124	<-	randomForest	( formula = 	Int	~	.	,	data=	train_advdefs_Int	, importance = TRUE)
+RFM125	<-	randomForest	( formula = 	Tgt	~	.	,	data=	train_advdefs_Tgt	, importance = TRUE)
+RFM126	<-	randomForest	( formula = 	Cmp	~	.	,	data=	train_advdefs_Cmp	, importance = TRUE)
+RFM127	<-	randomForest	( formula = 	Yds	~	.	,	data=	train_advdefs_Yds	, importance = TRUE)
+RFM128	<-	randomForest	( formula = 	TD	~	.	,	data=	train_advdefs_TD	, importance = TRUE)
+RFM129	<-	randomForest	( formula = 	DADOT	~	.	,	data=	train_advdefs_DADOT	, importance = TRUE)
+RFM130	<-	randomForest	( formula = 	Air	~	.	,	data=	train_advdefs_Air	, importance = TRUE)
+RFM131	<-	randomForest	( formula = 	YAC	~	.	,	data=	train_advdefs_YAC	, importance = TRUE)
+RFM132	<-	randomForest	( formula = 	Bltz	~	.	,	data=	train_advdefs_Bltz	, importance = TRUE)
+RFM133	<-	randomForest	( formula = 	Hrry	~	.	,	data=	train_advdefs_Hrry	, importance = TRUE)
+RFM134	<-	randomForest	( formula = 	QBKD	~	.	,	data=	train_advdefs_QBKD	, importance = TRUE)
+RFM135	<-	randomForest	( formula = 	Sk	~	.	,	data=	train_advdefs_Sk	, importance = TRUE)
+RFM136	<-	randomForest	( formula = 	Prss	~	.	,	data=	train_advdefs_Prss	, importance = TRUE)
+RFM137	<-	randomForest	( formula = 	TC	~	.	,	data=	train_advdefs_TC	, importance = TRUE)
+RFM138	<-	randomForest	( formula = 	TM2	~	.	,	data=	train_advdefs_TM2	, importance = TRUE)
+RFM139	<-	randomForest	( formula = 	yds	~	.	,	data=	train_wp_yds	, importance = TRUE)
+RFM140	<-	randomForest	( formula = 	yds	~	.	,	data=	train_NGSP_yds	, importance = TRUE)
+			
+#predictions round 2 
+PredRF71	<-	predict(	RFM71	,	newdata=	testwptd	[	-	10	])
+PredRF72	<-	predict(	RFM72	,	newdata=	testwptt	[	-	1	])
+PredRF73	<-	predict(	RFM73	,	newdata=	testwpcay	[	-	2	])
+PredRF74	<-	predict(	RFM74	,	newdata=	testwpiay	[	-	3	])
+PredRF75	<-	predict(	RFM75	,	newdata=	testwpaggpercent	[	-	5	])
+PredRF76	<-	predict(	RFM76	,	newdata=	testwplcad	[	-	6	])
+PredRF77	<-	predict(	RFM77	,	newdata=	testwpayts	[	-	7	])
+PredRF78	<-	predict(	RFM78	,	newdata=	testwpatt	[	-	8	])
+PredRF79	<-	predict(	RFM79	,	newdata=	testwpint	[	-	11	])
+PredRF80	<-	predict(	RFM80	,	newdata=	testwpcomppercent	[	-	12	])
+PredRF81	<-	predict(	RFM81	,	newdata=	testNGSPtd	[	-	10	])
+PredRF82	<-	predict(	RFM82	,	newdata=	testNGSPtt	[	-	1	])
+PredRF83	<-	predict(	RFM83	,	newdata=	testNGSPcay	[	-	2	])
+PredRF84	<-	predict(	RFM84	,	newdata=	testNGSPiay	[	-	3	])
+PredRF85	<-	predict(	RFM85	,	newdata=	testNGSPaggpercent	[	-	5	])
+PredRF86	<-	predict(	RFM86	,	newdata=	testNGSPlcad	[	-	6	])
+PredRF87	<-	predict(	RFM87	,	newdata=	testNGSPayts	[	-	7	])
+PredRF88	<-	predict(	RFM88	,	newdata=	testNGSPatt	[	-	8	])
+PredRF89	<-	predict(	RFM89	,	newdata=	testNGSPint	[	-	11	])
+PredRF90	<-	predict(	RFM90	,	newdata=	testNGSPcomppercent	[	-	12	])
+PredRF91	<-	predict(	RFM91	,	newdata=	testrecwyds	[	-	2	])
+PredRF92	<-	predict(	RFM92	,	newdata=	testrecwavg	[	-	3	])
+PredRF93	<-	predict(	RFM93	,	newdata=	testrecwtd	[	-	4	])
+PredRF94	<-	predict(	RFM94	,	newdata=	testrecwfum	[	-	5	])
+PredRF95	<-	predict(	RFM95	,	newdata=	testrecwrec	[	-	1	])
+PredRF96	<-	predict(	RFM96	,	newdata=	testadvrecsyds	[	-	8	])
+PredRF97	<-	predict(	RFM97	,	newdata=	testadvrecscush	[	-	1	])
+PredRF98	<-	predict(	RFM98	,	newdata=	testadvrecstay	[	-	3	])
+PredRF99	<-	predict(	RFM99	,	newdata=	testadvrecssep	[	-	2	])
+PredRF100	<-	predict(	RFM100	,	newdata=	testadvrecstaypercent	[	-	4	])
+PredRF101	<-	predict(	RFM101	,	newdata=	testadvrecsrec	[	-	5	])
+PredRF102	<-	predict(	RFM102	,	newdata=	testadvrecstar	[	-	6	])
+PredRF103	<-	predict(	RFM103	,	newdata=	testadvrecsctchpercent	[	-	7	])
+PredRF104	<-	predict(	RFM104	,	newdata=	testadvrecstd	[	-	9	])
+PredRF105	<-	predict(	RFM105	,	newdata=	testrushwtd	[	-	4	])
+PredRF106	<-	predict(	RFM106	,	newdata=	testrushwatt	[	-	1	])
+PredRF107	<-	predict(	RFM107	,	newdata=	testrushwyds	[	-	2	])
+PredRF108	<-	predict(	RFM108	,	newdata=	testrushwavg	[	-	3	])
+PredRF109	<-	predict(	RFM109	,	newdata=	testrushwfum	[	-	5	])
+PredRF110	<-	predict(	RFM110	,	newdata=	testadvrushstd	[	-	7	])
+PredRF111	<-	predict(	RFM111	,	newdata=	testadvrushseff	[	-	1	])
+PredRF112	<-	predict(	RFM112	,	newdata=	testadvrushstlos	[	-	3	])
+PredRF113	<-	predict(	RFM113	,	newdata=	testadvrushsx8d	[	-	2	])
+PredRF114	<-	predict(	RFM114	,	newdata=	testadvrushsatt	[	-	4	])
+PredRF115	<-	predict(	RFM115	,	newdata=	testadvrushsyds	[	-	5	])
+PredRF116	<-	predict(	RFM116	,	newdata=	testadvrushsavg	[	-	6	])
+PredRF117	<-	predict(	RFM117	,	newdata=	testdfwsk	[	-	1	])
+PredRF118	<-	predict(	RFM118	,	newdata=	testdfwsky	[	-	2	])
+PredRF119	<-	predict(	RFM119	,	newdata=	testdfwQBH	[	-	3	])
+PredRF120	<-	predict(	RFM120	,	newdata=	testdfwTKL	[	-	4	])
+PredRF121	<-	predict(	RFM121	,	newdata=	testdfwAST	[	-	5	])
+PredRF122	<-	predict(	RFM122	,	newdata=	testdfwFF	[	-	6	])
+PredRF123	<-	predict(	RFM123	,	newdata=	testdfwFR	[	-	7	])
+PredRF124	<-	predict(	RFM124	,	newdata=	testadvdefsInt	[	-	1	])
+PredRF125	<-	predict(	RFM125	,	newdata=	testadvdefsTgt	[	-	2	])
+PredRF126	<-	predict(	RFM126	,	newdata=	testadvdefsCmp	[	-	3	])
+PredRF127	<-	predict(	RFM127	,	newdata=	testadvdefsYds	[	-	4	])
+PredRF128	<-	predict(	RFM128	,	newdata=	testadvdefsTD	[	-	5	])
+PredRF129	<-	predict(	RFM129	,	newdata=	testadvdefsDADOT	[	-	6	])
+PredRF130	<-	predict(	RFM130	,	newdata=	testadvdefsAir	[	-	7	])
+PredRF131	<-	predict(	RFM131	,	newdata=	testadvdefsYAC	[	-	8	])
+PredRF132	<-	predict(	RFM132	,	newdata=	testadvdefsBltz	[	-	9	])
+PredRF133	<-	predict(	RFM133	,	newdata=	testadvdefsHrry	[	-	10	])
+PredRF134	<-	predict(	RFM134	,	newdata=	testadvdefsQBKD	[	-	11	])
+PredRF135	<-	predict(	RFM135	,	newdata=	testadvdefsSk	[	-	12	])
+PredRF136	<-	predict(	RFM136	,	newdata=	testadvdefsPrss	[	-	13	])
+PredRF137	<-	predict(	RFM137	,	newdata=	testadvdefsTC	[	-	14	])
+PredRF138	<-	predict(	RFM138	,	newdata=	testadvdefsTM2	[	-	15	])
+PredRF139	<-	predict(	RFM139	,	newdata=	testwpyds	[	-	9	])
+PredRF140	<-	predict(	RFM140	,	newdata=	testNGSPyds	[	-	9	])
+
+
+
+
+# New Random forest models
+
+    # first add train for new variables 
+
+# Setting up train data 
+
+#WEEKlY passing TDs
+samplewptd <- sample.split(Weekly_Passing$td,SplitRatio = 0.75)
+trainwptd <- subset(Weekly_Passing,samplewptd == TRUE)
+testwptd <- subset(Weekly_Passing, samplewptd == FALSE)
+
+#TT
+samplewptt <- sample.split(Weekly_Passing$tt,SplitRatio = 0.75)
+trainwptt <- subset(Weekly_Passing,samplewptt == TRUE)
+testwptt <- subset(Weekly_Passing, samplewptt == FALSE)
+
+
+#cay
+samplewpcay <- sample.split(Weekly_Passing$cay,SplitRatio = 0.75)
+trainwpcay <- subset(Weekly_Passing,samplewpcay == TRUE)
+testwpcay <- subset(Weekly_Passing, samplewpcay == FALSE)
+
+#iay
+samplewpiay <- sample.split(Weekly_Passing$iay,SplitRatio = 0.75)
+trainwpiay <- subset(Weekly_Passing,samplewpiay == TRUE)
+testwpiay <- subset(Weekly_Passing, samplewpiay == FALSE)
+
+#agg percent
+samplewpaggpercent <- sample.split(Weekly_Passing$agg_percent,SplitRatio = 0.75)
+trainwpaggpercent <- subset(Weekly_Passing,samplewpaggpercent == TRUE)
+testwpaggpercent <- subset(Weekly_Passing, samplewpaggpercent == FALSE)
+
+#lcad
+samplewplcad <- sample.split(Weekly_Passing$lcad,SplitRatio = 0.75)
+trainwplcad <- subset(Weekly_Passing,samplewplcad == TRUE)
+testwplcad <- subset(Weekly_Passing, samplewplcad == FALSE)
+
+#ayts
+samplewpayts <- sample.split(Weekly_Passing$ayts,SplitRatio = 0.75)
+trainwpayts <- subset(Weekly_Passing,samplewpayts == TRUE)
+testwpayts <- subset(Weekly_Passing, samplewpayts == FALSE)
+
+#att
+samplewpatt <- sample.split(Weekly_Passing$att,SplitRatio = 0.75)
+trainwpatt <- subset(Weekly_Passing,samplewpatt == TRUE)
+testwpatt <- subset(Weekly_Passing, samplewpatt == FALSE)
+
+#yds
+samplewpyds <- sample.split(Weekly_Passing$yds,SplitRatio = 0.75)
+trainwpyds <- subset(Weekly_Passing,samplewpyds == TRUE)
+testwpyds <- subset(Weekly_Passing, samplewpyds == FALSE)
+
+
+#int 
+samplewpint <- sample.split(Weekly_Passing$int,SplitRatio = 0.75)
+trainwpint <- subset(Weekly_Passing,samplewpint == TRUE)
+testwpint <- subset(Weekly_Passing, samplewpint == FALSE)
+
+#comp perc
+samplewpcomppercent <- sample.split(Weekly_Passing$comp_percent,SplitRatio = 0.75)
+trainwpcomppercent <- subset(Weekly_Passing,samplewpcomppercent == TRUE)
+testwpcomppercent <- subset(Weekly_Passing, samplewpcomppercent == FALSE)
+
+
+
+#Season passing TDs
+sampleNGSPtd <- sample.split(NEXT_GEN_STATS_PASSING$td,SplitRatio = 0.75)
+trainNGSPtd <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPtd == TRUE)
+testNGSPtd <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPtd == FALSE)
+
+#TT
+sampleNGSPtt <- sample.split(NEXT_GEN_STATS_PASSING$tt,SplitRatio = 0.75)
+trainNGSPtt <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPtt == TRUE)
+testNGSPtt <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPtt == FALSE)
+
+
+#cay
+sampleNGSPcay <- sample.split(NEXT_GEN_STATS_PASSING$cay,SplitRatio = 0.75)
+trainNGSPcay <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPcay == TRUE)
+testNGSPcay <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPcay == FALSE)
+
+#iay
+sampleNGSPiay <- sample.split(NEXT_GEN_STATS_PASSING$iay,SplitRatio = 0.75)
+trainNGSPiay <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPiay == TRUE)
+testNGSPiay <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPiay == FALSE)
+
+#agg percent
+sampleNGSPaggpercent <- sample.split(NEXT_GEN_STATS_PASSING$agg_percent,SplitRatio = 0.75)
+trainNGSPaggpercent <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPaggpercent == TRUE)
+testNGSPaggpercent <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPaggpercent == FALSE)
+
+#lcad
+sampleNGSPlcad <- sample.split(NEXT_GEN_STATS_PASSING$lcad,SplitRatio = 0.75)
+trainNGSPlcad <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPlcad == TRUE)
+testNGSPlcad <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPlcad == FALSE)
+
+#ayts
+sampleNGSPayts <- sample.split(NEXT_GEN_STATS_PASSING$ayts,SplitRatio = 0.75)
+trainNGSPayts <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPayts == TRUE)
+testNGSPayts <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPayts == FALSE)
+
+#att
+sampleNGSPatt <- sample.split(NEXT_GEN_STATS_PASSING$att,SplitRatio = 0.75)
+trainNGSPatt <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPatt == TRUE)
+testNGSPatt <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPatt == FALSE)
+
+#yds
+sampleNGSPyds <- sample.split(NEXT_GEN_STATS_PASSING$yds,SplitRatio = 0.75)
+trainNGSPyds <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPyds == TRUE)
+testNGSPyds <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPyds == FALSE)
+
+
+#int
+sampleNGSPint <- sample.split(NEXT_GEN_STATS_PASSING$int,SplitRatio = 0.75)
+trainNGSPint <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPint == TRUE)
+testNGSPint <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPint == FALSE)
+
+#comp perc
+sampleNGSPcomppercent <- sample.split(NEXT_GEN_STATS_PASSING$comp_percent,SplitRatio = 0.75)
+trainNGSPcomppercent <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPcomppercent == TRUE)
+testNGSPcomppercent <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPcomppercent == FALSE)
+
+
+# REC Weekly
+
+#TD
+samplerecwtd <- sample.split(REC_WEEKLY$td,SplitRatio = 0.75)
+trainrecwtd <- subset(REC_WEEKLY,samplerecwtd == TRUE)
+testrecwtd <- subset(REC_WEEKLY, samplerecwtd == FALSE)
+
+# FUM
+samplerecwfum <- sample.split(REC_WEEKLY$fum,SplitRatio = 0.75)
+trainrecwfum <- subset(REC_WEEKLY,samplerecwfum == TRUE)
+testrecwfum <- subset(REC_WEEKLY, samplerecwfum == FALSE)
+#Rec
+samplerecwrec <- sample.split(REC_WEEKLY$rec,SplitRatio = 0.75)
+trainrecwrec <- subset(REC_WEEKLY,samplerecwrec == TRUE)
+testrecwrec <- subset(REC_WEEKLY, samplerecwrec == FALSE)
+
+#yds
+samplerecwyds <- sample.split(REC_WEEKLY$yds,SplitRatio = 0.75)
+trainrecwyds <- subset(REC_WEEKLY,samplerecwyds == TRUE)
+testrecwyds <- subset(REC_WEEKLY, samplerecwyds == FALSE)
+
+#avg
+samplerecwavg <- sample.split(REC_WEEKLY$avg,SplitRatio = 0.75)
+trainrecwavg <- subset(REC_WEEKLY,samplerecwavg == TRUE)
+testrecwavg <- subset(REC_WEEKLY, samplerecwavg == FALSE)
+
+
+# Weekly Rushing stats 
+
+#TD
+samplerushwtd <- sample.split(Weekly_Rushing_Stats$td,SplitRatio = 0.75)
+trainrushwtd <- subset(Weekly_Rushing_Stats,samplerushwtd == TRUE)
+testrushwtd <- subset(Weekly_Rushing_Stats, samplerushwtd == FALSE)
+
+# FUM
+samplerushwfum <- sample.split(Weekly_Rushing_Stats$fum,SplitRatio = 0.75)
+trainrushwfum <- subset(Weekly_Rushing_Stats,samplerushwfum == TRUE)
+testrushwfum <- subset(Weekly_Rushing_Stats, samplerushwfum == FALSE)
+#att
+samplerushwatt <- sample.split(Weekly_Rushing_Stats$att,SplitRatio = 0.75)
+trainrushwatt<- subset(Weekly_Rushing_Stats,samplerushwatt == TRUE)
+testrushwatt<- subset(Weekly_Rushing_Stats, samplerushwatt == FALSE)
+
+#yds
+samplerushwyds <- sample.split(Weekly_Rushing_Stats$yds,SplitRatio = 0.75)
+trainrushwyds <- subset(Weekly_Rushing_Stats,samplerushwyds == TRUE)
+testrushwyds <- subset(Weekly_Rushing_Stats, samplerushwyds == FALSE)
+
+#avg
+samplerushwavg <- sample.split(Weekly_Rushing_Stats$avg,SplitRatio = 0.75)
+trainrushwavg <- subset(Weekly_Rushing_Stats,samplerushwavg == TRUE)
+testrushwavg <- subset(Weekly_Rushing_Stats, samplerushwavg == FALSE)
+
+
+# Def Weekly
+
+#sacks
+sampledfwsk <- sample.split(Defense_Weekly$sacks,SplitRatio = 0.75)
+traindfwsk <- subset(Defense_Weekly,sampledfwsk == TRUE)
+testdfwsk <- subset(Defense_Weekly, sampledfwsk == FALSE)
+
+
+#sky
+sampledfwsky <- sample.split(Defense_Weekly$sack_yds,SplitRatio = 0.75)
+traindfwsky <- subset(Defense_Weekly,sampledfwsky == TRUE)
+testdfwsky <- subset(Defense_Weekly, sampledfwsky == FALSE)
+
+#ff
+sampledfwFF <- sample.split(Defense_Weekly$fumbles_forced,SplitRatio = 0.75)
+traindfwFF <- subset(Defense_Weekly,sampledfwFF == TRUE)
+testdfwFF <- subset(Defense_Weekly, sampledfwFF == FALSE)
+
+
+#fumble recovered
+sampledfwFR <- sample.split(Defense_Weekly$fumbles_recovered,SplitRatio = 0.75)
+traindfwFR <- subset(Defense_Weekly,sampledfwFR == TRUE)
+testdfwFR <- subset(Defense_Weekly, sampledfwFR == FALSE)
+
+#tackle
+sampledfwTKL <- sample.split(Defense_Weekly$tackles,SplitRatio = 0.75)
+traindfwTKL <- subset(Defense_Weekly,sampledfwTKL == TRUE)
+testdfwTKL <- subset(Defense_Weekly, sampledfwTKL == FALSE)
+
+#ast
+sampledfwAST <- sample.split(Defense_Weekly$assists,SplitRatio = 0.75)
+traindfwAST <- subset(Defense_Weekly,sampledfwAST == TRUE)
+testdfwAST <- subset(Defense_Weekly, sampledfwAST == FALSE)
+
+#qbh
+sampledfwQBH <- sample.split(Defense_Weekly$qb_hits,SplitRatio = 0.75)
+traindfwQBH <- subset(Defense_Weekly,sampledfwQBH == TRUE)
+testdfwQBH <- subset(Defense_Weekly, sampledfwQBH == FALSE)
+
+
+
+#Adv Rush stats (NGSR)
+
+#tlos
+sampleadvrushstlos <- sample.split(NGSR$tlos,SplitRatio = 0.75)
+trainadvrushstlos <- subset(NGSR,sampleadvrushstlos == TRUE)
+testadvrushstlos <- subset(NGSR, sampleadvrushstlos == FALSE)
+
+#x8d
+sampleadvrushsx8d <- sample.split(NGSR$x8_d_percent,SplitRatio = 0.75)
+trainadvrushsx8d <- subset(NGSR,sampleadvrushsx8d == TRUE)
+testadvrushsx8d <- subset(NGSR, sampleadvrushsx8d == FALSE)
+
+#yds
+sampleadvrushsyds <- sample.split(NGSR$yds,SplitRatio = 0.75)
+trainadvrushsyds <- subset(NGSR,sampleadvrushsyds == TRUE)
+testadvrushsyds <- subset(NGSR, sampleadvrushsyds == FALSE)
+
+
+#eff
+sampleadvrushseff <- sample.split(NGSR$eff,SplitRatio = 0.75)
+trainadvrushseff <- subset(NGSR,sampleadvrushseff == TRUE)
+testadvrushseff <- subset(NGSR, sampleadvrushseff == FALSE)
+
+#att
+sampleadvrushsatt <- sample.split(NGSR$att,SplitRatio = 0.75)
+trainadvrushsatt <- subset(NGSR,sampleadvrushsatt == TRUE)
+testadvrushsatt <- subset(NGSR, sampleadvrushsatt == FALSE)
+
+#td
+sampleadvrushstd <- sample.split(NGSR$td,SplitRatio = 0.75)
+trainadvrushstd <- subset(NGSR,sampleadvrushstd == TRUE)
+testadvrushstd <- subset(NGSR, sampleadvrushstd == FALSE)
+
+#avg
+sampleadvrushsavg <- sample.split(NGSR$avg,SplitRatio = 0.75)
+trainadvrushsavg <- subset(NGSR,sampleadvrushsavg == TRUE)
+testadvrushsavg <- subset(NGSR, sampleadvrushsavg == FALSE)
+
+#ADV REC (NEXT GEN STATS REC)
+
+#cush
+sampleadvrecscush <- sample.split(Next_gen_stats_receving$cush,SplitRatio = 0.75)
+trainadvrecscush <- subset(Next_gen_stats_receving,sampleadvrecscush == TRUE)
+testadvrecscush <- subset(Next_gen_stats_receving, sampleadvrecscush == FALSE)
+
+
+#sep
+sampleadvrecssep <- sample.split(Next_gen_stats_receving$sep,SplitRatio = 0.75)
+trainadvrecssep <- subset(Next_gen_stats_receving,sampleadvrecssep == TRUE)
+testadvrecssep <- subset(Next_gen_stats_receving, sampleadvrecssep == FALSE)
+
+#tay
+sampleadvrecstay <- sample.split(Next_gen_stats_receving$tay,SplitRatio = 0.75)
+trainadvrecstay <- subset(Next_gen_stats_receving,sampleadvrecstay == TRUE)
+testadvrecstay <- subset(Next_gen_stats_receving, sampleadvrecstay == FALSE)
+
+#tay perc
+sampleadvrecstaypercent <- sample.split(Next_gen_stats_receving$tay_percent,SplitRatio = 0.75)
+trainadvrecstaypercent <- subset(Next_gen_stats_receving,sampleadvrecstaypercent == TRUE)
+testadvrecstaypercent <- subset(Next_gen_stats_receving, sampleadvrecstaypercent == FALSE)
+
+
+#rec
+sampleadvrecsrec <- sample.split(Next_gen_stats_receving$rec,SplitRatio = 0.75)
+trainadvrecsrec <- subset(Next_gen_stats_receving,sampleadvrecsrec == TRUE)
+testadvrecsrec <- subset(Next_gen_stats_receving, sampleadvrecsrec == FALSE)
+
+#tar
+sampleadvrecstar <- sample.split(Next_gen_stats_receving$tar,SplitRatio = 0.75)
+trainadvrecstar <- subset(Next_gen_stats_receving,sampleadvrecstar == TRUE)
+testadvrecstar <- subset(Next_gen_stats_receving, sampleadvrecstar == FALSE)
+
+#ctch perc
+sampleadvrecsctchpercent <- sample.split(Next_gen_stats_receving$ctch_percent,SplitRatio = 0.75)
+trainadvrecsctchpercent <- subset(Next_gen_stats_receving,sampleadvrecsctchpercent == TRUE)
+testadvrecsctchpercent <- subset(Next_gen_stats_receving, sampleadvrecsctchpercent == FALSE)
+
+#yds
+sampleadvrecsyds <- sample.split(Next_gen_stats_receving$yds,SplitRatio = 0.75)
+trainadvrecsyds <- subset(Next_gen_stats_receving,sampleadvrecsyds == TRUE)
+testadvrecsyds <- subset(Next_gen_stats_receving, sampleadvrecsyds == FALSE)
+
+
+#td
+sampleadvrecstd <- sample.split(Next_gen_stats_receving$td,SplitRatio = 0.75)
+trainadvrecstd <- subset(Next_gen_stats_receving,sampleadvrecstd == TRUE)
+testadvrecstd <- subset(Next_gen_stats_receving, sampleadvrecstd == FALSE)
+
+#yac/r
+sampleadvrecsyacr <- sample.split(Next_gen_stats_receving$yac_r,SplitRatio = 0.75)
+trainadvrecsyacr <- subset(Next_gen_stats_receving,sampleadvrecsyacr == TRUE)
+testadvrecsyacr <- subset(Next_gen_stats_receving, sampleadvrecsyacr == FALSE)
+
+
+#ADV DEF (MODADV)
+
+#int
+sampleadvdefsInt <- sample.split(MODADV$Int,SplitRatio = 0.75)
+trainadvdefsInt <- subset(MODADV,sampleadvdefsInt == TRUE)
+testadvdefsInt <- subset(MODADV, sampleadvdefsInt == FALSE)
+
+#tgt
+sampleadvdefsTgt <- sample.split(MODADV$Tgt,SplitRatio = 0.75)
+trainadvdefsTgt <- subset(MODADV,sampleadvdefsTgt == TRUE)
+testadvdefsTgt <- subset(MODADV, sampleadvdefsTgt == FALSE)
+
+#cmp
+sampleadvdefsCmp <- sample.split(MODADV$Cmp,SplitRatio = 0.75)
+trainadvdefsCmp <- subset(MODADV,sampleadvdefsCmp == TRUE)
+testadvdefsCmp <- subset(MODADV, sampleadvdefsCmp == FALSE)
+
+#yds
+sampleadvdefsYds <- sample.split(MODADV$Yds,SplitRatio = 0.75)
+trainadvdefsYds <- subset(MODADV,sampleadvdefsYds == TRUE)
+testadvdefsYds <- subset(MODADV, sampleadvdefsYds == FALSE)
+
+#td
+sampleadvdefsTD <- sample.split(MODADV$TD,SplitRatio = 0.75)
+trainadvdefsTD <- subset(MODADV,sampleadvdefsTD == TRUE)
+testadvdefsTD <- subset(MODADV, sampleadvdefsTD == FALSE)
+
+#dadot
+sampleadvdefsDADOT <- sample.split(MODADV$DADOT,SplitRatio = 0.75)
+trainadvdefsDADOT <- subset(MODADV,sampleadvdefsDADOT == TRUE)
+testadvdefsDADOT <- subset(MODADV, sampleadvdefsDADOT == FALSE)
+
+#air
+sampleadvdefsAir <- sample.split(MODADV$Air,SplitRatio = 0.75)
+trainadvdefsAir <- subset(MODADV,sampleadvdefsAir == TRUE)
+testadvdefsAir <- subset(MODADV, sampleadvdefsAir == FALSE)
+
+
+#bltz
+sampleadvdefsBltz <- sample.split(MODADV$Bltz,SplitRatio = 0.75)
+trainadvdefsBltz <- subset(MODADV,sampleadvdefsBltz == TRUE)
+testadvdefsBltz <- subset(MODADV, sampleadvdefsBltz == FALSE)
+
+#hrry
+sampleadvdefsHrry <- sample.split(MODADV$Hrry,SplitRatio = 0.75)
+trainadvdefsHrry <- subset(MODADV,sampleadvdefsHrry == TRUE)
+testadvdefsHrry <- subset(MODADV, sampleadvdefsHrry == FALSE)
+
+#qbkd
+sampleadvdefsQBKD <- sample.split(MODADV$QBKD,SplitRatio = 0.75)
+trainadvdefsQBKD <- subset(MODADV,sampleadvdefsQBKD == TRUE)
+testadvdefsQBKD <- subset(MODADV, sampleadvdefsQBKD == FALSE)
+
+#sk
+sampleadvdefsSk <- sample.split(MODADV$Sk,SplitRatio = 0.75)
+trainadvdefsSk <- subset(MODADV,sampleadvdefsSk == TRUE)
+testadvdefsSk <- subset(MODADV, sampleadvdefsSk == FALSE)
+
+#Prss
+sampleadvdefsPrss <- sample.split(MODADV$Prss,SplitRatio = 0.75)
+trainadvdefsPrss <- subset(MODADV,sampleadvdefsPrss == TRUE)
+testadvdefsPrss <- subset(MODADV, sampleadvdefsPrss == FALSE)
+
+#TC
+sampleadvdefsTC <- sample.split(MODADV$TC,SplitRatio = 0.75)
+trainadvdefsTC <- subset(MODADV,sampleadvdefsTC == TRUE)
+testadvdefsTC <- subset(MODADV, sampleadvdefsTC == FALSE)
+
+#TM2
+sampleadvdefsTM2 <- sample.split(MODADV$TM2,SplitRatio = 0.75)
+trainadvdefsTM2 <- subset(MODADV,sampleadvdefsTM2 == TRUE)
+testadvdefsTM2 <- subset(MODADV, sampleadvdefsTM2 == FALSE)
+
+#YAC
+sampleadvdefsYAC <- sample.split(MODADV$YAC,SplitRatio = 0.75)
+trainadvdefsYAC <- subset(MODADV,sampleadvdefsYAC == TRUE)
+testadvdefsYAC <- subset(MODADV, sampleadvdefsYAC == FALSE)
+
+# Additonal section:
+
+# Weekly passing AYD
+samplewpayd <- sample.split(Weekly_Passing$ayd,SplitRatio = 0.75)
+trainwpayd <- subset(Weekly_Passing,samplewpayd == TRUE)
+testwpayd <- subset(Weekly_Passing, samplewpayd == FALSE)
+
+
+# Next gen stats rec, PLMUS
+sampleadvrecsPLMUS <- sample.split(Next_gen_stats_receving$x,SplitRatio = 0.75)
+trainadvrecsPLMUS <- subset(Next_gen_stats_receving,sampleadvrecsPLMUS == TRUE)
+testadvrecsPLMUS <- subset(Next_gen_stats_receving, sampleadvrecsPLMUS == FALSE)
+
+# Next gen stats rec, yac/r
+sampleadvrecsyacr <- sample.split(Next_gen_stats_receving$yac_r,SplitRatio = 0.75)
+trainadvrecsyacr <- subset(Next_gen_stats_receving,sampleadvrecsyacr == TRUE)
+testadvrecsyacr <- subset(Next_gen_stats_receving, sampleadvrecsyacr == FALSE)
+
+# Next gen stats rec, xyac/r
+sampleadvrecsxyacr <- sample.split(Next_gen_stats_receving$x_yac_r,SplitRatio = 0.75)
+trainadvrecsxyacr <- subset(Next_gen_stats_receving,sampleadvrecsxyacr == TRUE)
+testadvrecsxyacr <- subset(Next_gen_stats_receving, sampleadvrecsxyacr == FALSE)
+
+# NGSP AYD
+sampleNGSPayd <- sample.split(NEXT_GEN_STATS_PASSING$ayd,SplitRatio = 0.75)
+trainNGSPayd <- subset(NEXT_GEN_STATS_PASSING,sampleNGSPayd == TRUE)
+testNGSPayd <- subset(NEXT_GEN_STATS_PASSING, sampleNGSPayd == FALSE)
+
+# NGSP yds
+samplewpyds <- sample.split(NEXT_GEN_STATS_PASSING$yds,SplitRatio = 0.75)
+trainwpyds <- subset(NEXT_GEN_STATS_PASSING,samplewpyds == TRUE)
+testwpyds <- subset(NEXT_GEN_STATS_PASSING, samplewpyds == FALSE)
+
+#Random forest models 
+
+NRFM1	<-	randomForest	(	tt	~	cay+ agg_percent+ ayts+ comp_percent	,	data = 	trainwptt	, importance = TRUE	)
+NRFM2	<-	randomForest	(	cay	~	 agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM3	<-	randomForest	(	iay	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM4	<-	randomForest	(	ayd	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM5	<-	randomForest	(	agg_percent	~	cay+ ayts+ comp_percent+tt	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM6	<-	randomForest	(	lcad	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM7	<-	randomForest	(	ayts	~	cay+ agg_percent+ comp_percent+tt	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM8	<-	randomForest	(	att	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM9	<-	randomForest	(	yds	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM10	<-	randomForest	(	td	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwptd	, importance = TRUE	)
+NRFM11	<-	randomForest	(	int	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainwpint	, importance = TRUE	)
+NRFM12	<-	randomForest	(	comp_percent	~	cay+ agg_percent+ ayts+tt	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM13	<-	randomForest	(	tt	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwptt	, importance = TRUE	)
+NRFM14	<-	randomForest	(	cay	~	agg_percent+att+int+comp_percent	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM15	<-	randomForest	(	iay	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM16	<-	randomForest	(	ayd	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM17	<-	randomForest	(	agg_percent	~	cay+att+int+comp_percent	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM18	<-	randomForest	(	lcad	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM19	<-	randomForest	(	ayts	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM20	<-	randomForest	(	att	~	cay+agg_percent+int+comp_percent	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM21	<-	randomForest	(	yds	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM22	<-	randomForest	(	td	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainwptd	, importance = TRUE	)
+NRFM23	<-	randomForest	(	int	~	cay+agg_percent+att+comp_percent	,	data = 	trainwpint	, importance = TRUE	)
+NRFM24	<-	randomForest	(	comp_percent	~	cay+agg_percent+att+int	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM25	<-	randomForest	(	tt	~	cay+agg_percent+comp_percent+att	,	data = 	trainwptt	, importance = TRUE	)
+NRFM26	<-	randomForest	(	cay	~	agg_percent+comp_percent+att+tt	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM27	<-	randomForest	(	iay	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM28	<-	randomForest	(	ayd	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM29	<-	randomForest	(	agg_percent	~	cay+comp_percent+att+tt	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM30	<-	randomForest	(	lcad	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM31	<-	randomForest	(	ayts	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM32	<-	randomForest	(	att	~	cay+agg_percent+comp_percent+tt	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM33	<-	randomForest	(	yds	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM34	<-	randomForest	(	td	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwptd	, importance = TRUE	)
+NRFM35	<-	randomForest	(	int	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainwpint	, importance = TRUE	)
+NRFM36	<-	randomForest	(	comp_percent	~	cay+agg_percent+att+tt	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM37	<-	randomForest	(	tt	~	att+yds+td+int+ comp_percent	,	data = 	trainwptt	, importance = TRUE	)
+NRFM38	<-	randomForest	(	cay	~	att+yds+td+int+ comp_percent	,	data = 	trainwpcay	, importance = TRUE	)
+NRFM39	<-	randomForest	(	iay	~	att+yds+td+int+ comp_percent	,	data = 	trainwpiay	, importance = TRUE	)
+NRFM40	<-	randomForest	(	ayd	~	att+yds+td+int+ comp_percent	,	data = 	trainwpayd	, importance = TRUE	)
+NRFM41	<-	randomForest	(	agg_percent	~	att+yds+td+int+ comp_percent	,	data = 	trainwpaggpercent	, importance = TRUE	)
+NRFM42	<-	randomForest	(	lcad	~	att+yds+td+int+ comp_percent	,	data = 	trainwplcad	, importance = TRUE	)
+NRFM43	<-	randomForest	(	ayts	~	att+yds+td+int+ comp_percent	,	data = 	trainwpayts	, importance = TRUE	)
+NRFM44	<-	randomForest	(	att	~	yds+td+int+ comp_percent	,	data = 	trainwpatt	, importance = TRUE	)
+NRFM45	<-	randomForest	(	yds	~	att+td+int+ comp_percent	,	data = 	trainwpyds	, importance = TRUE	)
+NRFM46	<-	randomForest	(	td	~	att+yds+int+ comp_percent	,	data = 	trainwptd	, importance = TRUE	)
+NRFM47	<-	randomForest	(	int	~	att+yds+td+ comp_percent	,	data = 	trainwpint	, importance = TRUE	)
+NRFM48	<-	randomForest	(	comp_percent	~	att+yds+td+int	,	data = 	trainwpcomppercent	, importance = TRUE	)
+NRFM49	<-	randomForest	(	Int	~	Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsInt	, importance = TRUE	)
+NRFM50	<-	randomForest	(	Tgt	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsTgt	, importance = TRUE	)
+NRFM51	<-	randomForest	(	Cmp	~	Int+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsCmp	, importance = TRUE	)
+NRFM52	<-	randomForest	(	Yds	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsYds	, importance = TRUE	)
+NRFM53	<-	randomForest	(	TD	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsTD	, importance = TRUE	)
+NRFM54	<-	randomForest	(	DADOT	~	Int+Cmp+ Bltz+ Prss	,	data = 	trainadvdefsDADOT	, importance = TRUE	)
+NRFM55	<-	randomForest	(	Air	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsAir	, importance = TRUE	)
+NRFM56	<-	randomForest	(	YAC	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsYAC	, importance = TRUE	)
+NRFM57	<-	randomForest	(	Bltz	~	Int+Cmp+ DADOT+  Hrry+ Prss	,	data = 	trainadvdefsBltz	, importance = TRUE	)
+NRFM58	<-	randomForest	(	Hrry	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsHrry	, importance = TRUE	)
+NRFM59	<-	randomForest	(	QBKD	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsQBKD	, importance = TRUE	)
+NRFM60	<-	randomForest	(	Sk	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsSk	, importance = TRUE	)
+NRFM61	<-	randomForest	(	Prss	~	Int+Cmp+ DADOT+ Bltz	,	data = 	trainadvdefsPrss	, importance = TRUE	)
+NRFM62	<-	randomForest	(	TC	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsTC	, importance = TRUE	)
+NRFM63	<-	randomForest	(	TM2	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	trainadvdefsTM2	, importance = TRUE	)
+NRFM64	<-	randomForest	(	Int	~	Tgt+Cmp+Yds+TD	,	data = 	trainadvdefsInt	, importance = TRUE	)
+NRFM65	<-	randomForest	(	Tgt	~	Cmp+Yds+TD+Int	,	data = 	trainadvdefsTgt	, importance = TRUE	)
+NRFM66	<-	randomForest	(	Cmp	~	Tgt+Yds+TD+Int	,	data = 	trainadvdefsCmp	, importance = TRUE	)
+NRFM67	<-	randomForest	(	Yds	~	Tgt+Cmp+TD+Int	,	data = 	trainadvdefsYds	, importance = TRUE	)
+NRFM68	<-	randomForest	(	TD	~	Tgt+Cmp+Yds+Int	,	data = 	trainadvdefsTD	, importance = TRUE	)
+NRFM69	<-	randomForest	(	DADOT	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsDADOT	, importance = TRUE	)
+NRFM70	<-	randomForest	(	Air	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsAir	, importance = TRUE	)
+NRFM71	<-	randomForest	(	YAC	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsYAC	, importance = TRUE	)
+NRFM72	<-	randomForest	(	Bltz	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsBltz	, importance = TRUE	)
+NRFM73	<-	randomForest	(	Hrry	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsHrry	, importance = TRUE	)
+NRFM74	<-	randomForest	(	QBKD	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsQBKD	, importance = TRUE	)
+NRFM75	<-	randomForest	(	Sk	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsSk	, importance = TRUE	)
+NRFM76	<-	randomForest	(	Prss	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsPrss	, importance = TRUE	)
+NRFM77	<-	randomForest	(	TC	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsTC	, importance = TRUE	)
+NRFM78	<-	randomForest	(	TM2	~	Tgt+Cmp+Yds+TD+Int	,	data = 	trainadvdefsTM2	, importance = TRUE	)
+NRFM79	<-	randomForest	(	Int	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsInt	, importance = TRUE	)
+NRFM80	<-	randomForest	(	Tgt	~	Hrry+Prss+Bltz+DADOT	,	data = 	trainadvdefsTgt	, importance = TRUE	)
+NRFM81	<-	randomForest	(	Cmp	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsCmp	, importance = TRUE	)
+NRFM82	<-	randomForest	(	Yds	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsYds	, importance = TRUE	)
+NRFM83	<-	randomForest	(	TD	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsTD	, importance = TRUE	)
+NRFM84	<-	randomForest	(	DADOT	~	Hrry+Prss+Bltz+Tgt	,	data = 	trainadvdefsDADOT	, importance = TRUE	)
+NRFM85	<-	randomForest	(	Air	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsAir	, importance = TRUE	)
+NRFM86	<-	randomForest	(	YAC	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsYAC	, importance = TRUE	)
+NRFM87	<-	randomForest	(	Bltz	~	Hrry+Prss+Tgt+DADOT	,	data = 	trainadvdefsBltz	, importance = TRUE	)
+NRFM88	<-	randomForest	(	Hrry	~	Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsHrry	, importance = TRUE	)
+NRFM89	<-	randomForest	(	QBKD	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsQBKD	, importance = TRUE	)
+NRFM90	<-	randomForest	(	Sk	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsSk	, importance = TRUE	)
+NRFM91	<-	randomForest	(	Prss	~	Hrry+Bltz+Tgt+DADOT	,	data = 	trainadvdefsPrss	, importance = TRUE	)
+NRFM92	<-	randomForest	(	TC	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsTC	, importance = TRUE	)
+NRFM93	<-	randomForest	(	TM2	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	trainadvdefsTM2	, importance = TRUE	)
+
+
+
+
+
+
+NRFM94	<-	randomForest	(	cush	~	sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecscush	, importance = TRUE	)
+NRFM95	<-	randomForest	(	sep	~	cush+rec+ctch_percent+yds+td	,	data = 	trainadvrecssep	, importance = TRUE	)
+NRFM96	<-	randomForest	(	tay	~	cush+sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecstay	, importance = TRUE	)
+NRFM97	<-	randomForest	(	tay_percent	~	cush+sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecstaypercent	, importance = TRUE	)
+NRFM98	<-	randomForest	(	rec	~	cush+sep+ctch_percent+yds+td	,	data = 	trainadvrecsrec	, importance = TRUE	)
+NRFM99	<-	randomForest	(	tar	~	cush+sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecstar	, importance = TRUE	)
+NRFM100	<-	randomForest	(	ctch_percent	~	cush+sep+rec+yds+td	,	data = 	trainadvrecsctchpercent	, importance = TRUE	)
+NRFM101	<-	randomForest	(	yds	~	cush+sep+rec+ctch_percent+td	,	data = 	trainadvrecsyds	, importance = TRUE	)
+NRFM102	<-	randomForest	(	td	~	cush+sep+rec+ctch_percent+yds	,	data = 	trainadvrecstd	, importance = TRUE	)
+NRFM103	<-	randomForest	(	yac_r	~	cush+sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecsyacr	, importance = TRUE	)
+NRFM104	<-	randomForest	(	x_yac_r	~	cush+sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecsxyacr	, importance = TRUE	)
+NRFM105	<-	randomForest	(	x	~	cush+sep+rec+ctch_percent+yds+td	,	data = 	trainadvrecsPLMUS	, importance = TRUE	)
+NRFM106	<-	randomForest	(	cush	~	sep+ctch_percent+yac_r+tar	,	data = 	trainadvrecscush	, importance = TRUE	)
+NRFM107	<-	randomForest	(	sep	~	cush+ctch_percent+yac_r+tar	,	data = 	trainadvrecssep	, importance = TRUE	)
+NRFM108	<-	randomForest	(	tay	~	cush+sep+ctch_percent+yac_r+tar	,	data = 	trainadvrecstay	, importance = TRUE	)
+NRFM109	<-	randomForest	(	tay_percent	~	cush+sep+ctch_percent+yac_r+tar	,	data = 	trainadvrecstaypercent	, importance = TRUE	)
+NRFM110	<-	randomForest	(	rec	~	cush+sep+ctch_percent+yac_r+tar	,	data = 	trainadvrecsrec	, importance = TRUE	)
+NRFM111	<-	randomForest	(	tar	~	cush+sep+ctch_percent+yac_r	,	data = 	trainadvrecstar	, importance = TRUE	)
+NRFM112	<-	randomForest	(	ctch_percent	~	cush+sep+yac_r+tar	,	data = 	trainadvrecsctchpercent	, importance = TRUE	)
+NRFM113	<-	randomForest	(	yds	~	cush+sep+ctch_percent+yac_r+tar	,	data = 	trainadvrecsyds	, importance = TRUE	)
+NRFM114	<-	randomForest	(	td	~	cush+sep+ctch_percent+yac_r+tar	,	data = 	trainadvrecstd	, importance = TRUE	)
+NRFM115	<-	randomForest	(	yac_r	~	cush+sep+ctch_percent+tar	,	data = 	trainadvrecsyacr	, importance = TRUE	)
+NRFM116	<-	randomForest	(	x_yac_r	~	cush+sep+ctch_percent+tar	,	data = 	trainadvrecsxyacr	, importance = TRUE	)
+NRFM117	<-	randomForest	(	x	~	cush+sep+ctch_percent+tar	,	data = 	trainadvrecsPLMUS	, importance = TRUE	)
+NRFM118	<-	randomForest	(	cush	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecscush	, importance = TRUE	)
+NRFM119	<-	randomForest	(	sep	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecssep	, importance = TRUE	)
+NRFM120	<-	randomForest	(	tay	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecstay	, importance = TRUE	)
+NRFM121	<-	randomForest	(	tay_percent	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecstaypercent	, importance = TRUE	)
+NRFM122	<-	randomForest	(	rec	~	tar+ctch_percent+yds+td	,	data = 	trainadvrecsrec	, importance = TRUE	)
+NRFM123	<-	randomForest	(	tar	~	rec+ctch_percent+yds+td	,	data = 	trainadvrecstar	, importance = TRUE	)
+NRFM124	<-	randomForest	(	ctch_percent	~	rec+tar+yds+td	,	data = 	trainadvrecsctchpercent	, importance = TRUE	)
+NRFM125	<-	randomForest	(	yds	~	rec+tar+ctch_percent+td	,	data = 	trainadvrecsyds	, importance = TRUE	)
+NRFM126	<-	randomForest	(	td	~	rec+tar+ctch_percent+yds	,	data = 	trainadvrecstd	, importance = TRUE	)
+NRFM127	<-	randomForest	(	yac_r	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecsyacr	, importance = TRUE	)
+NRFM128	<-	randomForest	(	x_yac_r	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecsxyacr	, importance = TRUE	)
+NRFM129	<-	randomForest	(	x	~	rec+tar+ctch_percent+yds+td	,	data = 	trainadvrecsPLMUS	, importance = TRUE	)
+NRFM130	<-	randomForest	(	eff	~	tlos+att+td+yds+x8_d_percent	,	data = 	trainadvrushseff	, importance = TRUE	)
+NRFM131	<-	randomForest	(	x8_d_percent	~	eff+tlos+att+td+yds	,	data = 	trainadvrushsx8d	, importance = TRUE	)
+NRFM132	<-	randomForest	(	tlos	~	eff+att+td+yds+x8_d_percent	,	data = 	trainadvrushstlos	, importance = TRUE	)
+NRFM133	<-	randomForest	(	att	~	eff+tlos+td+yds+x8_d_percent	,	data = 	trainadvrushsatt	, importance = TRUE	)
+NRFM134	<-	randomForest	(	yds	~	eff+tlos+att+td+x8_d_percent	,	data = 	trainadvrushsyds	, importance = TRUE	)
+NRFM135	<-	randomForest	(	avg	~	eff+tlos+att+td+yds+x8_d_percent	,	data = 	trainadvrushsavg	, importance = TRUE	)
+NRFM136	<-	randomForest	(	td	~	eff+tlos+att+yds+x8_d_percent	,	data = 	trainadvrushstd	, importance = TRUE	)
+NRFM137	<-	randomForest	(	eff	~	tlos+x8_d_percent+att	,	data = 	trainadvrushseff	, importance = TRUE	)
+NRFM138	<-	randomForest	(	x8_d_percent	~	eff+tlos+att	,	data = 	trainadvrushsx8d	, importance = TRUE	)
+NRFM139	<-	randomForest	(	tlos	~	eff+x8_d_percent+att	,	data = 	trainadvrushstlos	, importance = TRUE	)
+NRFM140	<-	randomForest	(	att	~	eff+tlos+x8_d_percent	,	data = 	trainadvrushsatt	, importance = TRUE	)
+NRFM141	<-	randomForest	(	yds	~	eff+tlos+x8_d_percent+att	,	data = 	trainadvrushsyds	, importance = TRUE	)
+NRFM142	<-	randomForest	(	avg	~	eff+tlos+x8_d_percent+att	,	data = 	trainadvrushsavg	, importance = TRUE	)
+NRFM143	<-	randomForest	(	td	~	eff+tlos+x8_d_percent+att	,	data = 	trainadvrushstd	, importance = TRUE	)
+NRFM144	<-	randomForest	(	eff	~	att+yds+td	,	data = 	trainadvrushseff	, importance = TRUE	)
+NRFM145	<-	randomForest	(	x8_d_percent	~	att+yds+td	,	data = 	trainadvrushsx8d	, importance = TRUE	)
+NRFM146	<-	randomForest	(	tlos	~	att+yds+td	,	data = 	trainadvrushstlos	, importance = TRUE	)
+NRFM147	<-	randomForest	(	att	~	yds+td	,	data = 	trainadvrushsatt	, importance = TRUE	)
+NRFM148	<-	randomForest	(	yds	~	att+td	,	data = 	trainadvrushsyds	, importance = TRUE	)
+NRFM149	<-	randomForest	(	avg	~	att+yds+td	,	data = 	trainadvrushsavg	, importance = TRUE	)
+NRFM150	<-	randomForest	(	td	~	att+yds	,	data = 	trainadvrushstd	, importance = TRUE	)
+
+
+# next section 
+
+NRFM151	<-	randomForest	(	sacks	~	sack_yds+qb_hits+assists+tackles+fumbles_forced	,	data = 	traindfwsk	, importance = TRUE	)
+NRFM152	<-	randomForest	(	sack_yds	~	sacks+qb_hits+assists+tackles+fumbles_forced	,	data = 	traindfwsky	, importance = TRUE	)
+NRFM153	<-	randomForest	(	qb_hits	~	sacks+assists+tackles+fumbles_forced	,	data = 	traindfwQBH	, importance = TRUE	)
+NRFM154	<-	randomForest	(	tackles	~	sacks+qb_hits+assists+fumbles_forced	,	data = 	traindfwTKL	, importance = TRUE	)
+NRFM155	<-	randomForest	(	assists	~	sacks+qb_hits+tackles+fumbles_forced	,	data = 	traindfwAST	, importance = TRUE	)
+NRFM156	<-	randomForest	(	fumbles_forced	~	sacks+qb_hits+assists+tackles	,	data = 	traindfwFF	, importance = TRUE	)
+NRFM157	<-	randomForest	(	fumbles_recovered	~	sacks+qb_hits+assists+tackles+fumbles_forced	,	data = 	traindfwFR	, importance = TRUE	)
+
+
+
+
+
+NRFM158	<-	randomForest	(	rec	~	yds+avg+td+fum	,	data = 	trainrecwrec	, importance = TRUE	)
+NRFM159	<-	randomForest	(	yds	~	rec+avg+td+fum	,	data = 	trainrecwyds	, importance = TRUE	)
+NRFM160	<-	randomForest	(	avg	~	rec+yds+td+fum	,	data = 	trainrecwavg	, importance = TRUE	)
+NRFM161	<-	randomForest	(	td	~	rec+yds+avg+fum	,	data = 	trainrecwtd	, importance = TRUE	)
+NRFM162	<-	randomForest	(	fum	~	rec+yds+avg+td	,	data = 	trainrecwfum	, importance = TRUE	)
+NRFM163	<-	randomForest	(	att	~	yds+avg+td+fum	,	data = 	trainrushwatt	, importance = TRUE	)
+NRFM164	<-	randomForest	(	yds	~	att+avg+td+fum	,	data = 	trainrushwyds	, importance = TRUE	)
+NRFM165	<-	randomForest	(	avg	~	att+yds+td+fum	,	data = 	trainrushwavg	, importance = TRUE	)
+NRFM166	<-	randomForest	(	td	~	att+yds+avg+fum	,	data = 	trainrushwtd	, importance = TRUE	)
+NRFM167	<-	randomForest	(	fum	~	att+yds+avg+td	,	data = 	trainrushwfum	, importance = TRUE	)
+
+
+NRFM168	<-	randomForest	(	tt	~	cay+ agg_percent+ ayts+ comp_percent	,	data = 	trainNGSPtt	, importance = TRUE	)
+NRFM169	<-	randomForest	(	cay	~	 agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPcay	, importance = TRUE	)
+NRFM170	<-	randomForest	(	iay	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPiay	, importance = TRUE	)
+NRFM171	<-	randomForest	(	ayd	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPayd	, importance = TRUE	)
+NRFM172	<-	randomForest	(	agg_percent	~	cay+ ayts+ comp_percent+tt	,	data = 	trainNGSPaggpercent	, importance = TRUE	)
+NRFM173	<-	randomForest	(	lcad	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPlcad	, importance = TRUE	)
+NRFM174	<-	randomForest	(	ayts	~	cay+ agg_percent+ comp_percent+tt	,	data = 	trainNGSPayts	, importance = TRUE	)
+NRFM175	<-	randomForest	(	att	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPatt	, importance = TRUE	)
+NRFM176	<-	randomForest	(	yds	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPyds	, importance = TRUE	)
+NRFM177	<-	randomForest	(	td	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPtd	, importance = TRUE	)
+NRFM178	<-	randomForest	(	int	~	cay+ agg_percent+ ayts+ comp_percent+tt	,	data = 	trainNGSPint	, importance = TRUE	)
+NRFM179	<-	randomForest	(	comp_percent	~	cay+ agg_percent+ ayts+tt	,	data = 	trainNGSPcomppercent	, importance = TRUE	)
+NRFM180	<-	randomForest	(	tt	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPtt	, importance = TRUE	)
+NRFM181	<-	randomForest	(	cay	~	agg_percent+att+int+comp_percent	,	data = 	trainNGSPcay	, importance = TRUE	)
+NRFM182	<-	randomForest	(	iay	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPiay	, importance = TRUE	)
+NRFM183	<-	randomForest	(	ayd	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPayd	, importance = TRUE	)
+NRFM184	<-	randomForest	(	agg_percent	~	cay+att+int+comp_percent	,	data = 	trainNGSPaggpercent	, importance = TRUE	)
+NRFM185	<-	randomForest	(	lcad	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPlcad	, importance = TRUE	)
+NRFM186	<-	randomForest	(	ayts	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPayts	, importance = TRUE	)
+NRFM187	<-	randomForest	(	att	~	cay+agg_percent+int+comp_percent	,	data = 	trainNGSPatt	, importance = TRUE	)
+NRFM188	<-	randomForest	(	yds	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPyds	, importance = TRUE	)
+NRFM189	<-	randomForest	(	td	~	cay+agg_percent+att+int+comp_percent	,	data = 	trainNGSPtd	, importance = TRUE	)
+NRFM190	<-	randomForest	(	int	~	cay+agg_percent+att+comp_percent	,	data = 	trainNGSPint	, importance = TRUE	)
+NRFM191	<-	randomForest	(	comp_percent	~	cay+agg_percent+att+int	,	data = 	trainNGSPcomppercent	, importance = TRUE	)
+NRFM192	<-	randomForest	(	tt	~	cay+agg_percent+comp_percent+att	,	data = 	trainNGSPtt	, importance = TRUE	)
+NRFM193	<-	randomForest	(	cay	~	agg_percent+comp_percent+att+tt	,	data = 	trainNGSPcay	, importance = TRUE	)
+NRFM194	<-	randomForest	(	iay	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPiay	, importance = TRUE	)
+NRFM195	<-	randomForest	(	ayd	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPayd	, importance = TRUE	)
+NRFM196	<-	randomForest	(	agg_percent	~	cay+comp_percent+att+tt	,	data = 	trainNGSPaggpercent	, importance = TRUE	)
+NRFM197	<-	randomForest	(	lcad	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPlcad	, importance = TRUE	)
+NRFM198	<-	randomForest	(	ayts	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPayts	, importance = TRUE	)
+NRFM199	<-	randomForest	(	att	~	cay+agg_percent+comp_percent+tt	,	data = 	trainNGSPatt	, importance = TRUE	)
+NRFM200	<-	randomForest	(	yds	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPyds	, importance = TRUE	)
+NRFM201	<-	randomForest	(	td	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPtd	, importance = TRUE	)
+NRFM202	<-	randomForest	(	int	~	cay+agg_percent+comp_percent+att+tt	,	data = 	trainNGSPint	, importance = TRUE	)
+NRFM203	<-	randomForest	(	comp_percent	~	cay+agg_percent+att+tt	,	data = 	trainNGSPcomppercent	, importance = TRUE	)
+NRFM204	<-	randomForest	(	tt	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPtt	, importance = TRUE	)
+NRFM205	<-	randomForest	(	cay	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPcay	, importance = TRUE	)
+NRFM206	<-	randomForest	(	iay	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPiay	, importance = TRUE	)
+NRFM207	<-	randomForest	(	ayd	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPayd	, importance = TRUE	)
+NRFM208	<-	randomForest	(	agg_percent	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPaggpercent	, importance = TRUE	)
+NRFM209	<-	randomForest	(	lcad	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPlcad	, importance = TRUE	)
+NRFM210	<-	randomForest	(	ayts	~	att+yds+td+int+ comp_percent	,	data = 	trainNGSPayts	, importance = TRUE	)
+NRFM211	<-	randomForest	(	att	~	yds+td+int+ comp_percent	,	data = 	trainNGSPatt	, importance = TRUE	)
+NRFM212	<-	randomForest	(	yds	~	att+td+int+ comp_percent	,	data = 	trainNGSPyds	, importance = TRUE	)
+NRFM213	<-	randomForest	(	td	~	att+yds+int+ comp_percent	,	data = 	trainNGSPtd	, importance = TRUE	)
+NRFM214	<-	randomForest	(	int	~	att+yds+td+ comp_percent	,	data = 	trainNGSPint	, importance = TRUE	)
+NRFM215	<-	randomForest	(	comp_percent	~	att+yds+td+int	,	data = 	trainNGSPcomppercent	, importance = TRUE	)
+
+
+
+
+
+# predictions 
+
+PNRFM1	<-	predict	(	NRFM1	,	newdata =	testwptt	[	-	1	])
+PNRFM2	<-	predict	(	NRFM2	,	newdata =	testwpcay	[	-	2	])
+PNRFM3	<-	predict	(	NRFM3	,	newdata =	testwpiay	[	-	3	])
+PNRFM4	<-	predict	(	NRFM4	,	newdata =	testwpayd	[	-	4	])
+PNRFM5	<-	predict	(	NRFM5	,	newdata =	testwpaggpercent	[	-	5	])
+PNRFM6	<-	predict	(	NRFM6	,	newdata =	testwplcad	[	-	6	])
+PNRFM7	<-	predict	(	NRFM7	,	newdata =	testwpayts	[	-	7	])
+PNRFM8	<-	predict	(	NRFM8	,	newdata =	testwpatt	[	-	8	])
+PNRFM9	<-	predict	(	NRFM9	,	newdata =	testwpyds	[	-	9	])
+PNRFM10	<-	predict	(	NRFM10	,	newdata =	testwptd	[	-	10	])
+PNRFM11	<-	predict	(	NRFM11	,	newdata =	testwpint	[	-	11	])
+PNRFM12	<-	predict	(	NRFM12	,	newdata =	testwpcomppercent	[	-	12	])
+PNRFM13	<-	predict	(	NRFM13	,	newdata =	testwptt	[	-	1	])
+PNRFM14	<-	predict	(	NRFM14	,	newdata =	testwpcay	[	-	2	])
+PNRFM15	<-	predict	(	NRFM15	,	newdata =	testwpiay	[	-	3	])
+PNRFM16	<-	predict	(	NRFM16	,	newdata =	testwpayd	[	-	4	])
+PNRFM17	<-	predict	(	NRFM17	,	newdata =	testwpaggpercent	[	-	5	])
+PNRFM18	<-	predict	(	NRFM18	,	newdata =	testwplcad	[	-	6	])
+PNRFM19	<-	predict	(	NRFM19	,	newdata =	testwpayts	[	-	7	])
+PNRFM20	<-	predict	(	NRFM20	,	newdata =	testwpatt	[	-	8	])
+PNRFM21	<-	predict	(	NRFM21	,	newdata =	testwpyds	[	-	9	])
+PNRFM22	<-	predict	(	NRFM22	,	newdata =	testwptd	[	-	10	])
+PNRFM23	<-	predict	(	NRFM23	,	newdata =	testwpint	[	-	11	])
+PNRFM24	<-	predict	(	NRFM24	,	newdata =	testwpcomppercent	[	-	12	])
+PNRFM25	<-	predict	(	NRFM25	,	newdata =	testwptt	[	-	1	])
+PNRFM26	<-	predict	(	NRFM26	,	newdata =	testwpcay	[	-	2	])
+PNRFM27	<-	predict	(	NRFM27	,	newdata =	testwpiay	[	-	3	])
+PNRFM28	<-	predict	(	NRFM28	,	newdata =	testwpayd	[	-	4	])
+PNRFM29	<-	predict	(	NRFM29	,	newdata =	testwpaggpercent	[	-	5	])
+PNRFM30	<-	predict	(	NRFM30	,	newdata =	testwplcad	[	-	6	])
+PNRFM31	<-	predict	(	NRFM31	,	newdata =	testwpayts	[	-	7	])
+PNRFM32	<-	predict	(	NRFM32	,	newdata =	testwpatt	[	-	8	])
+PNRFM33	<-	predict	(	NRFM33	,	newdata =	testwpyds	[	-	9	])
+PNRFM34	<-	predict	(	NRFM34	,	newdata =	testwptd	[	-	10	])
+PNRFM35	<-	predict	(	NRFM35	,	newdata =	testwpint	[	-	11	])
+PNRFM36	<-	predict	(	NRFM36	,	newdata =	testwpcomppercent	[	-	12	])
+PNRFM37	<-	predict	(	NRFM37	,	newdata =	testwptt	[	-	1	])
+PNRFM38	<-	predict	(	NRFM38	,	newdata =	testwpcay	[	-	2	])
+PNRFM39	<-	predict	(	NRFM39	,	newdata =	testwpiay	[	-	3	])
+PNRFM40	<-	predict	(	NRFM40	,	newdata =	testwpayd	[	-	4	])
+PNRFM41	<-	predict	(	NRFM41	,	newdata =	testwpaggpercent	[	-	5	])
+PNRFM42	<-	predict	(	NRFM42	,	newdata =	testwplcad	[	-	6	])
+PNRFM43	<-	predict	(	NRFM43	,	newdata =	testwpayts	[	-	7	])
+PNRFM44	<-	predict	(	NRFM44	,	newdata =	testwpatt	[	-	8	])
+PNRFM45	<-	predict	(	NRFM45	,	newdata =	testwpyds	[	-	9	])
+PNRFM46	<-	predict	(	NRFM46	,	newdata =	testwptd	[	-	10	])
+PNRFM47	<-	predict	(	NRFM47	,	newdata =	testwpint	[	-	11	])
+PNRFM48	<-	predict	(	NRFM48	,	newdata =	testwpcomppercent	[	-	12	])
+PNRFM49	<-	predict	(	NRFM49	,	newdata =	testadvdefsInt	[	-	1	])
+PNRFM50	<-	predict	(	NRFM50	,	newdata =	testadvdefsTgt	[	-	2	])
+PNRFM51	<-	predict	(	NRFM51	,	newdata =	testadvdefsCmp	[	-	3	])
+PNRFM52	<-	predict	(	NRFM52	,	newdata =	testadvdefsYds	[	-	4	])
+PNRFM53	<-	predict	(	NRFM53	,	newdata =	testadvdefsTD	[	-	5	])
+PNRFM54	<-	predict	(	NRFM54	,	newdata =	testadvdefsDADOT	[	-	6	])
+PNRFM55	<-	predict	(	NRFM55	,	newdata =	testadvdefsAir	[	-	7	])
+PNRFM56	<-	predict	(	NRFM56	,	newdata =	testadvdefsYAC	[	-	8	])
+PNRFM57	<-	predict	(	NRFM57	,	newdata =	testadvdefsBltz	[	-	9	])
+PNRFM58	<-	predict	(	NRFM58	,	newdata =	testadvdefsHrry	[	-	10	])
+PNRFM59	<-	predict	(	NRFM59	,	newdata =	testadvdefsQBKD	[	-	11	])
+PNRFM60	<-	predict	(	NRFM60	,	newdata =	testadvdefsSk	[	-	12	])
+PNRFM61	<-	predict	(	NRFM61	,	newdata =	testadvdefsPrss	[	-	13	])
+PNRFM62	<-	predict	(	NRFM62	,	newdata =	testadvdefsTC	[	-	14	])
+PNRFM63	<-	predict	(	NRFM63	,	newdata =	testadvdefsTM2	[	-	15	])
+PNRFM64	<-	predict	(	NRFM64	,	newdata =	testadvdefsInt	[	-	1	])
+PNRFM65	<-	predict	(	NRFM65	,	newdata =	testadvdefsTgt	[	-	2	])
+PNRFM66	<-	predict	(	NRFM66	,	newdata =	testadvdefsCmp	[	-	3	])
+PNRFM67	<-	predict	(	NRFM67	,	newdata =	testadvdefsYds	[	-	4	])
+PNRFM68	<-	predict	(	NRFM68	,	newdata =	testadvdefsTD	[	-	5	])
+PNRFM69	<-	predict	(	NRFM69	,	newdata =	testadvdefsDADOT	[	-	6	])
+PNRFM70	<-	predict	(	NRFM70	,	newdata =	testadvdefsAir	[	-	7	])
+PNRFM71	<-	predict	(	NRFM71	,	newdata =	testadvdefsYAC	[	-	8	])
+PNRFM72	<-	predict	(	NRFM72	,	newdata =	testadvdefsBltz	[	-	9	])
+PNRFM73	<-	predict	(	NRFM73	,	newdata =	testadvdefsHrry	[	-	10	])
+PNRFM74	<-	predict	(	NRFM74	,	newdata =	testadvdefsQBKD	[	-	11	])
+PNRFM75	<-	predict	(	NRFM75	,	newdata =	testadvdefsSk	[	-	12	])
+PNRFM76	<-	predict	(	NRFM76	,	newdata =	testadvdefsPrss	[	-	13	])
+PNRFM77	<-	predict	(	NRFM77	,	newdata =	testadvdefsTC	[	-	14	])
+PNRFM78	<-	predict	(	NRFM78	,	newdata =	testadvdefsTM2	[	-	15	])
+PNRFM79	<-	predict	(	NRFM79	,	newdata =	testadvdefsInt	[	-	1	])
+PNRFM80	<-	predict	(	NRFM80	,	newdata =	testadvdefsTgt	[	-	2	])
+PNRFM81	<-	predict	(	NRFM81	,	newdata =	testadvdefsCmp	[	-	3	])
+PNRFM82	<-	predict	(	NRFM82	,	newdata =	testadvdefsYds	[	-	4	])
+PNRFM83	<-	predict	(	NRFM83	,	newdata =	testadvdefsTD	[	-	5	])
+PNRFM84	<-	predict	(	NRFM84	,	newdata =	testadvdefsDADOT	[	-	6	])
+PNRFM85	<-	predict	(	NRFM85	,	newdata =	testadvdefsAir	[	-	7	])
+PNRFM86	<-	predict	(	NRFM86	,	newdata =	testadvdefsYAC	[	-	8	])
+PNRFM87	<-	predict	(	NRFM87	,	newdata =	testadvdefsBltz	[	-	9	])
+PNRFM88	<-	predict	(	NRFM88	,	newdata =	testadvdefsHrry	[	-	10	])
+PNRFM89	<-	predict	(	NRFM89	,	newdata =	testadvdefsQBKD	[	-	11	])
+PNRFM90	<-	predict	(	NRFM90	,	newdata =	testadvdefsSk	[	-	12	])
+PNRFM91	<-	predict	(	NRFM91	,	newdata =	testadvdefsPrss	[	-	13	])
+PNRFM92	<-	predict	(	NRFM92	,	newdata =	testadvdefsTC	[	-	14	])
+PNRFM93	<-	predict	(	NRFM93	,	newdata =	testadvdefsTM2	[	-	15	])
+PNRFM94	<-	predict	(	NRFM94	,	newdata =	testadvrecscush	[	-	1	])
+PNRFM95	<-	predict	(	NRFM95	,	newdata =	testadvrecssep	[	-	2	])
+PNRFM96	<-	predict	(	NRFM96	,	newdata =	testadvrecstay	[	-	3	])
+PNRFM97	<-	predict	(	NRFM97	,	newdata =	testadvrecstaypercent	[	-	4	])
+PNRFM98	<-	predict	(	NRFM98	,	newdata =	testadvrecsrec	[	-	5	])
+PNRFM99	<-	predict	(	NRFM99	,	newdata =	testadvrecstar	[	-	6	])
+PNRFM100	<-	predict	(	NRFM100	,	newdata =	testadvrecsctchpercent	[	-	7	])
+PNRFM101	<-	predict	(	NRFM101	,	newdata =	testadvrecsyds	[	-	8	])
+PNRFM102	<-	predict	(	NRFM102	,	newdata =	testadvrecstd	[	-	9	])
+PNRFM103	<-	predict	(	NRFM103	,	newdata =	testadvrecsyacr	[	-	10	])
+PNRFM104	<-	predict	(	NRFM104	,	newdata =	testadvrecsxyacr	[	-	11	])
+PNRFM105	<-	predict	(	NRFM105	,	newdata =	testadvrecsPLMUS	[	-	12	])
+PNRFM106	<-	predict	(	NRFM106	,	newdata =	testadvrecscush	[	-	1	])
+PNRFM107	<-	predict	(	NRFM107	,	newdata =	testadvrecssep	[	-	2	])
+PNRFM108	<-	predict	(	NRFM108	,	newdata =	testadvrecstay	[	-	3	])
+PNRFM109	<-	predict	(	NRFM109	,	newdata =	testadvrecstaypercent	[	-	4	])
+PNRFM110	<-	predict	(	NRFM110	,	newdata =	testadvrecsrec	[	-	5	])
+PNRFM111	<-	predict	(	NRFM111	,	newdata =	testadvrecstar	[	-	6	])
+PNRFM112	<-	predict	(	NRFM112	,	newdata =	testadvrecsctchpercent	[	-	7	])
+PNRFM113	<-	predict	(	NRFM113	,	newdata =	testadvrecsyds	[	-	8	])
+PNRFM114	<-	predict	(	NRFM114	,	newdata =	testadvrecstd	[	-	9	])
+PNRFM115	<-	predict	(	NRFM115	,	newdata =	testadvrecsyacr	[	-	10	])
+PNRFM116	<-	predict	(	NRFM116	,	newdata =	testadvrecsxyacr	[	-	11	])
+PNRFM117	<-	predict	(	NRFM117	,	newdata =	testadvrecsPLMUS	[	-	12	])
+PNRFM118	<-	predict	(	NRFM118	,	newdata =	testadvrecscush	[	-	1	])
+PNRFM119	<-	predict	(	NRFM119	,	newdata =	testadvrecssep	[	-	2	])
+PNRFM120	<-	predict	(	NRFM120	,	newdata =	testadvrecstay	[	-	3	])
+PNRFM121	<-	predict	(	NRFM121	,	newdata =	testadvrecstaypercent	[	-	4	])
+PNRFM122	<-	predict	(	NRFM122	,	newdata =	testadvrecsrec	[	-	5	])
+PNRFM123	<-	predict	(	NRFM123	,	newdata =	testadvrecstar	[	-	6	])
+PNRFM124	<-	predict	(	NRFM124	,	newdata =	testadvrecsctchpercent	[	-	7	])
+PNRFM125	<-	predict	(	NRFM125	,	newdata =	testadvrecsyds	[	-	8	])
+PNRFM126	<-	predict	(	NRFM126	,	newdata =	testadvrecstd	[	-	9	])
+PNRFM127	<-	predict	(	NRFM127	,	newdata =	testadvrecsyacr	[	-	10	])
+PNRFM128	<-	predict	(	NRFM128	,	newdata =	testadvrecsxyacr	[	-	11	])
+PNRFM129	<-	predict	(	NRFM129	,	newdata =	testadvrecsPLMUS	[	-	12	])
+PNRFM130	<-	predict	(	NRFM130	,	newdata =	testadvrushseff	[	-	1	])
+PNRFM131	<-	predict	(	NRFM131	,	newdata =	testadvrushsx8d	[	-	2	])
+PNRFM132	<-	predict	(	NRFM132	,	newdata =	testadvrushstlos	[	-	3	])
+PNRFM133	<-	predict	(	NRFM133	,	newdata =	testadvrushsatt	[	-	4	])
+PNRFM134	<-	predict	(	NRFM134	,	newdata =	testadvrushsyds	[	-	5	])
+PNRFM135	<-	predict	(	NRFM135	,	newdata =	testadvrushsavg	[	-	6	])
+PNRFM136	<-	predict	(	NRFM136	,	newdata =	testadvrushstd	[	-	7	])
+PNRFM137	<-	predict	(	NRFM137	,	newdata =	testadvrushseff	[	-	1	])
+PNRFM138	<-	predict	(	NRFM138	,	newdata =	testadvrushsx8d	[	-	2	])
+PNRFM139	<-	predict	(	NRFM139	,	newdata =	testadvrushstlos	[	-	3	])
+PNRFM140	<-	predict	(	NRFM140	,	newdata =	testadvrushsatt	[	-	4	])
+PNRFM141	<-	predict	(	NRFM141	,	newdata =	testadvrushsyds	[	-	5	])
+PNRFM142	<-	predict	(	NRFM142	,	newdata =	testadvrushsavg	[	-	6	])
+PNRFM143	<-	predict	(	NRFM143	,	newdata =	testadvrushstd	[	-	7	])
+PNRFM144	<-	predict	(	NRFM144	,	newdata =	testadvrushseff	[	-	1	])
+PNRFM145	<-	predict	(	NRFM145	,	newdata =	testadvrushsx8d	[	-	2	])
+PNRFM146	<-	predict	(	NRFM146	,	newdata =	testadvrushstlos	[	-	3	])
+PNRFM147	<-	predict	(	NRFM147	,	newdata =	testadvrushsatt	[	-	4	])
+PNRFM148	<-	predict	(	NRFM148	,	newdata =	testadvrushsyds	[	-	5	])
+PNRFM149	<-	predict	(	NRFM149	,	newdata =	testadvrushsavg	[	-	6	])
+PNRFM150	<-	predict	(	NRFM150	,	newdata =	testadvrushstd	[	-	7	])
+
+# reset 
+
+
+PNRFM151	<-	predict	(	NRFM151	,	newdata =	testdfwsk	[	-1	])
+PNRFM152	<-	predict	(	NRFM152	,	newdata =	testdfwsky	[	-	2	])
+PNRFM153	<-	predict	(	NRFM153	,	newdata =	testdfwQBH	[	-	3	])
+PNRFM154	<-	predict	(	NRFM154	,	newdata =	testdfwTKL	[	-	4	])
+PNRFM155	<-	predict	(	NRFM155	,	newdata =	testdfwAST	[	-	5	])
+PNRFM156	<-	predict	(	NRFM156	,	newdata =	testdfwFF	[	-	6	])
+PNRFM157	<-	predict	(	NRFM157	,	newdata =	testdfwFR	[	-	7	])
+PNRFM158	<-	predict	(	NRFM158	,	newdata =	testrecwrec	[	-	1	])
+PNRFM159	<-	predict	(	NRFM159	,	newdata =	testrecwyds	[	-	2	])
+PNRFM160	<-	predict	(	NRFM160	,	newdata =	testrecwavg	[	-	3	])
+PNRFM161	<-	predict	(	NRFM161	,	newdata =	testrecwtd	[	-	4	])
+PNRFM162	<-	predict	(	NRFM162	,	newdata =	testrecwfum	[	-	5	])
+PNRFM163	<-	predict	(	NRFM163	,	newdata =	testrushwatt	[	-	1	])
+PNRFM164	<-	predict	(	NRFM164	,	newdata =	testrushwyds	[	-	2	])
+PNRFM165	<-	predict	(	NRFM165	,	newdata =	testrushwavg	[	-	3	])
+PNRFM166	<-	predict	(	NRFM166	,	newdata =	testrushwtd	[	-	4	])
+PNRFM167	<-	predict	(	NRFM167	,	newdata =	testrushwfum	[	-	5	])
+PNRFM168	<-	predict	(	NRFM168	,	newdata =	testNGSPtt	[	-	1	])
+PNRFM169	<-	predict	(	NRFM169	,	newdata =	testNGSPcay	[	-	2	])
+PNRFM170	<-	predict	(	NRFM170	,	newdata =	testNGSPiay	[	-	3	])
+PNRFM171	<-	predict	(	NRFM171	,	newdata =	testNGSPayd	[	-	4	])
+PNRFM172	<-	predict	(	NRFM172	,	newdata =	testNGSPaggpercent	[	-	5	])
+PNRFM173	<-	predict	(	NRFM173	,	newdata =	testNGSPlcad	[	-	6	])
+PNRFM174	<-	predict	(	NRFM174	,	newdata =	testNGSPayts	[	-	7	])
+PNRFM175	<-	predict	(	NRFM175	,	newdata =	testNGSPatt	[	-	8	])
+PNRFM176	<-	predict	(	NRFM176	,	newdata =	testNGSPyds	[	-	9	])
+PNRFM177	<-	predict	(	NRFM177	,	newdata =	testNGSPtd	[	-	10	])
+PNRFM178	<-	predict	(	NRFM178	,	newdata =	testNGSPint	[	-	11	])
+PNRFM179	<-	predict	(	NRFM179	,	newdata =	testNGSPcomppercent	[	-	12	])
+PNRFM180	<-	predict	(	NRFM180	,	newdata =	testNGSPtt	[	-	1	])
+PNRFM181	<-	predict	(	NRFM181	,	newdata =	testNGSPcay	[	-	2	])
+PNRFM182	<-	predict	(	NRFM182	,	newdata =	testNGSPiay	[	-	3	])
+PNRFM183	<-	predict	(	NRFM183	,	newdata =	testNGSPayd	[	-	4	])
+PNRFM184	<-	predict	(	NRFM184	,	newdata =	testNGSPaggpercent	[	-	5	])
+PNRFM185	<-	predict	(	NRFM185	,	newdata =	testNGSPlcad	[	-	6	])
+PNRFM186	<-	predict	(	NRFM186	,	newdata =	testNGSPayts	[	-	7	])
+PNRFM187	<-	predict	(	NRFM187	,	newdata =	testNGSPatt	[	-	8	])
+PNRFM188	<-	predict	(	NRFM188	,	newdata =	testNGSPyds	[	-	9	])
+PNRFM189	<-	predict	(	NRFM189	,	newdata =	testNGSPtd	[	-	10	])
+PNRFM190	<-	predict	(	NRFM190	,	newdata =	testNGSPint	[	-	11	])
+PNRFM191	<-	predict	(	NRFM191	,	newdata =	testNGSPcomppercent	[	-	12	])
+PNRFM192	<-	predict	(	NRFM192	,	newdata =	testNGSPtt	[	-	1	])
+PNRFM193	<-	predict	(	NRFM193	,	newdata =	testNGSPcay	[	-	2	])
+PNRFM194	<-	predict	(	NRFM194	,	newdata =	testNGSPiay	[	-	3	])
+PNRFM195	<-	predict	(	NRFM195	,	newdata =	testNGSPayd	[	-	4	])
+PNRFM196	<-	predict	(	NRFM196	,	newdata =	testNGSPaggpercent	[	-	5	])
+PNRFM197	<-	predict	(	NRFM197	,	newdata =	testNGSPlcad	[	-	6	])
+PNRFM198	<-	predict	(	NRFM198	,	newdata =	testNGSPayts	[	-	7	])
+PNRFM199	<-	predict	(	NRFM199	,	newdata =	testNGSPatt	[	-	8	])
+PNRFM200	<-	predict	(	NRFM200	,	newdata =	testNGSPyds	[	-	9	])
+PNRFM201	<-	predict	(	NRFM201	,	newdata =	testNGSPtd	[	-	10	])
+PNRFM202	<-	predict	(	NRFM202	,	newdata =	testNGSPint	[	-	11	])
+PNRFM203	<-	predict	(	NRFM203	,	newdata =	testNGSPcomppercent	[	-	12	])
+PNRFM204	<-	predict	(	NRFM204	,	newdata =	testNGSPtt	[	-	1	])
+PNRFM205	<-	predict	(	NRFM205	,	newdata =	testNGSPcay	[	-	2	])
+PNRFM206	<-	predict	(	NRFM206	,	newdata =	testNGSPiay	[	-	3	])
+PNRFM207	<-	predict	(	NRFM207	,	newdata =	testNGSPayd	[	-	4	])
+PNRFM208	<-	predict	(	NRFM208	,	newdata =	testNGSPaggpercent	[	-	5	])
+PNRFM209	<-	predict	(	NRFM209	,	newdata =	testNGSPlcad	[	-	6	])
+PNRFM210	<-	predict	(	NRFM210	,	newdata =	testNGSPayts	[	-	7	])
+PNRFM211	<-	predict	(	NRFM211	,	newdata =	testNGSPatt	[	-	8	])
+PNRFM212	<-	predict	(	NRFM212	,	newdata =	testNGSPyds	[	-	9	])
+PNRFM213	<-	predict	(	NRFM213	,	newdata =	testNGSPtd	[	-	10	])
+PNRFM214	<-	predict	(	NRFM214	,	newdata =	testNGSPint	[	-	11	])
+PNRFM215	<-	predict	(	NRFM215	,	newdata =	testNGSPcomppercent	[	-	12	])
+
+
+
+
+
+library(readxl)
+library(party)
+
+Defense_Weekly <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense Weekly.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+
+
+NEXT_GEN_STATS_PASSING <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NEXT GEN STATS PASSING.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+Next_gen_stats_receving <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Next gen stats receving.xlsx", 
+    col_types = c("text", "text", "text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+
+
+
+REC_WEEKLY <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/REC WEEKLY.xlsx",col_types = c("text", "text", "text","text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+
+
+Weekly_Rushing_Stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly Rushing Stats.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+Weekly_Passing <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Weekly_Passing.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+ADV_DEF_MOD_STATS <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Adv_DEF_MOD_STATS.xlsx")
+
+
+Defense_Air_Comp <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Defense_Air_Comp.xlsx")
+
+advanced_def_rush <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/advanced_def_rush.xlsx")
+
+Advanced_Rec_stats <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rec_stats.xlsx")
+
+Advanced_Rushing_data <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/Advanced_Rushing_data.xlsx")
+
+NGSR <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/NGSR.xlsx")
+
+
+MODADV <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/MODADV.xlsx")
+
+
+Weekly_Passing <- Weekly_Passing[c(-1:-2)]
+NEXT_GEN_STATS_PASSING <- NEXT_GEN_STATS_PASSING[c(-1:-2)]
+REC_WEEKLY <- REC_WEEKLY[c(-1:-2,-4)]
+Next_gen_stats_receving <- Next_gen_stats_receving[c(-1:-3)]
+Weekly_Rushing_Stats <- Weekly_Rushing_Stats[c(-1:-2,-4)]
+NGSR <- NGSR[c(-1:-2)]
+Defense_Weekly <- Defense_Weekly[c(-1:-2,-4)]
+ADV_DEF_MOD_STATS <- ADV_DEF_MOD_STATS[c(-1:-2)]
+MODADV<- MODADV[-1:-2]
+
+
+
+MODADV[is.na(MODADV)] <- 0 
+
+Advanced_Rec_stats <-na.omit(Advanced_Rec_stats)
+Advanced_Rushing_data<-na.omit( Advanced_Rushing_data)
+ADV_DEF_MOD_STATS<-na.omit(ADV_DEF_MOD_STATS)
+Defense_Weekly<-na.omit( Defense_Weekly)
+NEXT_GEN_STATS_PASSING<-na.omit( NEXT_GEN_STATS_PASSING)
+Next_gen_stats_receving<-na.omit( Next_gen_stats_receving)
+REC_WEEKLY<-na.omit( REC_WEEKLY)
+Weekly_Passing<-na.omit( Weekly_Passing)
+Weekly_Rushing_Stats <-na.omit(Weekly_Rushing_Stats)
+
+
+
+#Tree models 
+
+
+CT1	<-	ctree	(formula = TD ~ TT + CAY + `AGG%` + LCAD + AYTS + YDS +  INT + `COMP%` + Week, data = Weekly_Passing	)
+CT2	<-	ctree	(formula = TT ~ IAY + `AGG%` + LCAD + AYTS + ATT + TD +    INT + `COMP%` + Week, data = Weekly_Passing	)
+CT3	<-	ctree	(formula = CAY ~ TT + IAY + `AGG%` + LCAD + AYTS + ATT +     TD + INT + `COMP%` + Week, data = Weekly_Passing	)
+CT4	<-	ctree	(formula = IAY ~ TT + CAY + `AGG%` + LCAD + AYTS + ATT +   TD + INT + `COMP%` + Week, data = Weekly_Passing	)
+CT5	<-	ctree	(formula = `AGG%` ~ TT + CAY + LCAD + AYTS + ATT + TD +     INT + `COMP%` + Week, data = Weekly_Passing	)
+CT6	<-	ctree	(formula = LCAD ~ TT + CAY + `AGG%` + AYTS + YDS + TD +  INT + `COMP%` + Week, data = Weekly_Passing	)
+CT7	<-	ctree	(formula = AYTS ~ TT + CAY + `AGG%` + LCAD + ATT + TD + INT + `COMP%` + Week, data = Weekly_Passing	)
+CT8	<-	ctree	(formula = ATT ~ TT + CAY + `AGG%` + LCAD + AYTS + YDS +  TD + INT + `COMP%` + Week, data = Weekly_Passing	)
+CT9	<-	ctree	(formula = INT ~ TT + CAY + `AGG%` + LCAD + AYTS + ATT +  TD + `COMP%` + Week, data = Weekly_Passing	)
+CT10	<-	ctree	(formula = `COMP%` ~ TT + CAY + `AGG%` + LCAD +   AYTS + YDS + TD + INT + Week, data = Weekly_Passing	)
+CT11	<-	ctree	(formula = TD ~ TT + CAY + `AGG%` + LCAD + AYTS + YDS +   INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT12	<-	ctree	(formula = TT ~ IAY + `AGG%` + LCAD + ATT + TD + INT +  `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT13	<-	ctree	(formula = CAY ~ TT + IAY + `AGG%` + LCAD + ATT + TD +   INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT14	<-	ctree	(formula = IAY ~ TT + CAY + `AGG%` + LCAD + AYTS + ATT +   TD + INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT15	<-	ctree	(formula = `AGG%` ~ TT + CAY + LCAD + AYTS + ATT + TD +  INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT16	<-	ctree	(formula = LCAD ~ TT + CAY + `AGG%` + AYTS + YDS + TD +   INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT17	<-	ctree	(formula = AYTS ~ TT + CAY + `AGG%` + LCAD + ATT + TD + INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT18	<-	ctree	(formula = ATT ~ TT + CAY + `AGG%` + LCAD + AYTS + YDS +  TD + INT + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT19	<-	ctree	(formula = INT ~ TT + CAY + `AGG%` + LCAD + AYTS + ATT +  TD + `COMP%`, data = NEXT_GEN_STATS_PASSING	)
+CT20	<-	ctree	(formula = `COMP%` ~ TT + CAY + `AGG%` + LCAD + AYTS + YDS + TD + INT, data = NEXT_GEN_STATS_PASSING	)
+
+
+CT21	<-	ctree	(formula = Yds ~  Rec + TD + FUM, data = REC_WEEKLY	)
+CT22	<-	ctree	(formula = Avg ~  Rec + TD + FUM, data = REC_WEEKLY	)
+CT23	<-	ctree	(formula = TD ~  Yds + FUM, data = REC_WEEKLY	)
+CT24	<-	ctree	(formula = FUM ~  Rec + Avg + TD, data = REC_WEEKLY	)
+CT25	<-	ctree	(formula = Rec ~  Yds + TD + FUM, data = REC_WEEKLY	)
+
+
+CT26	<-	ctree	(formula = YDS ~ CUSH + SEP + TAY + REC + `CTCH%` + TD +  `YAC/R`, data = Next_gen_stats_receving	)
+CT27	<-	ctree	(formula = CUSH ~ SEP + TAY + `CTCH%` + YDS + TD + `YAC/R`,   data = Next_gen_stats_receving	)
+CT28	<-	ctree	(formula = TAY ~ CUSH + SEP + TAR + `CTCH%` + TD + `YAC/R`,   data = Next_gen_stats_receving	)
+CT29	<-	ctree	(formula = SEP ~ CUSH + TAY + `CTCH%` + YDS + TD + `YAC/R`, data = Next_gen_stats_receving	)
+CT30	<-	ctree	(formula = `TAY%` ~ CUSH + SEP + TAR + `CTCH%` +  TD + `YAC/R`, data = Next_gen_stats_receving	)
+CT31	<-	ctree	(formula = REC ~ CUSH + SEP + TAY + +`CTCH%` + YDS + TD + `YAC/R`, data = Next_gen_stats_receving	)
+CT32	<-	ctree	(formula = TAR ~ CUSH + SEP + TAY + `CTCH%` + YDS + TD +   `YAC/R`, data = Next_gen_stats_receving	)
+CT33	<-	ctree	(formula = `CTCH%` ~ CUSH + SEP + TAY + YDS + TD + `YAC/R`, data = Next_gen_stats_receving	)
+CT34	<-	ctree	(formula = TD ~ CUSH + SEP + TAY + `CTCH%` + YDS + `YAC/R`,   data = Next_gen_stats_receving	)
+
+
+CT35	<-	ctree	(formula = TD ~  Att + Yds + FUM, data = Weekly_Rushing_Stats	)
+CT36	<-	ctree	(formula = Att ~ Yds + TD + FUM, data = Weekly_Rushing_Stats	)
+CT37	<-	ctree	(formula = Yds ~  Att + TD + FUM, data = Weekly_Rushing_Stats	)
+CT38	<-	ctree	(formula = Avg ~  Att + TD + FUM, data = Weekly_Rushing_Stats	)
+CT39	<-	ctree	(formula = FUM ~  Att + Yds + TD, data = Weekly_Rushing_Stats	)
+
+
+CT40	<-	ctree	(formula = TD ~ EFF + `8+D%` + TLOS + YDS, data = NGSR	)
+CT41	<-	ctree	(formula = EFF ~ `8+D%` + TLOS + ATT + TD, data = NGSR	)
+CT42	<-	ctree	(formula = TLOS ~ EFF + `8+D%` + YDS + TD, data = NGSR	)
+CT43	<-	ctree	(formula = `8+D%` ~ EFF + TLOS + ATT + TD, data = NGSR	)
+CT44	<-	ctree	(formula = ATT ~ EFF + `8+D%` + TLOS + YDS + TD, data = NGSR	)
+CT45	<-	ctree	(formula = YDS ~ EFF + `8+D%` + TLOS + ATT + TD, data = NGSR	)
+CT46	<-	ctree	(formula = AVG ~ EFF + `8+D%` + TLOS + ATT + TD, data = NGSR	)
+
+
+CT47	<-	ctree	(formula = Sacks ~  `QB Hits` + Tackles + Assists +   `Fumbles Forced` + `Fumbles Recovered`, data = Defense_Weekly	)
+CT48	<-	ctree	(formula = `Sack Yds` ~  Sacks + Tackles + Assists +  `Fumbles Forced` + `Fumbles Recovered`, data = Defense_Weekly	)
+CT49	<-	ctree	(formula = `QB Hits` ~  Tackles + Assists + `Fumbles Forced` +   `Fumbles Recovered`, data = Defense_Weekly	)
+CT50	<-	ctree	(formula = Tackles ~ + Sacks + `Sack Yds` + `QB Hits` +  Assists + `Fumbles Forced` + `Fumbles Recovered`,  data = Defense_Weekly	)
+CT51	<-	ctree	(formula = Assists ~  Sacks + `Sack Yds` + Tackles +  `Fumbles Forced` + `Fumbles Recovered`, data = Defense_Weekly	)
+CT52	<-	ctree	(formula = `Fumbles Forced` ~  Sacks + `Sack Yds` + Tackles + Assists, data = Defense_Weekly	)
+CT53	<-	ctree	(formula = `Fumbles Recovered` ~  Sacks + `Sack Yds` +  Tackles + Assists, data = Defense_Weekly	)
+
+
+CT54	<-	ctree	(formula = Int ~ Tgt + TD + DADOT + Air + Bltz + Sk + Prss +  TC + TM2, data = MODADV	)
+CT55	<-	ctree	(formula = Tgt ~ Int + Yds + TD + DADOT + YAC + Bltz + Sk +  TC + TM2, data = MODADV	)
+CT56	<-	ctree	(formula = Cmp ~ Int + Yds + TD + DADOT + YAC + Bltz + QBKD + Sk + TC + TM2, data = MODADV	)
+CT57	<-	ctree	(formula = Yds ~ Int + Cmp + TD + DADOT + Bltz + Sk + Prss +  TC + TM2, data = MODADV	)
+CT58	<-	ctree	(formula = TD ~ Int + Yds + DADOT + YAC + Bltz + Sk + TC +  TM2, data = MODADV	)
+CT59	<-	ctree	(formula = DADOT ~ Int + Yds + TD + YAC + Bltz + Sk + TC +  TM2, data = MODADV	)
+CT60	<-	ctree	(formula = Air ~ Int + Tgt + TD + DADOT + YAC + Bltz + Sk +  TC + TM2, data = MODADV	)
+CT61	<-	ctree	(formula = YAC ~ Int + Cmp + TD + DADOT + Bltz + Hrry + QBKD +  TC + TM2, data = MODADV	)
+CT62	<-	ctree	(formula = Bltz ~ Int + Tgt + TD + DADOT + YAC + Sk + TC + TM2, data = MODADV	)
+CT63	<-	ctree	(formula = Hrry ~ Int + Yds + TD + DADOT + YAC + Bltz + Sk + TC + TM2, data = MODADV	)
+CT64	<-	ctree	(formula = QBKD ~ Int + Yds + TD + DADOT + YAC + Bltz + Prss +   TC + TM2, data = MODADV	)
+CT65	<-	ctree	(formula = Sk ~ Int + Yds + TD + DADOT + YAC + Bltz + TC +  TM2, data = MODADV	)
+CT66	<-	ctree	(formula = Prss ~ Int + Yds + TD + DADOT + YAC + Bltz + Sk +    TC + TM2, data = MODADV	)
+CT67	<-	ctree	(formula = TC ~ Int + Cmp + TD + DADOT + YAC + Bltz + Sk +  TM2, data = MODADV	)
+CT68	<-	ctree	(formula = TM2 ~ Int + Cmp + TD + DADOT + YAC + Bltz + Sk +  TC, data = MODADV	)
+CT69	<-	ctree	( formula = YDS ~ TD + INT + TT + `AGG%` + `COMP%`, data =  Weekly_Passing	)
+CT70	<-	ctree	( formula = YDS ~ TD + TT + `AGG%` + `COMP%`+ INT, data =  NEXT_GEN_STATS_PASSING	)
+
+CT71	<-	ctree	( formula = 	TD	~	.	,	data=	Weekly_Passing	)
+CT72	<-	ctree	( formula = 	TT	~	.	,	data=	Weekly_Passing	)
+CT73	<-	ctree	( formula = 	CAY	~	.	,	data=	Weekly_Passing	)
+CT74	<-	ctree	( formula = 	IAY	~	.	,	data=	Weekly_Passing	)
+CT75	<-	ctree	( formula = 	`AGG%`	~	.	,	data=	Weekly_Passing	)
+CT76	<-	ctree	( formula = 	LCAD	~	.	,	data=	Weekly_Passing	)
+CT77	<-	ctree	( formula = 	AYTS	~	.	,	data=	Weekly_Passing	)
+CT78	<-	ctree	( formula = 	ATT	~	.	,	data=	Weekly_Passing	)
+CT79	<-	ctree	( formula = 	INT	~	.	,	data=	Weekly_Passing	)
+CT80	<-	ctree	( formula = 	`COMP%`	~	.	,	data=	Weekly_Passing	)
+CT81	<-	ctree	( formula = 	TD	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT82	<-	ctree	( formula = 	TT	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT83	<-	ctree	( formula = 	CAY	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT84	<-	ctree	( formula = 	IAY	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT85	<-	ctree	( formula = 	`AGG%`	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT86	<-	ctree	( formula = 	LCAD	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT87	<-	ctree	( formula = 	AYTS	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT88	<-	ctree	( formula = 	ATT	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT89	<-	ctree	( formula = 	INT	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+
+REC_WEEKLY <- REC_WEEKLY[-1]
+CT90	<-	ctree	( formula = 	`COMP%`	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+CT91	<-	ctree	( formula = 	Yds	~	.	,	data=	REC_WEEKLY	)
+CT92	<-	ctree	( formula = 	Avg	~	.	,	data=	REC_WEEKLY	)
+CT93	<-	ctree	( formula = 	TD	~	.	,	data=	REC_WEEKLY	)
+CT94	<-	ctree	( formula = 	FUM	~	.	,	data=	REC_WEEKLY	)
+CT95	<-	ctree	( formula = 	Rec	~	.	,	data=	REC_WEEKLY	)
+CT96	<-	ctree	( formula = 	YDS~	.	,	data=	Next_gen_stats_receving	)
+CT97	<-	ctree	( formula = 	CUSH	~	.	,	data=	Next_gen_stats_receving	)
+CT98	<-	ctree	( formula = 	TAY	~	.	,	data=	Next_gen_stats_receving	)
+CT99	<-	ctree	( formula = 	SEP	~	.	,	data=	Next_gen_stats_receving	)
+CT100	<-	ctree	( formula = 	`TAY%`	~	.	,	data=	Next_gen_stats_receving	)
+CT101	<-	ctree	( formula = 	REC	~	.	,	data=	Next_gen_stats_receving	)
+CT102	<-	ctree	( formula = 	TAR	~	.	,	data=	Next_gen_stats_receving	)
+CT103	<-	ctree	( formula = 	`CTCH%`	~	.	,	data=	Next_gen_stats_receving	)
+CT104	<-	ctree	( formula = 	TD	~	.	,	data=	Next_gen_stats_receving	)
+Weekly_Rushing_Stats <- Weekly_Rushing_Stats[-1]
+CT105	<-	ctree	( formula =  TD	~	.	,	data=	Weekly_Rushing_Stats	)
+CT106	<-	ctree	( formula = 	Att	~	.	,	data=	Weekly_Rushing_Stats	)
+CT107	<-	ctree	( formula = 	Yds	~	.	,	data=	Weekly_Rushing_Stats	)
+CT108	<-	ctree	( formula = 	Avg	~	.	,	data=	Weekly_Rushing_Stats	)
+CT109	<-	ctree	( formula = 	FUM	~	.	,	data=	Weekly_Rushing_Stats	)
+CT110	<-	ctree	( formula = 	TD	~	.	,	data=	NGSR	)
+CT111	<-	ctree	( formula = 	EFF	~	.	,	data=	NGSR	)
+CT112	<-	ctree	( formula = 	TLOS	~	.	,	data=	NGSR	)
+CT113	<-	ctree	( formula = 	`8+D%`	~	.	,	data=	NGSR	)
+CT114	<-	ctree	( formula = 	ATT	~	.	,	data=	NGSR	)
+CT115	<-	ctree	( formula = 	YDS	~	.	,	data=	NGSR	)
+CT116	<-	ctree	( formula = 	AVG	~	.	,	data=	NGSR	)
+Defense_Weekly <- Defense_Weekly[-1]
+CT117	<-	ctree	( formula = 	Sacks	~	.	,	data=	Defense_Weekly	)
+CT118	<-	ctree	( formula = 	`Sack Yds`	~	.	,	data=	Defense_Weekly	)
+CT119	<-	ctree	( formula = 	`QB Hits`	~	.	,	data=	Defense_Weekly	)
+CT120	<-	ctree	( formula = 	Tackles	~	.	,	data=	Defense_Weekly	)
+CT121	<-	ctree	( formula = 	Assists	~	.	,	data=	Defense_Weekly	)
+CT122	<-	ctree	( formula = 	`Fumbles Forced`	~	.	,	data=	Defense_Weekly	)
+CT123	<-	ctree	( formula = 	`Fumbles Recovered`	~	.	,	data=	Defense_Weekly	)
+CT124	<-	ctree	( formula = 	Int	~	.	,	data=	MODADV	)
+CT125	<-	ctree	( formula = 	Tgt	~	.	,	data=	MODADV	)
+CT126	<-	ctree	( formula = 	Cmp	~	.	,	data=	MODADV	)
+CT127	<-	ctree	( formula = 	Yds	~	.	,	data=	MODADV	)
+CT128	<-	ctree	( formula = 	TD	~	.	,	data=	MODADV	)
+CT129	<-	ctree	( formula = 	DADOT	~	.	,	data=	MODADV	)
+CT130	<-	ctree	( formula = 	Air	~	.	,	data=	MODADV	)
+CT131	<-	ctree	( formula = 	YAC	~	.	,	data=	MODADV	)
+CT132	<-	ctree	( formula = 	Bltz	~	.	,	data=	MODADV	)
+CT133	<-	ctree	( formula = 	Hrry	~	.	,	data=	MODADV	)
+CT134	<-	ctree	( formula = 	QBKD	~	.	,	data=	MODADV	)
+CT135	<-	ctree	( formula = 	Sk	~	.	,	data=	MODADV	)
+CT136	<-	ctree	( formula = 	Prss	~	.	,	data=	MODADV	)
+CT137	<-	ctree	( formula = 	TC	~	.	,	data=	MODADV	)
+CT138	<-	ctree	( formula = 	TM2	~	.	,	data=	MODADV	)
+CT139	<-	ctree	( formula = 	YDS	~	.	,	data=	Weekly_Passing	)
+CT140	<-	ctree	( formula = 	YDS	~	.	,	data=	NEXT_GEN_STATS_PASSING	)
+
+
+
+# plotting 
+plot(	CT1	)
+plot(	CT2	)
+plot(	CT3	)
+plot(	CT4	)
+plot(	CT5	)
+plot(	CT6	)
+plot(	CT7	)
+plot(	CT8	)
+plot(	CT9	)
+plot(	CT10	)
+plot(	CT11	)
+plot(	CT12	)
+plot(	CT13	)
+plot(	CT14	)
+plot(	CT15	)
+plot(	CT16	)
+plot(	CT17	)
+plot(	CT18	)
+plot(	CT19	)
+plot(	CT20	)
+plot(	CT21	)
+plot(	CT22	)
+plot(	CT23	)
+plot(	CT24	)
+plot(	CT25	)
+plot(	CT26	)
+plot(	CT27	)
+plot(	CT28	)
+plot(	CT29	)
+plot(	CT30	)
+plot(	CT31	)
+plot(	CT32	)
+plot(	CT33	)
+plot(	CT34	)
+plot(	CT35	)
+plot(	CT36	)
+plot(	CT37	)
+plot(	CT38	)
+plot(	CT39	)
+plot(	CT40	)
+plot(	CT41	)
+plot(	CT42	)
+plot(	CT43	)
+plot(	CT44	)
+plot(	CT45	)
+plot(	CT46	)
+plot(	CT47	)
+plot(	CT48	)
+plot(	CT49	)
+plot(	CT50	)
+plot(	CT51	)
+plot(	CT52	)
+plot(	CT53	)
+plot(	CT54	)
+plot(	CT55	)
+plot(	CT56	)
+plot(	CT57	)
+plot(	CT58	)
+plot(	CT59	)
+plot(	CT60	)
+plot(	CT61	)
+plot(	CT62	)
+plot(	CT63	)
+plot(	CT64	)
+plot(	CT65	)
+plot(	CT66	)
+plot(	CT67	)
+plot(	CT68	)
+plot(	CT69	)
+plot(	CT70	)
+plot(	CT71	)
+plot(	CT72	)
+plot(	CT73	)
+plot(	CT74	)
+plot(	CT75	)
+plot(	CT76	)
+plot(	CT77	)
+plot(	CT78	)
+plot(	CT79	)
+plot(	CT80	)
+plot(	CT81	)
+plot(	CT82	)
+plot(	CT83	)
+plot(	CT84	)
+plot(	CT85	)
+plot(	CT86	)
+plot(	CT87	)
+plot(	CT88	)
+plot(	CT89	)
+plot(	CT90	)
+plot(	CT91	)
+plot(	CT92	)
+plot(	CT93	)
+plot(	CT94	)
+plot(	CT95	)
+plot(	CT96	)
+plot(	CT97	)
+plot(	CT98	)
+plot(	CT99	)
+plot(	CT100	)
+plot(	CT101	)
+plot(	CT102	)
+plot(	CT103	)
+plot(	CT104	)
+plot(	CT105	)
+plot(	CT106	)
+plot(	CT107	)
+plot(	CT108	)
+plot(	CT109	)
+plot(	CT110	)
+plot(	CT111	)
+plot(	CT112	)
+plot(	CT113	)
+plot(	CT114	)
+plot(	CT115	)
+plot(	CT116	)
+plot(	CT117	)
+plot(	CT118	)
+plot(	CT119	)
+plot(	CT120	)
+plot(	CT121	)
+plot(	CT122	)
+plot(	CT123	)
+plot(	CT124	)
+plot(	CT125	)
+plot(	CT126	)
+plot(	CT127	)
+plot(	CT128	)
+plot(	CT129	)
+plot(	CT130	)
+plot(	CT131	)
+plot(	CT132	)
+plot(	CT133	)
+plot(	CT134	)
+plot(	CT135	)
+plot(	CT136	)
+plot(	CT137	)
+plot(	CT138	)
+plot(	CT139	)
+plot(	CT140	)
+
+
+
+
+# New Ctrees
+NCT1	<-	ctree	(	formula =	TT	~	CAY+ `AGG%`+ AYTS+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT2	<-	ctree	(	formula =	CAY	~	 `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT3	<-	ctree	(	formula =	IAY	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT4	<-	ctree	(	formula =	AYD	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT5	<-	ctree	(	formula =	`AGG%`	~	CAY+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT6	<-	ctree	(	formula =	LCAD	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT7	<-	ctree	(	formula =	AYTS	~	CAY+ `AGG%`+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT8	<-	ctree	(	formula =	ATT	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT9	<-	ctree	(	formula =	YDS	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT10	<-	ctree	(	formula =	TD	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT11	<-	ctree	(	formula =	INT	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT12	<-	ctree	(	formula =	`COMP%`	~	CAY+ `AGG%`+ AYTS+TT	,	data = 	Weekly_Passing	)
+NCT13	<-	ctree	(	formula =	TT	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT14	<-	ctree	(	formula =	CAY	~	`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT15	<-	ctree	(	formula =	IAY	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT16	<-	ctree	(	formula =	AYD	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT17	<-	ctree	(	formula =	`AGG%`	~	CAY+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT18	<-	ctree	(	formula =	LCAD	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT19	<-	ctree	(	formula =	AYTS	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT20	<-	ctree	(	formula =	ATT	~	CAY+`AGG%`+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT21	<-	ctree	(	formula =	YDS	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT22	<-	ctree	(	formula =	TD	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT23	<-	ctree	(	formula =	INT	~	CAY+`AGG%`+ATT+`COMP%`	,	data = 	Weekly_Passing	)
+NCT24	<-	ctree	(	formula =	`COMP%`	~	CAY+`AGG%`+ATT+INT	,	data = 	Weekly_Passing	)
+NCT25	<-	ctree	(	formula =	TT	~	CAY+`AGG%`+`COMP%`+ATT	,	data = 	Weekly_Passing	)
+NCT26	<-	ctree	(	formula =	CAY	~	`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT27	<-	ctree	(	formula =	IAY	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT28	<-	ctree	(	formula =	AYD	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT29	<-	ctree	(	formula =	`AGG%`	~	CAY+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT30	<-	ctree	(	formula =	LCAD	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT31	<-	ctree	(	formula =	AYTS	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT32	<-	ctree	(	formula =	ATT	~	CAY+`AGG%`+`COMP%`+TT	,	data = 	Weekly_Passing	)
+NCT33	<-	ctree	(	formula =	YDS	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT34	<-	ctree	(	formula =	TD	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT35	<-	ctree	(	formula =	INT	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT36	<-	ctree	(	formula =	`COMP%`	~	CAY+`AGG%`+ATT+TT	,	data = 	Weekly_Passing	)
+NCT37	<-	ctree	(	formula =	TT	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT38	<-	ctree	(	formula =	CAY	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT39	<-	ctree	(	formula =	IAY	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT40	<-	ctree	(	formula =	AYD	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT41	<-	ctree	(	formula =	`AGG%`	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT42	<-	ctree	(	formula =	LCAD	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT43	<-	ctree	(	formula =	AYTS	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT44	<-	ctree	(	formula =	ATT	~	YDS+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT45	<-	ctree	(	formula =	YDS	~	ATT+TD+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT46	<-	ctree	(	formula =	TD	~	ATT+YDS+INT+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT47	<-	ctree	(	formula =	INT	~	ATT+YDS+TD+ `COMP%`	,	data = 	Weekly_Passing	)
+NCT48	<-	ctree	(	formula =	`COMP%`	~	ATT+YDS+TD+INT	,	data = 	Weekly_Passing	)
+NCT49	<-	ctree	(	formula =	Int	~	Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT50	<-	ctree	(	formula =	Tgt	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT51	<-	ctree	(	formula =	Cmp	~	Int+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT52	<-	ctree	(	formula =	Yds	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT53	<-	ctree	(	formula =	TD	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT54	<-	ctree	(	formula =	DADOT	~	Int+Cmp+ Bltz+ Prss	,	data = 	MODADV	)
+NCT55	<-	ctree	(	formula =	Air	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT56	<-	ctree	(	formula =	YAC	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT57	<-	ctree	(	formula =	Bltz	~	Int+Cmp+ DADOT+  Hrry+ Prss	,	data = 	MODADV	)
+NCT58	<-	ctree	(	formula =	Hrry	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT59	<-	ctree	(	formula =	QBKD	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT60	<-	ctree	(	formula =	Sk	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT61	<-	ctree	(	formula =	Prss	~	Int+Cmp+ DADOT+ Bltz	,	data = 	MODADV	)
+NCT62	<-	ctree	(	formula =	TC	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT63	<-	ctree	(	formula =	TM2	~	Int+Cmp+ DADOT+ Bltz+ Prss	,	data = 	MODADV	)
+NCT64	<-	ctree	(	formula =	Int	~	Tgt+Cmp+Yds+TD	,	data = 	MODADV	)
+NCT65	<-	ctree	(	formula =	Tgt	~	Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT66	<-	ctree	(	formula =	Cmp	~	Tgt+Yds+TD+Int	,	data = 	MODADV	)
+NCT67	<-	ctree	(	formula =	Yds	~	Tgt+Cmp+TD+Int	,	data = 	MODADV	)
+NCT68	<-	ctree	(	formula =	TD	~	Tgt+Cmp+Yds+Int	,	data = 	MODADV	)
+NCT69	<-	ctree	(	formula =	DADOT	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT70	<-	ctree	(	formula =	Air	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT71	<-	ctree	(	formula =	YAC	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT72	<-	ctree	(	formula =	Bltz	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT73	<-	ctree	(	formula =	Hrry	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT74	<-	ctree	(	formula =	QBKD	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT75	<-	ctree	(	formula =	Sk	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT76	<-	ctree	(	formula =	Prss	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT77	<-	ctree	(	formula =	TC	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT78	<-	ctree	(	formula =	TM2	~	Tgt+Cmp+Yds+TD+Int	,	data = 	MODADV	)
+NCT79	<-	ctree	(	formula =	Int	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT80	<-	ctree	(	formula =	Tgt	~	Hrry+Prss+Bltz+DADOT	,	data = 	MODADV	)
+NCT81	<-	ctree	(	formula =	Cmp	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT82	<-	ctree	(	formula =	Yds	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT83	<-	ctree	(	formula =	TD	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT84	<-	ctree	(	formula =	DADOT	~	Hrry+Prss+Bltz+Tgt	,	data = 	MODADV	)
+NCT85	<-	ctree	(	formula =	Air	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT86	<-	ctree	(	formula =	YAC	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT87	<-	ctree	(	formula =	Bltz	~	Hrry+Prss+Tgt+DADOT	,	data = 	MODADV	)
+NCT88	<-	ctree	(	formula =	Hrry	~	Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT89	<-	ctree	(	formula =	QBKD	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT90	<-	ctree	(	formula =	Sk	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT91	<-	ctree	(	formula =	Prss	~	Hrry+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT92	<-	ctree	(	formula =	TC	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+NCT93	<-	ctree	(	formula =	TM2	~	Hrry+Prss+Bltz+Tgt+DADOT	,	data = 	MODADV	)
+
+NCT94	<-	ctree	(	formula =	CUSH	~	SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT95	<-	ctree	(	formula =	SEP	~	CUSH+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT96	<-	ctree	(	formula =	TAY	~	CUSH+SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT97	<-	ctree	(	formula =	`TAY%`	~	CUSH+SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT98	<-	ctree	(	formula =	REC	~	CUSH+SEP+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT99	<-	ctree	(	formula =	TAR	~	CUSH+SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT100	<-	ctree	(	formula =	`CTCH%`	~	CUSH+SEP+REC+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT101	<-	ctree	(	formula =	YDS	~	CUSH+SEP+REC+`CTCH%`+TD	,	data = 	Next_gen_stats_receving	)
+NCT102	<-	ctree	(	formula =	TD	~	CUSH+SEP+REC+`CTCH%`+YDS	,	data = 	Next_gen_stats_receving	)
+NCT103	<-	ctree	(	formula =	`YAC/R`	~	CUSH+SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT104	<-	ctree	(	formula =	`xYAC/R`	~	CUSH+SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT105	<-	ctree	(	formula =	`+/-`	~	CUSH+SEP+REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT106	<-	ctree	(	formula =	CUSH	~	SEP+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT107	<-	ctree	(	formula =	SEP	~	CUSH+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT108	<-	ctree	(	formula =	TAY	~	CUSH+SEP+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT109	<-	ctree	(	formula =	`TAY%`	~	CUSH+SEP+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT110	<-	ctree	(	formula =	REC	~	CUSH+SEP+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT111	<-	ctree	(	formula =	TAR	~	CUSH+SEP+`CTCH%`+`YAC/R`	,	data = 	Next_gen_stats_receving	)
+NCT112	<-	ctree	(	formula =	`CTCH%`	~	CUSH+SEP+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT113	<-	ctree	(	formula =	YDS	~	CUSH+SEP+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT114	<-	ctree	(	formula =	TD	~	CUSH+SEP+`CTCH%`+`YAC/R`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT115	<-	ctree	(	formula =	`YAC/R`	~	CUSH+SEP+`CTCH%`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT116	<-	ctree	(	formula =	`xYAC/R`	~	CUSH+SEP+`CTCH%`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT117	<-	ctree	(	formula =	`+/-`	~	CUSH+SEP+`CTCH%`+TAR	,	data = 	Next_gen_stats_receving	)
+NCT118	<-	ctree	(	formula =	CUSH	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT119	<-	ctree	(	formula =	SEP	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT120	<-	ctree	(	formula =	TAY	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT121	<-	ctree	(	formula =	`TAY%`	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT122	<-	ctree	(	formula =	REC	~	TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT123	<-	ctree	(	formula =	TAR	~	REC+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT124	<-	ctree	(	formula =	`CTCH%`	~	REC+TAR+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT125	<-	ctree	(	formula =	YDS	~	REC+TAR+`CTCH%`+TD	,	data = 	Next_gen_stats_receving	)
+NCT126	<-	ctree	(	formula =	TD	~	REC+TAR+`CTCH%`+YDS	,	data = 	Next_gen_stats_receving	)
+NCT127	<-	ctree	(	formula =	`YAC/R`	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT128	<-	ctree	(	formula =	`xYAC/R`	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT129	<-	ctree	(	formula =	`+/-`	~	REC+TAR+`CTCH%`+YDS+TD	,	data = 	Next_gen_stats_receving	)
+NCT130	<-	ctree	(	formula =	EFF	~	TLOS+ATT+TD+YDS+`8+D%`	,	data = 	NGSR	)
+NCT131	<-	ctree	(	formula =	`8+D%`	~	EFF+TLOS+ATT+TD+YDS	,	data = 	NGSR	)
+NCT132	<-	ctree	(	formula =	TLOS	~	EFF+ATT+TD+YDS+`8+D%`	,	data = 	NGSR	)
+NCT133	<-	ctree	(	formula =	ATT	~	EFF+TLOS+TD+YDS+`8+D%`	,	data = 	NGSR	)
+NCT134	<-	ctree	(	formula =	YDS	~	EFF+TLOS+ATT+TD+`8+D%`	,	data = 	NGSR	)
+NCT135	<-	ctree	(	formula =	AVG	~	EFF+TLOS+ATT+TD+YDS+`8+D%`	,	data = 	NGSR	)
+NCT136	<-	ctree	(	formula =	TD	~	EFF+TLOS+ATT+YDS+`8+D%`	,	data = 	NGSR	)
+NCT137	<-	ctree	(	formula =	EFF	~	TLOS+`8+D%`+ATT	,	data = 	NGSR	)
+NCT138	<-	ctree	(	formula =	`8+D%`	~	EFF+TLOS+ATT	,	data = 	NGSR	)
+NCT139	<-	ctree	(	formula =	TLOS	~	EFF+`8+D%`+ATT	,	data = 	NGSR	)
+NCT140	<-	ctree	(	formula =	ATT	~	EFF+TLOS+`8+D%`	,	data = 	NGSR	)
+NCT141	<-	ctree	(	formula =	YDS	~	EFF+TLOS+`8+D%`+ATT	,	data = 	NGSR	)
+NCT142	<-	ctree	(	formula =	AVG	~	EFF+TLOS+`8+D%`+ATT	,	data = 	NGSR	)
+NCT143	<-	ctree	(	formula =	TD	~	EFF+TLOS+`8+D%`+ATT	,	data = 	NGSR	)
+NCT144	<-	ctree	(	formula =	EFF	~	ATT+YDS+TD	,	data = 	NGSR	)
+NCT145	<-	ctree	(	formula =	`8+D%`	~	ATT+YDS+TD	,	data = 	NGSR	)
+NCT146	<-	ctree	(	formula =	TLOS	~	ATT+YDS+TD	,	data = 	NGSR	)
+NCT147	<-	ctree	(	formula =	ATT	~	YDS+TD	,	data = 	NGSR	)
+NCT148	<-	ctree	(	formula =	YDS	~	ATT+TD	,	data = 	NGSR	)
+NCT149	<-	ctree	(	formula =	AVG	~	ATT+YDS+TD	,	data = 	NGSR	)
+NCT150	<-	ctree	(	formula =	TD	~	ATT+YDS	,	data = 	NGSR	)
+NCT151	<-	ctree	(	formula =	Sacks	~	`Sack Yds` +`QB Hits`+Assists+Tackles+`Fumbles Forced`	,	data = 	Defense_Weekly	)
+NCT152	<-	ctree	(	formula =	`Sack Yds`	~	Sacks+`QB Hits`+Assists+Tackles+`Fumbles Forced`	,	data = 	Defense_Weekly	)
+NCT153	<-	ctree	(	formula =	`QB Hits`	~	Sacks+Assists+Tackles+`Fumbles Forced`	,	data = 	Defense_Weekly	)
+NCT154	<-	ctree	(	formula =	Tackles	~	Sacks+`QB Hits`+Assists+`Fumbles Forced`	,	data = 	Defense_Weekly	)
+NCT155	<-	ctree	(	formula =	Assists	~	Sacks+`QB Hits`+Tackles+`Fumbles Forced`	,	data = 	Defense_Weekly	)
+NCT156	<-	ctree	(	formula =	`Fumbles Forced`	~	Sacks+`QB Hits`+Assists+Tackles	,	data = 	Defense_Weekly	)
+NCT157	<-	ctree	(	formula =	`Fumbles Recovered`	~	Sacks+`QB Hits`+Assists+Tackles+`Fumbles Forced`	,	data = 	Defense_Weekly	)
+
+
+NCT158	<-	ctree	(	formula =	Rec	~	Yds+Avg+TD+FUM	,	data = 	REC_WEEKLY	)
+NCT159	<-	ctree	(	formula =	Yds	~	Rec+Avg+TD+FUM	,	data = 	REC_WEEKLY	)
+NCT160	<-	ctree	(	formula =	Avg	~	Rec+Yds+TD+FUM	,	data = 	REC_WEEKLY	)
+NCT161	<-	ctree	(	formula =	TD	~	Rec+Yds+Avg+FUM	,	data = 	REC_WEEKLY	)
+NCT162	<-	ctree	(	formula =	FUM	~	Rec+Yds+Avg+TD	,	data = 	REC_WEEKLY	)
+NCT163	<-	ctree	(	formula =	Att	~	Yds+Avg+TD+FUM	,	data = 	Weekly_Rushing_Stats	)
+NCT164	<-	ctree	(	formula =	Yds	~	Att+Avg+TD+FUM	,	data = 	Weekly_Rushing_Stats	)
+NCT165	<-	ctree	(	formula =	Avg	~	Att+Yds+TD+FUM	,	data = 	Weekly_Rushing_Stats	)
+NCT166	<-	ctree	(	formula =	TD	~	Att+Yds+Avg+FUM	,	data = 	Weekly_Rushing_Stats	)
+NCT167	<-	ctree	(	formula =	FUM	~	Att+Yds+Avg+TD	,	data = 	Weekly_Rushing_Stats	)
+NCT168	<-	ctree	(	formula =	TT	~	CAY+ `AGG%`+ AYTS+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT169	<-	ctree	(	formula =	CAY	~	 `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT170	<-	ctree	(	formula =	IAY	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT171	<-	ctree	(	formula =	AYD	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT172	<-	ctree	(	formula =	`AGG%`	~	CAY+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT173	<-	ctree	(	formula =	LCAD	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT174	<-	ctree	(	formula =	AYTS	~	CAY+ `AGG%`+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT175	<-	ctree	(	formula =	ATT	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT176	<-	ctree	(	formula =	YDS	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT177	<-	ctree	(	formula =	TD	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT178	<-	ctree	(	formula =	INT	~	CAY+ `AGG%`+ AYTS+ `COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT179	<-	ctree	(	formula =	`COMP%`	~	CAY+ `AGG%`+ AYTS+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT180	<-	ctree	(	formula =	TT	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT181	<-	ctree	(	formula =	CAY	~	`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT182	<-	ctree	(	formula =	IAY	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT183	<-	ctree	(	formula =	AYD	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT184	<-	ctree	(	formula =	`AGG%`	~	CAY+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT185	<-	ctree	(	formula =	LCAD	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT186	<-	ctree	(	formula =	AYTS	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT187	<-	ctree	(	formula =	ATT	~	CAY+`AGG%`+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT188	<-	ctree	(	formula =	YDS	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT189	<-	ctree	(	formula =	TD	~	CAY+`AGG%`+ATT+INT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT190	<-	ctree	(	formula =	INT	~	CAY+`AGG%`+ATT+`COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT191	<-	ctree	(	formula =	`COMP%`	~	CAY+`AGG%`+ATT+INT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT192	<-	ctree	(	formula =	TT	~	CAY+`AGG%`+`COMP%`+ATT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT193	<-	ctree	(	formula =	CAY	~	`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT194	<-	ctree	(	formula =	IAY	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT195	<-	ctree	(	formula =	AYD	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT196	<-	ctree	(	formula =	`AGG%`	~	CAY+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT197	<-	ctree	(	formula =	LCAD	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT198	<-	ctree	(	formula =	AYTS	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT199	<-	ctree	(	formula =	ATT	~	CAY+`AGG%`+`COMP%`+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT200	<-	ctree	(	formula =	YDS	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT201	<-	ctree	(	formula =	TD	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT202	<-	ctree	(	formula =	INT	~	CAY+`AGG%`+`COMP%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT203	<-	ctree	(	formula =	`COMP%`	~	CAY+`AGG%`+ATT+TT	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT204	<-	ctree	(	formula =	TT	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT205	<-	ctree	(	formula =	CAY	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT206	<-	ctree	(	formula =	IAY	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT207	<-	ctree	(	formula =	AYD	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT208	<-	ctree	(	formula =	`AGG%`	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT209	<-	ctree	(	formula =	LCAD	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT210	<-	ctree	(	formula =	AYTS	~	ATT+YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT211	<-	ctree	(	formula =	ATT	~	YDS+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT212	<-	ctree	(	formula =	YDS	~	ATT+TD+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT213	<-	ctree	(	formula =	TD	~	ATT+YDS+INT+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT214	<-	ctree	(	formula =	INT	~	ATT+YDS+TD+ `COMP%`	,	data = 	NEXT_GEN_STATS_PASSING	)
+NCT215	<-	ctree	(	formula =	`COMP%`	~	ATT+YDS+TD+INT	,	data = 	NEXT_GEN_STATS_PASSING	)
+
+
+
+
+
+# Plotting new trees
+
+plot(	NCT1	)
+plot(	NCT2	)
+plot(	NCT3	)
+plot(	NCT4	)
+plot(	NCT5	)
+plot(	NCT6	)
+plot(	NCT7	)
+plot(	NCT8	)
+plot(	NCT9	)
+plot(	NCT10	)
+plot(	NCT11	)
+plot(	NCT12	)
+plot(	NCT13	)
+plot(	NCT14	)
+plot(	NCT15	)
+plot(	NCT16	)
+plot(	NCT17	)
+plot(	NCT18	)
+plot(	NCT19	)
+plot(	NCT20	)
+plot(	NCT21	)
+plot(	NCT22	)
+plot(	NCT23	)
+plot(	NCT24	)
+plot(	NCT25	)
+plot(	NCT26	)
+plot(	NCT27	)
+plot(	NCT28	)
+plot(	NCT29	)
+plot(	NCT30	)
+plot(	NCT31	)
+plot(	NCT32	)
+plot(	NCT33	)
+plot(	NCT34	)
+plot(	NCT35	)
+plot(	NCT36	)
+plot(	NCT37	)
+plot(	NCT38	)
+plot(	NCT39	)
+plot(	NCT40	)
+plot(	NCT41	)
+plot(	NCT42	)
+plot(	NCT43	)
+plot(	NCT44	)
+plot(	NCT45	)
+plot(	NCT46	)
+plot(	NCT47	)
+plot(	NCT48	)
+plot(	NCT49	)
+plot(	NCT50	)
+plot(	NCT51	)
+plot(	NCT52	)
+plot(	NCT53	)
+plot(	NCT54	)
+plot(	NCT55	)
+plot(	NCT56	)
+plot(	NCT57	)
+plot(	NCT58	)
+plot(	NCT59	)
+plot(	NCT60	)
+plot(	NCT61	)
+plot(	NCT62	)
+plot(	NCT63	)
+plot(	NCT64	)
+plot(	NCT65	)
+plot(	NCT66	)
+plot(	NCT67	)
+plot(	NCT68	)
+plot(	NCT69	)
+plot(	NCT70	)
+plot(	NCT71	)
+plot(	NCT72	)
+plot(	NCT73	)
+plot(	NCT74	)
+plot(	NCT75	)
+plot(	NCT76	)
+plot(	NCT77	)
+plot(	NCT78	)
+plot(	NCT79	)
+plot(	NCT80	)
+plot(	NCT81	)
+plot(	NCT82	)
+plot(	NCT83	)
+plot(	NCT84	)
+plot(	NCT85	)
+plot(	NCT86	)
+plot(	NCT87	)
+plot(	NCT88	)
+plot(	NCT89	)
+plot(	NCT90	)
+plot(	NCT91	)
+plot(	NCT92	)
+plot(	NCT93	)
+plot(	NCT94	)
+plot(	NCT95	)
+plot(	NCT96	)
+plot(	NCT97	)
+plot(	NCT98	)
+plot(	NCT99	)
+plot(	NCT100	)
+plot(	NCT101	)
+plot(	NCT102	)
+plot(	NCT103	)
+plot(	NCT104	)
+plot(	NCT105	)
+plot(	NCT106	)
+plot(	NCT107	)
+plot(	NCT108	)
+plot(	NCT109	)
+plot(	NCT110	)
+plot(	NCT111	)
+plot(	NCT112	)
+plot(	NCT113	)
+plot(	NCT114	)
+plot(	NCT115	)
+plot(	NCT116	)
+plot(	NCT117	)
+plot(	NCT118	)
+plot(	NCT119	)
+plot(	NCT120	)
+plot(	NCT121	)
+plot(	NCT122	)
+plot(	NCT123	)
+plot(	NCT124	)
+plot(	NCT125	)
+plot(	NCT126	)
+plot(	NCT127	)
+plot(	NCT128	)
+plot(	NCT129	)
+plot(	NCT130	)
+plot(	NCT131	)
+plot(	NCT132	)
+plot(	NCT133	)
+plot(	NCT134	)
+plot(	NCT135	)
+plot(	NCT136	)
+plot(	NCT137	)
+plot(	NCT138	)
+plot(	NCT139	)
+plot(	NCT140	)
+plot(	NCT141	)
+plot(	NCT142	)
+plot(	NCT143	)
+plot(	NCT144	)
+plot(	NCT145	)
+plot(	NCT146	)
+plot(	NCT147	)
+plot(	NCT148	)
+plot(	NCT149	)
+plot(	NCT150	)
+plot(	NCT151	)
+plot(	NCT152	)
+plot(	NCT153	)
+plot(	NCT154	)
+plot(	NCT155	)
+plot(	NCT156	)
+plot(	NCT157	)
+plot(	NCT158	)
+plot(	NCT159	)
+plot(	NCT160	)
+plot(	NCT161	)
+plot(	NCT162	)
+plot(	NCT163	)
+plot(	NCT164	)
+plot(	NCT165	)
+plot(	NCT166	)
+plot(	NCT167	)
+plot(	NCT168	)
+plot(	NCT169	)
+plot(	NCT170	)
+plot(	NCT171	)
+plot(	NCT172	)
+plot(	NCT173	)
+plot(	NCT174	)
+plot(	NCT175	)
+plot(	NCT176	)
+plot(	NCT177	)
+plot(	NCT178	)
+plot(	NCT179	)
+plot(	NCT180	)
+plot(	NCT181	)
+plot(	NCT182	)
+plot(	NCT183	)
+plot(	NCT184	)
+plot(	NCT185	)
+plot(	NCT186	)
+plot(	NCT187	)
+plot(	NCT188	)
+plot(	NCT189	)
+plot(	NCT190	)
+plot(	NCT191	)
+plot(	NCT192	)
+plot(	NCT193	)
+plot(	NCT194	)
+plot(	NCT195	)
+plot(	NCT196	)
+plot(	NCT197	)
+plot(	NCT198	)
+plot(	NCT199	)
+plot(	NCT200	)
+plot(	NCT201	)
+plot(	NCT202	)
+plot(	NCT203	)
+plot(	NCT204	)
+plot(	NCT205	)
+plot(	NCT206	)
+plot(	NCT207	)
+plot(	NCT208	)
+plot(	NCT209	)
+plot(	NCT210	)
+plot(	NCT211	)
+plot(	NCT212	)
+plot(	NCT213	)
+plot(	NCT214	)
+plot(	NCT215	)
+```
+
+```{r}
+#Importance
+NRFM1$importance
+NRFM2$importance
+NRFM3$importance
+NRFM4$importance
+NRFM5$importance
+NRFM6$importance
+NRFM7$importance
+NRFM8$importance
+NRFM9$importance
+NRFM10$importance
+NRFM11$importance
+NRFM12$importance
+NRFM13$importance
+NRFM14$importance
+NRFM15$importance
+NRFM16$importance
+NRFM17$importance
+NRFM18$importance
+NRFM19$importance
+NRFM20$importance
+NRFM21$importance
+NRFM22$importance
+NRFM23$importance
+NRFM24$importance
+NRFM25$importance
+NRFM26$importance
+NRFM27$importance
+NRFM28$importance
+NRFM29$importance
+NRFM30$importance
+NRFM31$importance
+NRFM32$importance
+NRFM33$importance
+NRFM34$importance
+NRFM35$importance
+NRFM36$importance
+NRFM37$importance
+NRFM38$importance
+NRFM39$importance
+NRFM40$importance
+NRFM41$importance
+NRFM42$importance
+NRFM43$importance
+NRFM44$importance
+NRFM45$importance
+NRFM46$importance
+NRFM47$importance
+NRFM48$importance
+NRFM49$importance
+NRFM50$importance
+NRFM51$importance
+NRFM52$importance
+NRFM53$importance
+NRFM54$importance
+NRFM55$importance
+NRFM56$importance
+NRFM57$importance
+NRFM58$importance
+NRFM59$importance
+NRFM60$importance
+NRFM61$importance
+NRFM62$importance
+NRFM63$importance
+NRFM64$importance
+NRFM65$importance
+NRFM66$importance
+NRFM67$importance
+NRFM68$importance
+NRFM69$importance
+NRFM70$importance
+NRFM71$importance
+NRFM72$importance
+NRFM73$importance
+NRFM74$importance
+NRFM75$importance
+NRFM76$importance
+NRFM77$importance
+NRFM78$importance
+NRFM79$importance
+NRFM80$importance
+NRFM81$importance
+NRFM82$importance
+NRFM83$importance
+NRFM84$importance
+NRFM85$importance
+NRFM86$importance
+NRFM87$importance
+NRFM88$importance
+NRFM89$importance
+NRFM90$importance
+NRFM91$importance
+NRFM92$importance
+NRFM93$importance
+NRFM94$importance
+NRFM95$importance
+NRFM96$importance
+NRFM97$importance
+NRFM98$importance
+NRFM99$importance
+NRFM100$importance
+NRFM101$importance
+NRFM102$importance
+NRFM103$importance
+NRFM104$importance
+NRFM105$importance
+NRFM106$importance
+NRFM107$importance
+NRFM108$importance
+NRFM109$importance
+NRFM110$importance
+NRFM111$importance
+NRFM112$importance
+NRFM113$importance
+NRFM114$importance
+NRFM115$importance
+NRFM116$importance
+NRFM117$importance
+NRFM118$importance
+NRFM119$importance
+NRFM120$importance
+NRFM121$importance
+NRFM122$importance
+NRFM123$importance
+NRFM124$importance
+NRFM125$importance
+NRFM126$importance
+NRFM127$importance
+NRFM128$importance
+NRFM129$importance
+NRFM130$importance
+NRFM131$importance
+NRFM132$importance
+NRFM133$importance
+NRFM134$importance
+NRFM135$importance
+NRFM136$importance
+NRFM137$importance
+NRFM138$importance
+NRFM139$importance
+NRFM140$importance
+NRFM141$importance
+NRFM142$importance
+NRFM143$importance
+NRFM144$importance
+NRFM145$importance
+NRFM146$importance
+NRFM147$importance
+NRFM148$importance
+NRFM149$importance
+NRFM150$importance
+NRFM151$importance
+NRFM152$importance
+NRFM153$importance
+NRFM154$importance
+NRFM155$importance
+NRFM156$importance
+NRFM157$importance
+NRFM158$importance
+NRFM159$importance
+NRFM160$importance
+NRFM161$importance
+NRFM162$importance
+NRFM163$importance
+NRFM164$importance
+NRFM165$importance
+NRFM166$importance
+NRFM167$importance
+NRFM168$importance
+NRFM169$importance
+NRFM170$importance
+NRFM171$importance
+NRFM172$importance
+NRFM173$importance
+NRFM174$importance
+NRFM175$importance
+NRFM176$importance
+NRFM177$importance
+NRFM178$importance
+NRFM179$importance
+NRFM180$importance
+NRFM181$importance
+NRFM182$importance
+NRFM183$importance
+NRFM184$importance
+NRFM185$importance
+NRFM186$importance
+NRFM187$importance
+NRFM188$importance
+NRFM189$importance
+NRFM190$importance
+NRFM191$importance
+NRFM192$importance
+NRFM193$importance
+NRFM194$importance
+NRFM195$importance
+NRFM196$importance
+NRFM197$importance
+NRFM198$importance
+NRFM199$importance
+NRFM200$importance
+NRFM201$importance
+NRFM202$importance
+NRFM203$importance
+NRFM204$importance
+NRFM205$importance
+NRFM206$importance
+NRFM207$importance
+NRFM208$importance
+NRFM209$importance
+NRFM210$importance
+NRFM211$importance
+NRFM212$importance
+NRFM213$importance
+NRFM214$importance
+NRFM215$importance
+RFM1$importance
+RFM2$importance
+RFM3$importance
+RFM4$importance
+RFM5$importance
+RFM6$importance
+RFM7$importance
+RFM8$importance
+RFM9$importance
+RFM10$importance
+RFM11$importance
+RFM12$importance
+RFM13$importance
+RFM14$importance
+RFM15$importance
+RFM16$importance
+RFM17$importance
+RFM18$importance
+RFM19$importance
+RFM20$importance
+RFM21$importance
+RFM22$importance
+RFM23$importance
+RFM24$importance
+RFM25$importance
+RFM26$importance
+RFM27$importance
+RFM28$importance
+RFM29$importance
+RFM30$importance
+RFM31$importance
+RFM32$importance
+RFM33$importance
+RFM34$importance
+RFM35$importance
+RFM36$importance
+RFM37$importance
+RFM38$importance
+RFM39$importance
+RFM40$importance
+RFM41$importance
+RFM42$importance
+RFM43$importance
+RFM44$importance
+RFM45$importance
+RFM46$importance
+RFM47$importance
+RFM48$importance
+RFM49$importance
+RFM50$importance
+RFM51$importance
+RFM52$importance
+RFM53$importance
+RFM54$importance
+RFM55$importance
+RFM56$importance
+RFM57$importance
+RFM58$importance
+RFM59$importance
+RFM60$importance
+RFM61$importance
+RFM62$importance
+RFM63$importance
+RFM64$importance
+RFM65$importance
+RFM66$importance
+RFM67$importance
+RFM68$importance
+RFM69$importance
+RFM70$importance
+RFM71$importance
+RFM72$importance
+RFM73$importance
+RFM74$importance
+RFM75$importance
+RFM76$importance
+RFM77$importance
+RFM78$importance
+RFM79$importance
+RFM80$importance
+RFM81$importance
+RFM82$importance
+RFM83$importance
+RFM84$importance
+RFM85$importance
+RFM86$importance
+RFM87$importance
+RFM88$importance
+RFM89$importance
+RFM90$importance
+RFM91$importance
+RFM92$importance
+RFM93$importance
+RFM94$importance
+RFM95$importance
+RFM96$importance
+RFM97$importance
+RFM98$importance
+RFM99$importance
+RFM100$importance
+RFM101$importance
+RFM102$importance
+RFM103$importance
+RFM104$importance
+RFM105$importance
+RFM106$importance
+RFM107$importance
+RFM108$importance
+RFM109$importance
+RFM110$importance
+RFM111$importance
+RFM112$importance
+RFM113$importance
+RFM114$importance
+RFM115$importance
+RFM116$importance
+RFM117$importance
+RFM118$importance
+RFM119$importance
+RFM120$importance
+RFM121$importance
+RFM122$importance
+RFM123$importance
+RFM124$importance
+RFM125$importance
+RFM126$importance
+RFM127$importance
+RFM128$importance
+RFM129$importance
+RFM130$importance
+RFM131$importance
+RFM132$importance
+RFM133$importance
+RFM134$importance
+RFM135$importance
+RFM136$importance
+RFM137$importance
+RFM138$importance
+RFM139$importance
+RFM140$importance
+
+```
+

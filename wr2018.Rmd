@@ -1,0 +1,24 @@
+---
+title: "wr2018"
+output: word_document
+---
+
+```{r}
+
+library(readxl)
+ETWR <- read_excel("C:/Users/ericr/Desktop/2018wr.xlsx")
+ETWR[4:15] <- lapply(ETWR[4:15], as.numeric)
+ETWR<- na.omit(ETWR)
+
+
+#subset
+
+NE_WR <- subset(ETWR, ETWR$TEAM == "NE")
+
+LAR_WR <- subset(ETWR, ETWR$TEAM == "LAR")
+
+
+ mean(LAR_WR$)
+
+```
+

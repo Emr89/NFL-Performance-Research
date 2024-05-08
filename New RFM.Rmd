@@ -1,0 +1,1026 @@
+---
+title: "NEW RFM TEST"
+output: word_document
+---
+```{r}
+library(readxl)
+WEEKLY_TEAM_PERFORMANCE <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/WEEKLY TEAM PERFORMANCE.xlsx")
+
+
+WEEKLY_TEAM_PERFORMANCE[4:33] <- lapply(WEEKLY_TEAM_PERFORMANCE[4:33], as.numeric)
+
+WEEKLY_TEAM_PERFORMANCE$TO[is.na(WEEKLY_TEAM_PERFORMANCE$TO)] = 0
+
+WEEKLY_TEAM_PERFORMANCE$DTO[is.na(WEEKLY_TEAM_PERFORMANCE$DTO)] = 0
+
+
+
+WEEKLY_TEAM_PERFORMANCE<- na.omit(WEEKLY_TEAM_PERFORMANCE)
+
+IWTP <- read_excel("C:/Users/ericr/Desktop/NFL PROJECT DATA/T test data/IWTP.xlsx")
+
+
+
+IWTP$TO[is.na(IWTP$TO)] = 0
+
+IWTP$DTO[is.na(IWTP$DTO)] = 0
+
+
+
+IWTP<- na.omit(IWTP)
+
+library(caTools)
+
+#TT
+sample_WP_TT <- sample.split(WEEKLY_TEAM_PERFORMANCE$TT,SplitRatio = 0.9)
+train_WP_TT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TT == TRUE)
+testWPTT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TT == FALSE)
+
+
+#outcome
+sample_WP_outcome <- sample.split(WEEKLY_TEAM_PERFORMANCE$outcome,SplitRatio = 0.9)
+train_WP_outcome <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_outcome == TRUE)
+testWPoutcome <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_outcome == FALSE)
+
+
+#OPPS
+sample_WP_OPPS <- sample.split(WEEKLY_TEAM_PERFORMANCE$OPPS,SplitRatio = 0.9)
+train_WP_OPPS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_OPPS == TRUE)
+testWPOPPS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_OPPS == FALSE)
+
+#TEAMS
+sample_WP_TEAMS <- sample.split(WEEKLY_TEAM_PERFORMANCE$TEAMS,SplitRatio = 0.9)
+train_WP_TEAMS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TEAMS == TRUE)
+testWPTEAMS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TEAMS == FALSE)
+
+#FD
+sample_WP_FD <- sample.split(WEEKLY_TEAM_PERFORMANCE$FD,SplitRatio = 0.9)
+train_WP_FD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_FD == TRUE)
+testWPFD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_FD == FALSE)
+
+#PY
+sample_WP_PY <- sample.split(WEEKLY_TEAM_PERFORMANCE$PY,SplitRatio = 0.9)
+train_WP_PY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_PY == TRUE)
+testWPPY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_PY == FALSE)
+
+#RY
+sample_WP_RY <- sample.split(WEEKLY_TEAM_PERFORMANCE$RY,SplitRatio = 0.9)
+train_WP_RY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_RY == TRUE)
+testWPRY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_RY == FALSE)
+
+#TO
+sample_WP_TO <- sample.split(WEEKLY_TEAM_PERFORMANCE$TO,SplitRatio = 0.9)
+train_WP_TO <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TO == TRUE)
+testWPTO <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TO == FALSE)
+
+#DFD
+sample_WP_DFD <- sample.split(WEEKLY_TEAM_PERFORMANCE$DFD,SplitRatio = 0.9)
+train_WP_DFD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DFD == TRUE)
+testWPDFD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DFD == FALSE)
+
+#DPY
+sample_WP_DPY <- sample.split(WEEKLY_TEAM_PERFORMANCE$DPY,SplitRatio = 0.9)
+train_WP_DPY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DPY == TRUE)
+testWPDPY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DPY == FALSE)
+
+#DRY
+sample_WP_DRY <- sample.split(WEEKLY_TEAM_PERFORMANCE$DRY,SplitRatio = 0.9)
+train_WP_DRY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DRY == TRUE)
+testWPDRY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DRY == FALSE)
+
+#DTO
+sample_WP_DTO <- sample.split(WEEKLY_TEAM_PERFORMANCE$DTO,SplitRatio = 0.9)
+train_WP_DTO <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_DTO == TRUE)
+testWPDTO <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_DTO == FALSE)
+
+#CAY
+sample_WP_CAY <- sample.split(WEEKLY_TEAM_PERFORMANCE$CAY,SplitRatio = 0.9)
+train_WP_CAY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_CAY == TRUE)
+testWPCAY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_CAY == FALSE)
+
+#AGG
+sample_WP_AGG <- sample.split(WEEKLY_TEAM_PERFORMANCE$AGG,SplitRatio = 0.9)
+train_WP_AGG <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_AGG == TRUE)
+testWPAGG <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_AGG == FALSE)
+
+#LCAD
+sample_WP_LCAD <- sample.split(WEEKLY_TEAM_PERFORMANCE$LCAD,SplitRatio = 0.9)
+train_WP_LCAD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_LCAD == TRUE)
+testWPLCAD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_LCAD == FALSE)
+
+#AYTS
+sample_WP_AYTS <- sample.split(WEEKLY_TEAM_PERFORMANCE$AYTS,SplitRatio = 0.9)
+train_WP_AYTS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_AYTS == TRUE)
+testWPAYTS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_AYTS == FALSE)
+
+#ATT
+sample_WP_ATT <- sample.split(WEEKLY_TEAM_PERFORMANCE$ATT,SplitRatio = 0.9)
+train_WP_ATT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_ATT == TRUE)
+testWPATT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_ATT == FALSE)
+
+#TD
+sample_WP_TD <- sample.split(WEEKLY_TEAM_PERFORMANCE$TD,SplitRatio = 0.9)
+train_WP_TD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TD == TRUE)
+testWPTD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TD == FALSE)
+
+#INT
+sample_WP_INT <- sample.split(WEEKLY_TEAM_PERFORMANCE$INT,SplitRatio = 0.9)
+train_WP_INT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_INT == TRUE)
+testWPINT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_INT == FALSE)
+
+#COMP
+sample_WP_COMP <- sample.split(WEEKLY_TEAM_PERFORMANCE$COMP,SplitRatio = 0.9)
+train_WP_COMP <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_COMP == TRUE)
+testWPCOMP <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_COMP == FALSE)
+
+#RUSHATT
+sample_WP_RUSHATT <- sample.split(WEEKLY_TEAM_PERFORMANCE$RUSHATT,SplitRatio = 0.9)
+train_WP_RUSHATT <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_RUSHATT == TRUE)
+testWPRUSHATT <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_RUSHATT == FALSE)
+
+#RUSHTD
+sample_WP_RUSHTD <- sample.split(WEEKLY_TEAM_PERFORMANCE$RUSHTD,SplitRatio = 0.9)
+train_WP_RUSHTD <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_RUSHTD == TRUE)
+testWPRUSHTD <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_RUSHTD == FALSE)
+
+#EFF
+sample_WP_EFF <- sample.split(WEEKLY_TEAM_PERFORMANCE$EFF,SplitRatio = 0.9)
+train_WP_EFF <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_EFF == TRUE)
+testWPEFF <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_EFF == FALSE)
+
+#EM
+sample_WP_EM <- sample.split(WEEKLY_TEAM_PERFORMANCE$EM,SplitRatio = 0.9)
+train_WP_EM <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_EM == TRUE)
+testWPEM <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_EM == FALSE)
+
+#TLOS
+sample_WP_TLOS <- sample.split(WEEKLY_TEAM_PERFORMANCE$TLOS,SplitRatio = 0.9)
+train_WP_TLOS <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TLOS == TRUE)
+testWPTLOS <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TLOS == FALSE)
+
+#AVG
+sample_WP_AVG <- sample.split(WEEKLY_TEAM_PERFORMANCE$AVG,SplitRatio = 0.9)
+train_WP_AVG <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_AVG == TRUE)
+testWPAVG <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_AVG == FALSE)
+
+#CUSH
+sample_WP_CUSH <- sample.split(WEEKLY_TEAM_PERFORMANCE$CUSH,SplitRatio = 0.9)
+train_WP_CUSH <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_CUSH == TRUE)
+testWPCUSH <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_CUSH == FALSE)
+
+#SEP
+sample_WP_SEP <- sample.split(WEEKLY_TEAM_PERFORMANCE$SEP,SplitRatio = 0.9)
+train_WP_SEP <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_SEP == TRUE)
+testWPSEP <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_SEP == FALSE)
+
+#TAY
+sample_WP_TAY <- sample.split(WEEKLY_TEAM_PERFORMANCE$TAY,SplitRatio = 0.9)
+train_WP_TAY <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_TAY == TRUE)
+testWPTAY <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_TAY == FALSE)
+
+#CTCH
+sample_WP_CTCH <- sample.split(WEEKLY_TEAM_PERFORMANCE$CTCH,SplitRatio = 0.9)
+train_WP_CTCH <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_CTCH == TRUE)
+testWPCTCH <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_CTCH == FALSE)
+
+#YACR
+sample_WP_YACR <- sample.split(WEEKLY_TEAM_PERFORMANCE$YACR,SplitRatio = 0.9)
+train_WP_YACR <- subset(WEEKLY_TEAM_PERFORMANCE,sample_WP_YACR == TRUE)
+testWPYACR <- subset(WEEKLY_TEAM_PERFORMANCE, sample_WP_YACR == FALSE)
+
+
+
+
+
+
+
+library(randomForest)
+PRM1<-randomForest(outcome~.,data=train_WP_outcome)
+PRM2<-randomForest(TEAMS~.,data=train_WP_TEAMS)
+PRM3<-randomForest(OPPS~.,data=train_WP_OPPS)
+PRM4<-randomForest(FD~.,data=train_WP_FD)
+PRM5<-randomForest(PY~.,data=train_WP_PY)
+PRM6<-randomForest(RY~.,data=train_WP_RY)
+PRM7<-randomForest(TO~.,data=train_WP_TO)
+PRM8<-randomForest(DFD~.,data=train_WP_DFD)
+PRM9<-randomForest(DPY~.,data=train_WP_DPY)
+PRM10<-randomForest(DRY~.,data=train_WP_DRY)
+PRM11<-randomForest(DTO~.,data=train_WP_DTO)
+PRM12<-randomForest(TT~.,data=train_WP_TT)
+PRM13<-randomForest(CAY~.,data=train_WP_CAY)
+PRM14<-randomForest(AGG~.,data=train_WP_AGG)
+PRM15<-randomForest(LCAD~.,data=train_WP_LCAD)
+PRM16<-randomForest(AYTS~.,data=train_WP_AYTS)
+PRM17<-randomForest(ATT~.,data=train_WP_ATT)
+PRM18<-randomForest(TD~.,data=train_WP_TD)
+PRM19<-randomForest(INT~.,data=train_WP_INT)
+PRM20<-randomForest(COMP~.,data=train_WP_COMP)
+PRM21<-randomForest(RUSHATT~.,data=train_WP_RUSHATT)
+PRM22<-randomForest(RUSHTD~.,data=train_WP_RUSHTD)
+PRM23<-randomForest(EFF~.,data=train_WP_EFF)
+PRM24<-randomForest(EM~.,data=train_WP_EM)
+PRM25<-randomForest(TLOS~.,data=train_WP_TLOS)
+PRM26<-randomForest(AVG~.,data=train_WP_AVG)
+PRM27<-randomForest(CUSH~.,data=train_WP_CUSH)
+PRM28<-randomForest(SEP~.,data=train_WP_SEP)
+PRM29<-randomForest(TAY~.,data=train_WP_TAY)
+PRM30<-randomForest(CTCH~.,data=train_WP_CTCH)
+PRM31<-randomForest(YACR~.,data=train_WP_YACR)
+
+
+#Adjust random forest models 
+library(randomForest)
+ARFM1<-randomForest(outcome~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_outcome, importance=TRUE)
+ARFM2<-randomForest(TEAMS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TEAMS, importance=TRUE)
+ARFM3<-randomForest(OPPS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_OPPS, importance=TRUE)
+ARFM4<-randomForest(FD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_FD, importance=TRUE)
+ARFM5<-randomForest(PY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_PY, importance=TRUE)
+ARFM6<-randomForest(RY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RY, importance=TRUE)
+ARFM7<-randomForest(TO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TO, importance=TRUE)
+ARFM8<-randomForest(DFD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DFD, importance=TRUE)
+ARFM9<-randomForest(DPY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DPY, importance=TRUE)
+ARFM10<-randomForest(DRY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DRY, importance=TRUE)
+ARFM11<-randomForest(DTO~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DTO, importance=TRUE)
+ARFM12<-randomForest(TT~CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TT, importance=TRUE)
+ARFM13<-randomForest(CAY~TT+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_CAY, importance=TRUE)
+ARFM14<-randomForest(AGG~TT+CAY+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AGG, importance=TRUE)
+ARFM15<-randomForest(LCAD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_LCAD, importance=TRUE)
+ARFM16<-randomForest(AYTS~TT+CAY+AGG+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AYTS, importance=TRUE)
+ARFM17<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_ATT, importance=TRUE)
+ARFM18<-randomForest(TD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TD, importance=TRUE)
+ARFM19<-randomForest(INT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_INT, importance=TRUE)
+ARFM20<-randomForest(COMP~TT+CAY+AGG+AYTS+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_COMP, importance=TRUE)
+ARFM21<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RUSHATT, importance=TRUE)
+ARFM22<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RUSHTD, importance=TRUE)
+ARFM23<-randomForest(EFF~TT+CAY+AGG+AYTS+COMP+Week+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_EFF, importance=TRUE)
+ARFM24<-randomForest(EM~TT+CAY+AGG+AYTS+COMP+Week+EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_EM, importance=TRUE)
+ARFM25<-randomForest(TLOS~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TLOS, importance=TRUE)
+ARFM26<-randomForest(AVG~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AVG, importance=TRUE)
+ARFM27<-randomForest(CUSH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+SEP+TAY+CTCH+YACR,data=train_WP_CUSH, importance=TRUE)
+ARFM28<-randomForest(SEP~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+TAY+CTCH+YACR,data=train_WP_SEP, importance=TRUE)
+ARFM29<-randomForest(TAY~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+CTCH+YACR,data=train_WP_TAY, importance=TRUE)
+ARFM30<-randomForest(CTCH~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+YACR,data=train_WP_CTCH, importance=TRUE)
+ARFM31<-randomForest(YACR~TT+CAY+AGG+AYTS+COMP+Week+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH,data=train_WP_YACR, importance=TRUE)
+
+```
+
+```{r}
+#Adjust random forest models 
+
+
+
+
+ARFM1<-randomForest(outcome~TT+AYTS+COMP+EM+CUSH+SEP+CTCH+YACR,data=train_WP_outcome, importance=TRUE)
+
+
+ARFM2<-randomForest(TEAMS~CAY+AGG+AYTS+COMP+EFF+EM+AVG+SEP+TAY+CTCH+YACR,data=train_WP_TEAMS, importance=TRUE)
+
+ARFM3<-randomForest(OPPS~AGG+COMP+EM+CUSH+SEP+CTCH+YACR,data=train_WP_OPPS, importance=TRUE)
+
+
+ARFM4<-randomForest(FD~CAY+AGG+AYTS+COMP++EFF+TLOS+AVG+TAY+CTCH,data=train_WP_FD, importance=TRUE)
+
+
+ARFM5<-randomForest(PY~TT+CAY+AGG+AYTS+COMP+EFF+EM+AVG+SEP+TAY+CTCH+YACR,data=train_WP_PY, importance=TRUE)
+
+
+ARFM6<-randomForest(RY~CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RY, importance=TRUE)
+
+
+ARFM7<-randomForest(TO~CAY+AYTS+EFF+AVG+SEP+CTCH+YACR,data=train_WP_TO, importance=TRUE)
+
+ARFM8<-randomForest(DFD~CAY+AGG+AYTS+COMP++EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_DFD, importance=TRUE)
+
+
+ARFM9<-randomForest(DPY~TT+CAY+AYTS+EFF+AVG+SEP+YACR,data=train_WP_DPY, importance=TRUE)
+
+ARFM10<-randomForest(DRY~CAY+AYTS+EFF+TLOS+AVG+SEP+CTCH,data=train_WP_DRY, importance=TRUE)
+
+ARFM11<-randomForest(DTO~AGG+COMP+EFF+EM+AVG+TAY+CTCH,data=train_WP_DTO, importance=TRUE)
+
+
+
+
+
+
+
+ARFM12<-randomForest(TT~CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TT, importance=TRUE)
+ARFM13<-randomForest(CAY~TT+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_CAY, importance=TRUE)
+ARFM14<-randomForest(AGG~TT+CAY+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AGG, importance=TRUE)
+ARFM15<-randomForest(LCAD~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_LCAD, importance=TRUE)
+ARFM16<-randomForest(AYTS~TT+CAY+AGG+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AYTS, importance=TRUE)
+ARFM17<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_ATT, importance=TRUE)
+ARFM18<-randomForest(TD~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TD, importance=TRUE)
+ARFM19<-randomForest(INT~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_INT, importance=TRUE)
+ARFM20<-randomForest(COMP~TT+CAY+AGG+AYTS++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_COMP, importance=TRUE)
+ARFM21<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RUSHATT, importance=TRUE)
+ARFM22<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_RUSHTD, importance=TRUE)
+ARFM23<-randomForest(EFF~TT+CAY+AGG+AYTS+COMP++EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_EFF, importance=TRUE)
+ARFM24<-randomForest(EM~TT+CAY+AGG+AYTS+COMP++EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_EM, importance=TRUE)
+ARFM25<-randomForest(TLOS~TT+CAY+AGG+AYTS+COMP++EFF+EM+AVG+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_TLOS, importance=TRUE)
+ARFM26<-randomForest(AVG~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+CUSH+SEP+TAY+CTCH+YACR,data=train_WP_AVG, importance=TRUE)
+ARFM27<-randomForest(CUSH~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+SEP+TAY+CTCH+YACR,data=train_WP_CUSH, importance=TRUE)
+ARFM28<-randomForest(SEP~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+TAY+CTCH+YACR,data=train_WP_SEP, importance=TRUE)
+ARFM29<-randomForest(TAY~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+CTCH+YACR,data=train_WP_TAY, importance=TRUE)
+ARFM30<-randomForest(CTCH~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+YACR,data=train_WP_CTCH, importance=TRUE)
+ARFM31<-randomForest(YACR~TT+CAY+AGG+AYTS+COMP++EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH,data=train_WP_YACR, importance=TRUE)
+```
+
+
+```{r}
+
+library(caTools)
+
+#TT
+sample_WP_TT <- sample.split(IWTP$TT,SplitRatio = 0.9)
+train_WP_TT <- subset(IWTP,sample_WP_TT == TRUE)
+testWPTT <- subset(IWTP, sample_WP_TT == FALSE)
+
+
+#outcome
+sample_WP_outcome <- sample.split(IWTP$outcome,SplitRatio = 0.9)
+train_WP_outcome <- subset(IWTP,sample_WP_outcome == TRUE)
+testWPoutcome <- subset(IWTP, sample_WP_outcome == FALSE)
+
+
+#OPPS
+sample_WP_OPPS <- sample.split(IWTP$OPPS,SplitRatio = 0.9)
+train_WP_OPPS <- subset(IWTP,sample_WP_OPPS == TRUE)
+testWPOPPS <- subset(IWTP, sample_WP_OPPS == FALSE)
+
+#TEAMS
+sample_WP_TEAMS <- sample.split(IWTP$TEAMS,SplitRatio = 0.9)
+train_WP_TEAMS <- subset(IWTP,sample_WP_TEAMS == TRUE)
+testWPTEAMS <- subset(IWTP, sample_WP_TEAMS == FALSE)
+
+#FD
+sample_WP_FD <- sample.split(IWTP$FD,SplitRatio = 0.9)
+train_WP_FD <- subset(IWTP,sample_WP_FD == TRUE)
+testWPFD <- subset(IWTP, sample_WP_FD == FALSE)
+
+#PY
+sample_WP_PY <- sample.split(IWTP$PY,SplitRatio = 0.9)
+train_WP_PY <- subset(IWTP,sample_WP_PY == TRUE)
+testWPPY <- subset(IWTP, sample_WP_PY == FALSE)
+
+#RY
+sample_WP_RY <- sample.split(IWTP$RY,SplitRatio = 0.9)
+train_WP_RY <- subset(IWTP,sample_WP_RY == TRUE)
+testWPRY <- subset(IWTP, sample_WP_RY == FALSE)
+
+#TO
+sample_WP_TO <- sample.split(IWTP$TO,SplitRatio = 0.9)
+train_WP_TO <- subset(IWTP,sample_WP_TO == TRUE)
+testWPTO <- subset(IWTP, sample_WP_TO == FALSE)
+
+#DFD
+sample_WP_DFD <- sample.split(IWTP$DFD,SplitRatio = 0.9)
+train_WP_DFD <- subset(IWTP,sample_WP_DFD == TRUE)
+testWPDFD <- subset(IWTP, sample_WP_DFD == FALSE)
+
+#DPY
+sample_WP_DPY <- sample.split(IWTP$DPY,SplitRatio = 0.9)
+train_WP_DPY <- subset(IWTP,sample_WP_DPY == TRUE)
+testWPDPY <- subset(IWTP, sample_WP_DPY == FALSE)
+
+#DRY
+sample_WP_DRY <- sample.split(IWTP$DRY,SplitRatio = 0.9)
+train_WP_DRY <- subset(IWTP,sample_WP_DRY == TRUE)
+testWPDRY <- subset(IWTP, sample_WP_DRY == FALSE)
+
+#DTO
+sample_WP_DTO <- sample.split(IWTP$DTO,SplitRatio = 0.9)
+train_WP_DTO <- subset(IWTP,sample_WP_DTO == TRUE)
+testWPDTO <- subset(IWTP, sample_WP_DTO == FALSE)
+
+#CAY
+sample_WP_CAY <- sample.split(IWTP$CAY,SplitRatio = 0.9)
+train_WP_CAY <- subset(IWTP,sample_WP_CAY == TRUE)
+testWPCAY <- subset(IWTP, sample_WP_CAY == FALSE)
+
+#AGG
+sample_WP_AGG <- sample.split(IWTP$AGG,SplitRatio = 0.9)
+train_WP_AGG <- subset(IWTP,sample_WP_AGG == TRUE)
+testWPAGG <- subset(IWTP, sample_WP_AGG == FALSE)
+
+#LCAD
+sample_WP_LCAD <- sample.split(IWTP$LCAD,SplitRatio = 0.9)
+train_WP_LCAD <- subset(IWTP,sample_WP_LCAD == TRUE)
+testWPLCAD <- subset(IWTP, sample_WP_LCAD == FALSE)
+
+#AYTS
+sample_WP_AYTS <- sample.split(IWTP$AYTS,SplitRatio = 0.9)
+train_WP_AYTS <- subset(IWTP,sample_WP_AYTS == TRUE)
+testWPAYTS <- subset(IWTP, sample_WP_AYTS == FALSE)
+
+#ATT
+sample_WP_ATT <- sample.split(IWTP$ATT,SplitRatio = 0.9)
+train_WP_ATT <- subset(IWTP,sample_WP_ATT == TRUE)
+testWPATT <- subset(IWTP, sample_WP_ATT == FALSE)
+
+#TD
+sample_WP_TD <- sample.split(IWTP$TD,SplitRatio = 0.9)
+train_WP_TD <- subset(IWTP,sample_WP_TD == TRUE)
+testWPTD <- subset(IWTP, sample_WP_TD == FALSE)
+
+#INT
+sample_WP_INT <- sample.split(IWTP$INT,SplitRatio = 0.9)
+train_WP_INT <- subset(IWTP,sample_WP_INT == TRUE)
+testWPINT <- subset(IWTP, sample_WP_INT == FALSE)
+
+#COMP
+sample_WP_COMP <- sample.split(IWTP$COMP,SplitRatio = 0.9)
+train_WP_COMP <- subset(IWTP,sample_WP_COMP == TRUE)
+testWPCOMP <- subset(IWTP, sample_WP_COMP == FALSE)
+
+#RUSHATT
+sample_WP_RUSHATT <- sample.split(IWTP$RUSHATT,SplitRatio = 0.9)
+train_WP_RUSHATT <- subset(IWTP,sample_WP_RUSHATT == TRUE)
+testWPRUSHATT <- subset(IWTP, sample_WP_RUSHATT == FALSE)
+
+#RUSHTD
+sample_WP_RUSHTD <- sample.split(IWTP$RUSHTD,SplitRatio = 0.9)
+train_WP_RUSHTD <- subset(IWTP,sample_WP_RUSHTD == TRUE)
+testWPRUSHTD <- subset(IWTP, sample_WP_RUSHTD == FALSE)
+
+#EFF
+sample_WP_EFF <- sample.split(IWTP$EFF,SplitRatio = 0.9)
+train_WP_EFF <- subset(IWTP,sample_WP_EFF == TRUE)
+testWPEFF <- subset(IWTP, sample_WP_EFF == FALSE)
+
+#EM
+sample_WP_EM <- sample.split(IWTP$EM,SplitRatio = 0.9)
+train_WP_EM <- subset(IWTP,sample_WP_EM == TRUE)
+testWPEM <- subset(IWTP, sample_WP_EM == FALSE)
+
+#TLOS
+sample_WP_TLOS <- sample.split(IWTP$TLOS,SplitRatio = 0.9)
+train_WP_TLOS <- subset(IWTP,sample_WP_TLOS == TRUE)
+testWPTLOS <- subset(IWTP, sample_WP_TLOS == FALSE)
+
+#AVG
+sample_WP_AVG <- sample.split(IWTP$AVG,SplitRatio = 0.9)
+train_WP_AVG <- subset(IWTP,sample_WP_AVG == TRUE)
+testWPAVG <- subset(IWTP, sample_WP_AVG == FALSE)
+
+#CUSH
+sample_WP_CUSH <- sample.split(IWTP$CUSH,SplitRatio = 0.9)
+train_WP_CUSH <- subset(IWTP,sample_WP_CUSH == TRUE)
+testWPCUSH <- subset(IWTP, sample_WP_CUSH == FALSE)
+
+#SEP
+sample_WP_SEP <- sample.split(IWTP$SEP,SplitRatio = 0.9)
+train_WP_SEP <- subset(IWTP,sample_WP_SEP == TRUE)
+testWPSEP <- subset(IWTP, sample_WP_SEP == FALSE)
+
+#TAY
+sample_WP_TAY <- sample.split(IWTP$TAY,SplitRatio = 0.9)
+train_WP_TAY <- subset(IWTP,sample_WP_TAY == TRUE)
+testWPTAY <- subset(IWTP, sample_WP_TAY == FALSE)
+
+#CTCH
+sample_WP_CTCH <- sample.split(IWTP$CTCH,SplitRatio = 0.9)
+train_WP_CTCH <- subset(IWTP,sample_WP_CTCH == TRUE)
+testWPCTCH <- subset(IWTP, sample_WP_CTCH == FALSE)
+
+#YACR
+sample_WP_YACR <- sample.split(IWTP$YACR,SplitRatio = 0.9)
+train_WP_YACR <- subset(IWTP,sample_WP_YACR == TRUE)
+testWPYACR <- subset(IWTP, sample_WP_YACR == FALSE)
+
+
+
+# new section
+
+#TT_OPP
+sample_WP_TT_OPP <- sample.split(IWTP$TT_OPP,SplitRatio = 0.9)
+train_WP_TT_OPP <- subset(IWTP,sample_WP_TT_OPP == TRUE)
+testWPTT_OPP <- subset(IWTP, sample_WP_TT_OPP == FALSE)
+
+
+#CAY_OPP
+sample_WP_CAY_OPP <- sample.split(IWTP$CAY_OPP,SplitRatio = 0.9)
+train_WP_CAY_OPP <- subset(IWTP,sample_WP_CAY_OPP == TRUE)
+testWPCAY_OPP <- subset(IWTP, sample_WP_CAY_OPP == FALSE)
+
+#AGG_OPP
+sample_WP_AGG_OPP <- sample.split(IWTP$AGG_OPP,SplitRatio = 0.9)
+train_WP_AGG_OPP <- subset(IWTP,sample_WP_AGG_OPP == TRUE)
+testWPAGG_OPP <- subset(IWTP, sample_WP_AGG_OPP == FALSE)
+
+#LCAD_OPP
+sample_WP_LCAD_OPP <- sample.split(IWTP$LCAD_OPP,SplitRatio = 0.9)
+train_WP_LCAD_OPP <- subset(IWTP,sample_WP_LCAD_OPP == TRUE)
+testWPLCAD_OPP <- subset(IWTP, sample_WP_LCAD_OPP == FALSE)
+
+#AYTS_OPP
+sample_WP_AYTS_OPP <- sample.split(IWTP$AYTS_OPP,SplitRatio = 0.9)
+train_WP_AYTS_OPP <- subset(IWTP,sample_WP_AYTS_OPP == TRUE)
+testWPAYTS_OPP <- subset(IWTP, sample_WP_AYTS_OPP == FALSE)
+
+#ATT_OPP
+sample_WP_ATT_OPP <- sample.split(IWTP$ATT_OPP,SplitRatio = 0.9)
+train_WP_ATT_OPP <- subset(IWTP,sample_WP_ATT_OPP == TRUE)
+testWPATT_OPP <- subset(IWTP, sample_WP_ATT_OPP == FALSE)
+
+#TD_OPP
+sample_WP_TD_OPP <- sample.split(IWTP$TD_OPP,SplitRatio = 0.9)
+train_WP_TD_OPP <- subset(IWTP,sample_WP_TD_OPP == TRUE)
+testWPTD_OPP <- subset(IWTP, sample_WP_TD_OPP == FALSE)
+
+#INT_OPP
+sample_WP_INT_OPP <- sample.split(IWTP$INT_OPP,SplitRatio = 0.9)
+train_WP_INT_OPP <- subset(IWTP,sample_WP_INT_OPP == TRUE)
+testWPINT_OPP <- subset(IWTP, sample_WP_INT_OPP == FALSE)
+
+#COMP_OPP
+sample_WP_COMP_OPP <- sample.split(IWTP$COMP_OPP,SplitRatio = 0.9)
+train_WP_COMP_OPP <- subset(IWTP,sample_WP_COMP_OPP == TRUE)
+testWPCOMP_OPP <- subset(IWTP, sample_WP_COMP_OPP == FALSE)
+
+#RUSHATT_OPP
+sample_WP_RUSHATT_OPP <- sample.split(IWTP$RUSHATT_OPP,SplitRatio = 0.9)
+train_WP_RUSHATT_OPP <- subset(IWTP,sample_WP_RUSHATT_OPP == TRUE)
+testWPRUSHATT_OPP <- subset(IWTP, sample_WP_RUSHATT_OPP == FALSE)
+
+#RUSHTD_OPP
+sample_WP_RUSHTD_OPP <- sample.split(IWTP$RUSHTD_OPP,SplitRatio = 0.9)
+train_WP_RUSHTD_OPP <- subset(IWTP,sample_WP_RUSHTD_OPP == TRUE)
+testWPRUSHTD_OPP <- subset(IWTP, sample_WP_RUSHTD_OPP == FALSE)
+
+#EFF_OPP
+sample_WP_EFF_OPP <- sample.split(IWTP$EFF_OPP,SplitRatio = 0.9)
+train_WP_EFF_OPP <- subset(IWTP,sample_WP_EFF_OPP == TRUE)
+testWPEFF_OPP <- subset(IWTP, sample_WP_EFF_OPP == FALSE)
+
+#EM_OPP
+sample_WP_EM_OPP <- sample.split(IWTP$EM_OPP,SplitRatio = 0.9)
+train_WP_EM_OPP <- subset(IWTP,sample_WP_EM_OPP == TRUE)
+testWPEM_OPP <- subset(IWTP, sample_WP_EM_OPP == FALSE)
+
+#TLOS_OPP
+sample_WP_TLOS_OPP <- sample.split(IWTP$TLOS_OPP,SplitRatio = 0.9)
+train_WP_TLOS_OPP <- subset(IWTP,sample_WP_TLOS_OPP == TRUE)
+testWPTLOS_OPP <- subset(IWTP, sample_WP_TLOS_OPP == FALSE)
+
+#AVG_OPP
+sample_WP_AVG_OPP <- sample.split(IWTP$AVG_OPP,SplitRatio = 0.9)
+train_WP_AVG_OPP <- subset(IWTP,sample_WP_AVG_OPP == TRUE)
+testWPAVG_OPP <- subset(IWTP, sample_WP_AVG_OPP == FALSE)
+
+#CUSH_OPP
+sample_WP_CUSH_OPP <- sample.split(IWTP$CUSH_OPP,SplitRatio = 0.9)
+train_WP_CUSH_OPP <- subset(IWTP,sample_WP_CUSH_OPP == TRUE)
+testWPCUSH_OPP <- subset(IWTP, sample_WP_CUSH_OPP == FALSE)
+
+#SEP_OPP
+sample_WP_SEP_OPP <- sample.split(IWTP$SEP_OPP,SplitRatio = 0.9)
+train_WP_SEP_OPP <- subset(IWTP,sample_WP_SEP_OPP == TRUE)
+testWPSEP_OPP <- subset(IWTP, sample_WP_SEP_OPP == FALSE)
+
+#TAY_OPP
+sample_WP_TAY_OPP <- sample.split(IWTP$TAY_OPP,SplitRatio = 0.9)
+train_WP_TAY_OPP <- subset(IWTP,sample_WP_TAY_OPP == TRUE)
+testWPTAY_OPP <- subset(IWTP, sample_WP_TAY_OPP == FALSE)
+
+#CTCH_OPP
+sample_WP_CTCH_OPP <- sample.split(IWTP$CTCH_OPP,SplitRatio = 0.9)
+train_WP_CTCH_OPP <- subset(IWTP,sample_WP_CTCH_OPP == TRUE)
+testWPCTCH_OPP <- subset(IWTP, sample_WP_CTCH_OPP == FALSE)
+
+#YACR_OPP
+sample_WP_YACR_OPP <- sample.split(IWTP$YACR_OPP,SplitRatio = 0.9)
+train_WP_YACR_OPP <- subset(IWTP,sample_WP_YACR_OPP == TRUE)
+testWPYACR_OPP <- subset(IWTP, sample_WP_YACR_OPP == FALSE)
+
+library(randomForest)
+
+
+IRF1<-randomForest(outcome~COMP+EM+CTCH+AYTS_OPP+COMP_OPP+SEP_OPP+CTCH_OPP+YACR_OPP,data=train_WP_outcome,importance=TRUE)
+
+
+IRF2<-randomForest(TEAMS~CAY+AYTS+COMP+EFF+AVG+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AYTS_OPP+EFF_OPP+EM_OPP+TLOS_OPP+TAY_OPP+CTCH_OPP,data=train_WP_TEAMS,importance=TRUE)
+
+
+
+IRF3<-randomForest(OPPS~TT+AGG+EM+CAY_OPP+AYTS_OPP+EM_OPP+CTCH_OPP+YACR_OPP,data=train_WP_OPPS,importance=TRUE)
+
+
+
+IRF4<-randomForest(FD~AGG+AYTS+COMP+EFF+AVG+SEP+TAY+CTCH+YACR+TT_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+YACR_OPP,data=train_WP_FD,importance=TRUE)
+
+
+IRF5<-randomForest(PY~COMP+EFF+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+YACR_OPP,data=train_WP_PY,importance=TRUE)
+
+
+IRF6<-randomForest(RY~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RY,importance=TRUE)
+IRF7<-randomForest(TO~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_TO,importance=TRUE)
+IRF8<-randomForest(DFD~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DFD,importance=TRUE)
+IRF9<-randomForest(DPY~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DPY,importance=TRUE)
+IRF10<-randomForest(DRY~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DRY,importance=TRUE)
+IRF11<-randomForest(DTO~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_DTO,importance=TRUE)
+IRF12<-randomForest(ATT~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_ATT,importance=TRUE)
+IRF13<-randomForest(TD~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_TD,importance=TRUE)
+IRF14<-randomForest(INT~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_INT,importance=TRUE)
+IRF15<-randomForest(RUSHATT~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHATT,importance=TRUE)
+IRF16<-randomForest(RUSHTD~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHTD,importance=TRUE)
+IRF17<-randomForest(ATT_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_ATT_OPP,importance=TRUE)
+IRF18<-randomForest(TD_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_TD_OPP,importance=TRUE)
+IRF19<-randomForest(INT_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_INT_OPP,importance=TRUE)
+IRF20<-randomForest(RUSHATT_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHATT_OPP,importance=TRUE)
+IRF21<-randomForest(RUSHTD_OPP~TT+CAY+AGG+AYTS+COMP+EFF+EM+TLOS+AVG+CUSH+SEP+TAY+CTCH+YACR+TT_OPP+CAY_OPP+AGG_OPP+AYTS_OPP+COMP_OPP+EFF_OPP+EM_OPP+TLOS_OPP+AVG_OPP+CUSH_OPP+SEP_OPP+TAY_OPP+CTCH_OPP+YACR_OPP,data=train_WP_RUSHTD_OPP,importance=TRUE)
+```
+
+```{r}
+AWTP <- subset(WEEKLY_TEAM_PERFORMANCE,select=c(TT,	CAY,AGG,AYTS,COMP,Week,EFF,EM,TLOS,AVG,CUSH,SEP,	TAY,CTCH,YACR
+)) 
+
+library(rJava)
+library(glmulti)
+
+#geneticfullmodels
+FGM1<-glmulti(outcome~AGG+AYTS+COMP+EFF+EM+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM2<-glmulti(TEAMS~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM3<-glmulti(OPPS~AGG+Week+EFF+EM+AVG+CUSH,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM4<-glmulti(FD~TT+AYTS+COMP+Week+AVG+CUSH+TAY+CTCH,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM5<-glmulti(PY~TT+CAY+AYTS+COMP+AVG+TAY+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM6<-glmulti(RY~TT+AGG+AYTS+COMP+AVG+CUSH+TAY+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM7<-glmulti(TO~CAY+AYTS+EFF+EM+AVG+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM8<-glmulti(DFD~CAY+AGG+COMP+AVG,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM9<-glmulti(DPY~CAY+AGG+TLOS+CTCH,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM10<-glmulti(DRY~Week+TLOS+AVG+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM11<-glmulti(DTO~Week+EFF+EM,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="h")
+FGM12<-glmulti(TT~CAY+AGG+COMP+Week+EM+TLOS+SEP+TAY,data=AWTP,level=2,crit="aic",method="g")
+FGM13<-glmulti(CAY~TT+AYTS+COMP+TLOS+SEP+TAY+CTCH,data=AWTP,level=2,crit="aic",method="g")
+FGM14<-glmulti(AGG~TT+AYTS+COMP+EFF+CUSH+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM15<-glmulti(LCAD~TT+CAY+AYTS+AVG+CUSH+SEP+TAY+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM16<-glmulti(AYTS~CAY+AGG+COMP+Week+TLOS+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM17<-glmulti(ATT~TT+AYTS+COMP+Week+AVG+CUSH+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM18<-glmulti(TD~CAY+AYTS+COMP+Week+EFF+AVG+TAY+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM19<-glmulti(INT~TT+AYTS+COMP+Week+AVG+TAY,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM20<-glmulti(COMP~TT+CAY+AGG+AYTS+Week+TLOS+TAY+CTCH,data=AWTP,level=2,crit="aic",method="g")
+FGM21<-glmulti(RUSHATT~AGG+AYTS+Week+EFF+AVG+SEP+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM22<-glmulti(RUSHTD~AGG+COMP+EM+TLOS+AVG+SEP+CTCH+YACR,data=WEEKLY_TEAM_PERFORMANCE,level=2,crit="aic",method="g")
+FGM23<-glmulti(EFF~AGG+TLOS+AVG+SEP+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM24<-glmulti(EM~TT+COMP+CTCH+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM25<-glmulti(TLOS~TT+CAY+AYTS+COMP+EFF+AVG+CUSH+CTCH,data=AWTP,level=2,crit="aic",method="g")
+FGM26<-glmulti(AVG~Week+EFF+TLOS+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM27<-glmulti(CUSH~AGG+Week+EFF+TLOS+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM28<-glmulti(SEP~CAY+AGG+AYTS+EFF+CUSH+TAY+CTCH+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM29<-glmulti(TAY~TT+AGG+AYTS+COMP+Week+CUSH+SEP+CTCH,data=AWTP,level=2,crit="aic",method="g")
+FGM30<-glmulti(CTCH~CAY+COMP+EM+TLOS+AVG+SEP+TAY+YACR,data=AWTP,level=2,crit="aic",method="g")
+FGM31<-glmulti(YACR~AGG+COMP+EFF+EM+AVG+CUSH+SEP+CTCH,data=AWTP,level=2,crit="aic",method="g")
+
+```
+
+
+```{r}
+ARFM1$importance
+ARFM2$importance
+ARFM3$importance
+ARFM4$importance
+ARFM5$importance
+ARFM6$importance
+ARFM7$importance
+ARFM8$importance
+ARFM9$importance
+ARFM10$importance
+ARFM11$importance
+ARFM12$importance
+ARFM13$importance
+ARFM14$importance
+ARFM15$importance
+ARFM16$importance
+ARFM17$importance
+ARFM18$importance
+ARFM19$importance
+ARFM20$importance
+ARFM21$importance
+ARFM22$importance
+ARFM23$importance
+ARFM24$importance
+ARFM25$importance
+ARFM26$importance
+ARFM27$importance
+ARFM28$importance
+ARFM29$importance
+ARFM30$importance
+ARFM31$importance
+IRF1$importance
+IRF2$importance
+IRF3$importance
+IRF4$importance
+IRF5$importance
+IRF6$importance
+IRF7$importance
+IRF8$importance
+IRF9$importance
+IRF10$importance
+IRF11$importance
+IRF12$importance
+IRF13$importance
+IRF14$importance
+IRF15$importance
+IRF16$importance
+IRF17$importance
+IRF18$importance
+IRF19$importance
+IRF20$importance
+IRF21$importance
+
+
+print(FGM1)
+print(FGM2)
+print(FGM3)
+print(FGM4)
+print(FGM5)
+print(FGM6)
+print(FGM7)
+print(FGM8)
+print(FGM9)
+print(FGM10)
+print(FGM11)
+print(FGM12)
+print(FGM13)
+print(FGM14)
+print(FGM15)
+print(FGM16)
+print(FGM17)
+print(FGM18)
+print(FGM19)
+print(FGM20)
+print(FGM21)
+print(FGM22)
+print(FGM23)
+print(FGM24)
+print(FGM25)
+print(FGM26)
+print(FGM27)
+print(FGM28)
+print(FGM29)
+print(FGM30)
+print(FGM31)
+
+
+```
+
+
+```{r}
+# Data Frames
+
+NE_SV1<- data.frame(
+TT=2.78,
+CAY=5.2,
+AGG=17.2,
+AYTS=-2.6,
+ATT=29,
+TD=0.5,
+INT=1,
+COMP=68.1,
+EFF=3.5,
+EM=14.29,
+TLOS=2.7,
+AVG=5.1,
+CUSH=5.6,
+SEP=2.45,
+TAY=6.9,
+CTCH=60,
+YACR=4.7,
+TT_OPP=2.6,
+CAY_OPP=3.5,
+AGG_OPP=14.1,
+AYTS_OPP=-2.1,
+ATT_OPP=25,
+TD_OPP=1.75,
+INT_OPP=0.5,
+COMP_OPP=63.6,
+EFF_OPP=3.51,
+EM_OPP=13.73,
+TLOS_OPP=2.93,
+AVG_OPP=4.6,
+CUSH_OPP=5.8,
+SEP_OPP=4.044,
+TAY_OPP=6.3,
+CTCH_OPP=71.5,
+YACR_OPP=6.5
+)
+
+
+SF_SV1 <- data.frame(TT=2.6,
+CAY=3.5,
+AGG=14.1,
+AYTS=-2.1,
+ATT=25,
+TD=1.75,
+INT=0.5,
+COMP=63.6,
+EFF=3.51,
+EM=13.73,
+TLOS=2.93,
+AVG=4.6,
+CUSH=5.8,
+SEP=4.044,
+TAY=6.3,
+CTCH=71.5,
+YACR=6.5,
+TT_OPP=2.78,
+CAY_OPP=5.2,
+AGG_OPP=17.2,
+AYTS_OPP=-2.6,
+ATT_OPP=29,
+TD_OPP=0.5,
+INT_OPP=1,
+COMP_OPP=68.1,
+EFF_OPP=3.5,
+EM_OPP=14.29,
+TLOS_OPP=2.7,
+AVG_OPP=5.1,
+CUSH_OPP=5.6,
+SEP_OPP=2.45,
+TAY_OPP=6.9,
+CTCH_OPP=60,
+YACR_OPP=4.7
+)
+
+```
+
+
+
+```{r}
+# Predictions: 
+
+NE_OP1<-predict(ARFM1,newdata=NE_SV1)
+NE_OP2<-predict(ARFM2,newdata=NE_SV1)
+NE_OP3<-predict(ARFM3,newdata=NE_SV1)
+NE_OP4<-predict(ARFM4,newdata=NE_SV1)
+NE_OP5<-predict(ARFM5,newdata=NE_SV1)
+NE_OP6<-predict(ARFM6,newdata=NE_SV1)
+NE_OP7<-predict(ARFM7,newdata=NE_SV1)
+NE_OP8<-predict(ARFM8,newdata=NE_SV1)
+NE_OP9<-predict(ARFM9,newdata=NE_SV1)
+NE_OP10<-predict(ARFM10,newdata=NE_SV1)
+NE_OP11<-predict(ARFM11,newdata=NE_SV1)
+NE_OP12<-predict(ARFM12,newdata=NE_SV1)
+NE_OP13<-predict(ARFM13,newdata=NE_SV1)
+NE_OP14<-predict(ARFM14,newdata=NE_SV1)
+NE_OP15<-predict(ARFM15,newdata=NE_SV1)
+NE_OP16<-predict(ARFM16,newdata=NE_SV1)
+NE_OP17<-predict(ARFM17,newdata=NE_SV1)
+NE_OP18<-predict(ARFM18,newdata=NE_SV1)
+NE_OP19<-predict(ARFM19,newdata=NE_SV1)
+NE_OP20<-predict(ARFM20,newdata=NE_SV1)
+NE_OP21<-predict(ARFM21,newdata=NE_SV1)
+NE_OP22<-predict(ARFM22,newdata=NE_SV1)
+NE_OP23<-predict(ARFM23,newdata=NE_SV1)
+NE_OP24<-predict(ARFM24,newdata=NE_SV1)
+NE_OP25<-predict(ARFM25,newdata=NE_SV1)
+NE_OP26<-predict(ARFM26,newdata=NE_SV1)
+NE_OP27<-predict(ARFM27,newdata=NE_SV1)
+NE_OP28<-predict(ARFM28,newdata=NE_SV1)
+NE_OP29<-predict(ARFM29,newdata=NE_SV1)
+NE_OP30<-predict(ARFM30,newdata=NE_SV1)
+NE_OP31<-predict(ARFM31,newdata=NE_SV1)
+
+NE_P1<-predict(IRF1,newdata=NE_SV1)
+NE_P2<-predict(IRF2,newdata=NE_SV1)
+NE_P3<-predict(IRF3,newdata=NE_SV1)
+NE_P4<-predict(IRF4,newdata=NE_SV1)
+NE_P5<-predict(IRF5,newdata=NE_SV1)
+NE_P6<-predict(IRF6,newdata=NE_SV1)
+NE_P7<-predict(IRF7,newdata=NE_SV1)
+NE_P8<-predict(IRF8,newdata=NE_SV1)
+NE_P9<-predict(IRF9,newdata=NE_SV1)
+NE_P10<-predict(IRF10,newdata=NE_SV1)
+NE_P11<-predict(IRF11,newdata=NE_SV1)
+NE_P12<-predict(IRF12,newdata=NE_SV1)
+NE_P13<-predict(IRF13,newdata=NE_SV1)
+NE_P14<-predict(IRF14,newdata=NE_SV1)
+NE_P15<-predict(IRF15,newdata=NE_SV1)
+NE_P16<-predict(IRF16,newdata=NE_SV1)
+NE_P17<-predict(IRF17,newdata=NE_SV1)
+NE_P18<-predict(IRF18,newdata=NE_SV1)
+NE_P19<-predict(IRF19,newdata=NE_SV1)
+NE_P20<-predict(IRF20,newdata=NE_SV1)
+NE_P21<-predict(IRF21,newdata=NE_SV1)
+
+SF_OP1<-predict(ARFM1,newdata=SF_SV1)
+SF_OP2<-predict(ARFM2,newdata=SF_SV1)
+SF_OP3<-predict(ARFM3,newdata=SF_SV1)
+SF_OP4<-predict(ARFM4,newdata=SF_SV1)
+SF_OP5<-predict(ARFM5,newdata=SF_SV1)
+SF_OP6<-predict(ARFM6,newdata=SF_SV1)
+SF_OP7<-predict(ARFM7,newdata=SF_SV1)
+SF_OP8<-predict(ARFM8,newdata=SF_SV1)
+SF_OP9<-predict(ARFM9,newdata=SF_SV1)
+SF_OP10<-predict(ARFM10,newdata=SF_SV1)
+SF_OP11<-predict(ARFM11,newdata=SF_SV1)
+SF_OP12<-predict(ARFM12,newdata=SF_SV1)
+SF_OP13<-predict(ARFM13,newdata=SF_SV1)
+SF_OP14<-predict(ARFM14,newdata=SF_SV1)
+SF_OP15<-predict(ARFM15,newdata=SF_SV1)
+SF_OP16<-predict(ARFM16,newdata=SF_SV1)
+SF_OP17<-predict(ARFM17,newdata=SF_SV1)
+SF_OP18<-predict(ARFM18,newdata=SF_SV1)
+SF_OP19<-predict(ARFM19,newdata=SF_SV1)
+SF_OP20<-predict(ARFM20,newdata=SF_SV1)
+SF_OP21<-predict(ARFM21,newdata=SF_SV1)
+SF_OP22<-predict(ARFM22,newdata=SF_SV1)
+SF_OP23<-predict(ARFM23,newdata=SF_SV1)
+SF_OP24<-predict(ARFM24,newdata=SF_SV1)
+SF_OP25<-predict(ARFM25,newdata=SF_SV1)
+SF_OP26<-predict(ARFM26,newdata=SF_SV1)
+SF_OP27<-predict(ARFM27,newdata=SF_SV1)
+SF_OP28<-predict(ARFM28,newdata=SF_SV1)
+SF_OP29<-predict(ARFM29,newdata=SF_SV1)
+SF_OP30<-predict(ARFM30,newdata=SF_SV1)
+SF_OP31<-predict(ARFM31,newdata=SF_SV1)
+
+SF_P1<-predict(IRF1,newdata=SF_SV1)
+SF_P2<-predict(IRF2,newdata=SF_SV1)
+SF_P3<-predict(IRF3,newdata=SF_SV1)
+SF_P4<-predict(IRF4,newdata=SF_SV1)
+SF_P5<-predict(IRF5,newdata=SF_SV1)
+SF_P6<-predict(IRF6,newdata=SF_SV1)
+SF_P7<-predict(IRF7,newdata=SF_SV1)
+SF_P8<-predict(IRF8,newdata=SF_SV1)
+SF_P9<-predict(IRF9,newdata=SF_SV1)
+SF_P10<-predict(IRF10,newdata=SF_SV1)
+SF_P11<-predict(IRF11,newdata=SF_SV1)
+SF_P12<-predict(IRF12,newdata=SF_SV1)
+SF_P13<-predict(IRF13,newdata=SF_SV1)
+SF_P14<-predict(IRF14,newdata=SF_SV1)
+SF_P15<-predict(IRF15,newdata=SF_SV1)
+SF_P16<-predict(IRF16,newdata=SF_SV1)
+SF_P17<-predict(IRF17,newdata=SF_SV1)
+SF_P18<-predict(IRF18,newdata=SF_SV1)
+SF_P19<-predict(IRF19,newdata=SF_SV1)
+SF_P20<-predict(IRF20,newdata=SF_SV1)
+SF_P21<-predict(IRF21,newdata=SF_SV1)
+
+NE_OP1
+NE_OP2
+NE_OP3
+NE_OP4
+NE_OP5
+NE_OP6
+NE_OP7
+NE_OP8
+NE_OP9
+NE_OP10
+NE_OP11
+NE_OP12
+NE_OP13
+NE_OP14
+NE_OP15
+NE_OP16
+NE_OP17
+NE_OP18
+NE_OP19
+NE_OP20
+NE_OP21
+NE_OP22
+NE_OP23
+NE_OP24
+NE_OP25
+NE_OP26
+NE_OP27
+NE_OP28
+NE_OP29
+NE_OP30
+NE_OP31
+
+SF_OP1
+SF_OP2
+SF_OP3
+SF_OP4
+SF_OP5
+SF_OP6
+SF_OP7
+SF_OP8
+SF_OP9
+SF_OP10
+SF_OP11
+SF_OP12
+SF_OP13
+SF_OP14
+SF_OP15
+SF_OP16
+SF_OP17
+SF_OP18
+SF_OP19
+SF_OP20
+SF_OP21
+SF_OP22
+SF_OP23
+SF_OP24
+SF_OP25
+SF_OP26
+SF_OP27
+SF_OP28
+SF_OP29
+SF_OP30
+SF_OP31
+
+
+```
+
