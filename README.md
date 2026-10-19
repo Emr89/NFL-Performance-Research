@@ -37,3 +37,9 @@ Five other original files still fail parsing. Original workbooks and dated schem
 ## Next work
 
 Recover input data with provenance and variable timing; declare the observational unit; isolate complete games/matches chronologically; fit transformations on training folds; compare against a simple baseline; regenerate figures and revise findings from held-out evidence. Retain old conclusions as historical until then.
+
+## Executed pregame-information reconstruction
+
+`scripts/evaluate_lagged_matchups.py` reads an authorized local WTP AV workbook, explicitly maps historical opponent names to team codes, constructs three-game form from prior weeks only, and evaluates a fixed logistic model on later weeks. Complete games remain together in the chronological split and bootstrap; ties, if present, are excluded from the binary win/loss evaluation. Its source hash, eligibility and model-versus-constant results are recorded privately. The pipeline was executed, but it does not reproduce the original same-game forecasting claim or establish a current Chargers model. The full archive still has unrepaired scratch files and unreproduced model families.
+
+Run from the repository root with `NFL_DATA_DIR=/path/to/authorized/workbook/folder RESEARCH_OUTPUT_DIR=/private/output python scripts/evaluate_lagged_matchups.py`. Python requirements are pinned in `requirements-reconstruction.txt`; Rscript and readxl are also needed. Source data and empirical results remain outside Git.
